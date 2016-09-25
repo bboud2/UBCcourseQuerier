@@ -42,3 +42,6 @@ We're going to attempt to work on everything together, so that no task is done i
 	   FOR NEXT TIME:
 	   	-go over bugfixes for for PUT
 	   	-start on POST
+
+
+9/27:   Next meet-up time!!
