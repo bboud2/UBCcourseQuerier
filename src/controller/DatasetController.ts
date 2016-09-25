@@ -9,7 +9,28 @@ import JSZip = require('jszip');
  * In memory representation of all datasets.
  */
 export interface Datasets {
-    [id: string]: {};
+    [id: string]: Dataset;
+}
+
+/**
+ * Representation of a json object containing a lot of courses
+ */
+export interface Dataset {
+    [id: string]: course;
+}
+
+/**
+ * Represenation of a course
+ */
+export interface course {
+    dept: string;
+    id: string;
+    avg?: number;
+    instructor?: string;
+    title?: string;
+    pass?: number;
+    fail?: number;
+    audit?: number;
 }
 
 export default class DatasetController {
@@ -51,6 +72,13 @@ export default class DatasetController {
 
         let that = this;
         return new Promise(function (fulfill, reject) {
+
+            let curr_dataset: any = that.getDataset(id);
+            if (curr_dataset != null) {
+                that.datasets[id] = curr_dataset;
+                fulfill(true);
+            }
+
             try {
                 let myZip = new JSZip();
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
