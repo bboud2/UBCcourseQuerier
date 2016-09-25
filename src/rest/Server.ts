@@ -53,14 +53,14 @@ export default class Server {
                     name: 'insightUBC'
                 });
 
-		// Serves static files for the UI.
-		that.rest.get("/public/.*", restify.serveStatic({
-		    directory: __dirname
-		}));
+                // Serves static files for the UI.
+                that.rest.get("/public/.*", restify.serveStatic({
+                    directory: __dirname
+                }));
 
                 // Loads the homepage.
                 // curl -is  http://localhost:4321/
-		that.rest.get('/', RouteHandler.getHomepage);
+                that.rest.get('/', RouteHandler.getHomepage);
 
                 // Sends a dataset. Is idempotent and can create or update a dataset id.
                 // curl localhost:4321/dataset/test --upload-file FNAME.zip
