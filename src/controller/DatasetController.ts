@@ -5,6 +5,7 @@
 import Log from "../Util";
 import JSZip = require('jszip');
 import fs = require('fs');
+import JsonParser from "./JSONParser";
 
 /**
  * In memory representation of all datasets.
@@ -21,27 +22,17 @@ export interface Dataset {
 }
 
 /**
-<<<<<<< HEAD
- * Represenation of a Course containing one or more sections
-=======
  * Represenation of a Course
->>>>>>> 92b6124332f2695cb7ec9d7a80bfca2521121d89
  */
 export interface Course {
     dept: string;
     id: string;
-<<<<<<< HEAD
     [section_id: number]: Section;
 }
 
 /**
  * Representation of a Section
  */
-=======
-    [id: string]: Section;
-}
-
->>>>>>> 92b6124332f2695cb7ec9d7a80bfca2521121d89
 export interface Section {
     avg?: number;
     instructor?: string;
@@ -110,7 +101,7 @@ export default class DatasetController {
                         let loc_period: number = fileName.search(".");
                         let dept: String = fileName.substring(0,loc_firstDigit);
                         let id: String = fileName.substring(loc_firstDigit, loc_period);
-                        let curr: Course = JSONParser.parseCourse(dept, id, file);
+                        let curr: Course = JsonParser.parseCourse(dept, id, file);
                         processedDataset[curr.dept + curr.id] = curr;
                     });
 

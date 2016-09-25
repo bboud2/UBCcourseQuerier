@@ -4,6 +4,7 @@
 
 import DatasetController from "../src/controller/DatasetController";
 import {Section} from "./DatasetController";
+import {Course} from "./DatasetController";
 
 
 /*
@@ -18,10 +19,10 @@ export default class JsonParser{
 
 
 
-    public static parseCourse(department: string, id: string, course: string): DatasetController.Course{
+    public static parseCourse(department: string, id: string, course: string): Course{
 
 
-        let returnCourse = new DatasetController.Course();  //init Course to be returned at end
+        let returnCourse = new Course();  //init Course to be returned at end
         let courseJSON: any = JSON.parse(course);           //parse Course string data into JSON
 
         returnCourse.dept = department;
@@ -34,9 +35,9 @@ export default class JsonParser{
     return returnCourse;
     }
 
-    private static parseSection(section: any): DatasetController.Section{
+    private static parseSection(section: any): Section{
 
-        let returnSection = new DatasetController.Section();  //initialize section to be returend
+        let returnSection = new Section();  //initialize section to be returend
 
         let sectionJSON = JSON.parse(section);                // turn section into JSON object
 
