@@ -25,6 +25,10 @@ export interface Dataset {
 export interface course {
     dept: string;
     id: string;
+    [id: string]: section;
+}
+
+export interface section {
     avg?: number;
     instructor?: string;
     title?: string;
