@@ -4,6 +4,7 @@
 
 import Log from "../Util";
 import JSZip = require('jszip');
+import fs = require('fs');
 
 /**
  * In memory representation of all datasets.
@@ -13,22 +14,25 @@ export interface Datasets {
 }
 
 /**
- * Representation of a json object containing a lot of courses
+ * Representation of an object containing one or more courses
  */
 export interface Dataset {
-    [id: string]: course;
+    [id: string]: Course;
 }
 
 /**
- * Represenation of a course
+ * Represenation of a Course containing one or more sections
  */
-export interface course {
+export interface Course {
     dept: string;
     id: string;
-    [id: string]: section;
+    [section_id: number]: Section;
 }
 
-export interface section {
+/**
+ * Representation of a Section
+ */
+export interface Section {
     avg?: number;
     instructor?: string;
     title?: string;
@@ -88,15 +92,19 @@ export default class DatasetController {
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
                     Log.trace('DatasetController::process(..) - unzipped');
 
-                    let processedDataset = {};
-                    // TODO: iterate through files in zip (zip.files)
-                    // The contents of the file will depend on the id provided. e.g.,
-                    // some zips will contain .html files, some will contain .json files.
-                    // You can depend on 'id' to differentiate how the zip should be handled,
-                    // although you should still be tolerant to errors.
+                    // TODO: wtf... html files?
+                    let processedDataset: Dataset = {};
+                    myZip.folder("courses").forEach(function (relativePath, file) {
+                        let fileName: String = relativePath.replace(/^.*[\\\/]/, '');
+                        let loc_firstDigit: number = fileName.search(/\d/);
+                        let loc_period: number = fileName.search(".");
+                        let dept: String = fileName.substring(0,loc_firstDigit);
+                        let id: String = fileName.substring(loc_firstDigit, loc_period);
+                        let curr: Course = JSONParser.parseCourse(dept, id, file);
+                        processedDataset[curr.dept + curr.id] = curr;
+                    });
 
                     that.save(id, processedDataset);
-
                     fulfill(true);
                 }).catch(function (err) {
                     Log.trace('DatasetController::process(..) - unzip ERROR: ' + err.message);
@@ -116,10 +124,12 @@ export default class DatasetController {
      * @param id
      * @param processedDataset
      */
-    private save(id: string, processedDataset: any) {
+    private save(id: string, processedDataset: Dataset) {
         // add it to the memory model
         this.datasets[id] = processedDataset;
 
-        // TODO: actually write to disk in the ./data directory
+        let output: string = btoa(JSON.stringify(processedDataset));
+        fs.write("./data/"+id+".json", output)
+
     }
 }
