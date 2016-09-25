@@ -21,17 +21,27 @@ export interface Dataset {
 }
 
 /**
+<<<<<<< HEAD
  * Represenation of a Course containing one or more sections
+=======
+ * Represenation of a Course
+>>>>>>> 92b6124332f2695cb7ec9d7a80bfca2521121d89
  */
 export interface Course {
     dept: string;
     id: string;
+<<<<<<< HEAD
     [section_id: number]: Section;
 }
 
 /**
  * Representation of a Section
  */
+=======
+    [id: string]: Section;
+}
+
+>>>>>>> 92b6124332f2695cb7ec9d7a80bfca2521121d89
 export interface Section {
     avg?: number;
     instructor?: string;
