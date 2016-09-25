@@ -2,7 +2,6 @@
  * Created by Ben on 9/25/2016.
  */
 
-import DatasetController from "../src/controller/DatasetController";
 import {Section} from "./DatasetController";
 import {Course} from "./DatasetController";
 
@@ -19,14 +18,11 @@ export default class JsonParser{
 
 
 
-    public static parseCourse(department: string, id: string, course: string): Course{
+    public static parseCourse(department: string, id: string, course: string): Course {
 
 
-        let returnCourse = new Course();  //init Course to be returned at end
+        let returnCourse: Course = {dept: department, id: id};  //init Course to be returned at end
         let courseJSON: any = JSON.parse(course);           //parse Course string data into JSON
-
-        returnCourse.dept = department;
-        returnCourse.id   = id;
 
         let num_sections: number = courseJSON.result.length;//init number of courses contained in file
         for(let i: number = 0; i < num_sections; i++){      //loop and parse all contained Course-sections
@@ -37,38 +33,38 @@ export default class JsonParser{
 
     private static parseSection(section: any): Section{
 
-        let returnSection = new Section();  //initialize section to be returend
+        let returnSection: Section = {avg: null, professor: null, title: null, pass: null, fail: null, audit: null};  //initialize section to be returend
 
-        let sectionJSON = JSON.parse(section);                // turn section into JSON object
+        let sectionJSON = section;                // turn section into JSON object
 
         try{                                                  //Add all fields into returnSection
-            returnSection.avg = sectionJSON.avg;              //if field DNE, handle w/ catch
+            returnSection.avg = sectionJSON.Avg;              //if field DNE, handle w/ catch
         }
         catch(err){}
 
         try{
-            returnSection.instructor = sectionJSON.instructor;
+            returnSection.professor = sectionJSON.Professor;
         }
         catch(err){}
 
         try{
-            returnSection.title = sectionJSON.title;
+            returnSection.title = sectionJSON.Title;
         }
         catch(err){}
 
         try{
-            returnSection.pass = sectionJSON.pass;
+            returnSection.pass = sectionJSON.Pass;
 
         }
         catch(err){}
 
         try{
-            returnSection.fail = sectionJSON.fail;
+            returnSection.fail = sectionJSON.Fail;
         }
         catch(err){}
 
         try{
-            returnSection.audit = sectionJSON.audit;
+            returnSection.audit = sectionJSON.Audit;
         }
         catch(err){}
 

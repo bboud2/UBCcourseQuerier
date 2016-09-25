@@ -35,7 +35,7 @@ export interface Course {
  */
 export interface Section {
     avg?: number;
-    instructor?: string;
+    professor?: string;
     title?: string;
     pass?: number;
     fail?: number;
@@ -96,12 +96,12 @@ export default class DatasetController {
                     // TODO: wtf... html files?
                     let processedDataset: Dataset = {};
                     myZip.folder("courses").forEach(function (relativePath, file) {
-                        let fileName: String = relativePath.replace(/^.*[\\\/]/, '');
+                        let fileName: string = relativePath.replace(/^.*[\\\/]/, '');
                         let loc_firstDigit: number = fileName.search(/\d/);
                         let loc_period: number = fileName.search(".");
-                        let dept: String = fileName.substring(0,loc_firstDigit);
-                        let id: String = fileName.substring(loc_firstDigit, loc_period);
-                        let curr: Course = JsonParser.parseCourse(dept, id, file);
+                        let dept: string = fileName.substring(0,loc_firstDigit);
+                        let id: string = fileName.substring(loc_firstDigit, loc_period);
+                        let curr: Course = JsonParser.parseCourse(dept, id, file.toString());
                         processedDataset[curr.dept + curr.id] = curr;
                     });
 
@@ -129,8 +129,8 @@ export default class DatasetController {
         // add it to the memory model
         this.datasets[id] = processedDataset;
 
-        let output: string = btoa(JSON.stringify(processedDataset));
-        fs.write("./data/"+id+".json", output)
+        let output: string = JSON.stringify(processedDataset);
+        fs.writeFile("./data/"+id+".json", output)
 
     }
 }
