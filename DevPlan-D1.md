@@ -23,3 +23,22 @@
 # DIVISION OF LABOR
 
 We're going to attempt to work on everything together, so that no task is done individually. Trial attempt.
+
+# PROGESS LOG
+
+9/25:  Added changes to DataSetController, done by Jordan
+		-created Process method to handle .zip files
+		-TODO:
+			-handle html files
+			bug fix
+
+	   Added PUT JSON parser, done by Ben
+	    -Handles entire class.json file and creates a course JSON object consisting of multiple sections of that course
+	    -TODO:
+	    	-Works under debug insepction, requires tests,
+	    	-Thouroughly test, and bug fix
+
+
+	   FOR NEXT TIME:
+	   	-go over bugfixes for for PUT
+	   	-start on POST
