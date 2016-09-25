@@ -16,19 +16,19 @@ export interface Datasets {
  * Representation of a json object containing a lot of courses
  */
 export interface Dataset {
-    [id: string]: course;
+    [id: string]: Course;
 }
 
 /**
- * Represenation of a course
+ * Represenation of a Course
  */
-export interface course {
+export interface Course {
     dept: string;
     id: string;
-    [id: string]: section;
+    [id: string]: Section;
 }
 
-export interface section {
+export interface Section {
     avg?: number;
     instructor?: string;
     title?: string;
