@@ -82,9 +82,12 @@ export default class DatasetController {
      * @returns {{}}
      */
     public getDataset(id: string): any {
+        Log.trace("trying to get dataset");
         if (DatasetController.containsID(this.datasets.sets, id)) {
+            Log.trace("dataset contains id");
             return DatasetController.getElementFromId(this.datasets.sets, id);
         } else {
+            Log.trace("dataset does not contain id");
             var that = this;
             fs.readFile("./data/"+id+".json", function read(err, data) {
                 if (err) {
@@ -123,7 +126,7 @@ export default class DatasetController {
      * @returns {Promise<boolean>} returns true if successful; false if the dataset was invalid (for whatever reason)
      */
     public process(id: string, data: any): Promise<boolean> {
-
+        Log.trace("process started");
         let that = this;
         return new Promise(function (fulfill, reject) {
 
@@ -133,25 +136,37 @@ export default class DatasetController {
             }
 
             try {
+                Log.trace("new zip");
                 let myZip = new JSZip();
+                var processedDataset: Dataset = {id_key: id, courses: []};
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
 
                     // TODO: wtf... html files?
-                    let processedDataset: Dataset = {id_key: id, courses: []};
+                    var iter: number = 0;
+                    var target: number = 0;
                     myZip.folder("courses").forEach(function (relativePath, file) {
+                        target++;
+                        Log.trace("new file");
                         let fileName: string = relativePath.replace(/^.*[\\\/]/, '');
                         let loc_firstDigit: number = fileName.search(/\d/);
-                        let loc_period: number = fileName.search(".");
                         let dept: string = fileName.substring(0,loc_firstDigit);
-                        let id: string = fileName.substring(loc_firstDigit, loc_period);
-                        processedDataset.courses.push(JsonParser.parseCourse(dept, id, JSON.stringify(file)));
+                        let course_num: string = fileName.substring(loc_firstDigit);
+                        file.async("string").then(function success(content: any) {
+                            processedDataset.courses.push(JsonParser.parseCourse(dept, course_num, content));
+                        }, function error(e) {
+                            Log.trace("couldn't get string from file with filename "+fileName)
+                        }).then(function () {
+                            iter++;
+                            if (iter == target) {
+                                Log.trace("saving dataset");
+                                that.save(id, processedDataset);
+                                fulfill(true);
+                            }
+                        });
                     });
-
-                    that.save(id, processedDataset);
-                    fulfill(true);
                 }).catch(function (err) {
                     reject(err);
-                });
+                })
             } catch (err) {
                 reject(err);
             }

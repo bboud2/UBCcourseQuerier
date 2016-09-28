@@ -2,6 +2,8 @@
  * Created by Ben on 9/25/2016.
  */
 
+import Log from "../Util";
+
 import {Section} from "./DatasetController";
 import {Course} from "./DatasetController";
 
@@ -14,6 +16,7 @@ export default class JsonParser{
             course_num: course_num,
             sections: []};
         let courseJSON: any = JSON.parse(course);
+        Log.trace(department + course_num);
         let num_sections: number = courseJSON.result.length;
         for (let i: number = 0; i < num_sections; i++) {
             returnCourse.sections[i] = JsonParser.parseSection(courseJSON.result[i]);
