@@ -11,24 +11,25 @@ import JsonParser from "./JSONParser";
  * In memory representation of all datasets.
  */
 export interface Datasets {
-    length: number;
-    [id: string]: any; //dataset
+    sets: Dataset[];
 }
 
 /**
  * Representation of an object containing one or more courses
  */
 export interface Dataset {
-    [id: string]: Course;
+    id_key: String;
+    courses: Course[];
 }
 
 /**
  * Represenation of a Course
  */
 export interface Course {
+    id_key: string;
     dept: string;
-    id: string;
-    [section_id: number]: Section;
+    course_num: string;
+    sections: Section[];
 }
 
 /**
@@ -48,10 +49,30 @@ export default class DatasetController {
      * All of the datasets that are in memory
      * @type {{}}
      */
-    public datasets: Datasets = {length: 0};
+    public datasets: Datasets = {sets: []};
 
     constructor() {
     }
+
+    private static containsID(array: any[], id: String): boolean {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].id_key == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static getElementFromId(array: any[], id: String): any {
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].id_key == id) {
+                return array[i];
+            }
+        }
+        return null;
+    }
+
+
     /**
      * Returns the referenced dataset. If the dataset is not in memory, it should be
      * loaded from disk and put in memory. If it is not in disk, then it should return
@@ -61,16 +82,20 @@ export default class DatasetController {
      * @returns {{}}
      */
     public getDataset(id: string): any {
-        if (this.datasets[id] != undefined) {
-            return this.datasets[id];
+        if (DatasetController.containsID(this.datasets.sets, id)) {
+            return DatasetController.getElementFromId(this.datasets.sets, id);
         } else {
             var that = this;
             fs.readFile("./data/"+id+".json", function read(err, data) {
+                if (err) {
+                    return null;
+                }
                 that.load(id, data.toString());
-                return that.datasets[id];
+                return DatasetController.getElementFromId(this.datasets.sets, id);
             });
             return null;
         }
+
     }
 
     /**
@@ -78,7 +103,7 @@ export default class DatasetController {
      * @returns {Datasets}
      */
     public getDatasets(): Datasets {
-        if (this.datasets.length > 0 ) {
+        if (this.datasets.sets.length > 0 ) {
             return this.datasets;
         }
         var that = this;
@@ -105,7 +130,6 @@ export default class DatasetController {
             let curr_dataset: any = that.getDataset(id);
             if (curr_dataset != null) {
                 fulfill(true);
-                return;
             }
 
             try {
@@ -113,14 +137,14 @@ export default class DatasetController {
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
 
                     // TODO: wtf... html files?
-                    let processedDataset: Dataset = {};
+                    let processedDataset: Dataset = {id_key: id, courses: []};
                     myZip.folder("courses").forEach(function (relativePath, file) {
                         let fileName: string = relativePath.replace(/^.*[\\\/]/, '');
                         let loc_firstDigit: number = fileName.search(/\d/);
                         let loc_period: number = fileName.search(".");
                         let dept: string = fileName.substring(0,loc_firstDigit);
                         let id: string = fileName.substring(loc_firstDigit, loc_period);
-                        processedDataset[id] = JsonParser.parseCourse(dept, id, JSON.stringify(file));
+                        processedDataset.courses.push(JsonParser.parseCourse(dept, id, JSON.stringify(file)));
                     });
 
                     that.save(id, processedDataset);
@@ -142,8 +166,13 @@ export default class DatasetController {
      * @param processedDataset
      */
     public save(id: string, processedDataset: Dataset) {
-        this.datasets[id] = processedDataset;
-        this.datasets.length += 1;
+        if (DatasetController.containsID(this.datasets.sets, id)) {
+            let oldDataset: Dataset = DatasetController.getElementFromId(this.datasets.sets, id);
+            oldDataset.id_key = processedDataset.id_key;
+            oldDataset.courses = processedDataset.courses;
+        } else {
+            this.datasets.sets.push(processedDataset);
+        }
         let output: string = JSON.stringify(processedDataset);
         fs.writeFileSync("./data/"+id+".json", output)
     }
@@ -155,7 +184,7 @@ export default class DatasetController {
      * @param stringifiedDataset
      */
     private load(id: string, stringifiedDataset: string) {
-        this.datasets[id] = JSON.parse(stringifiedDataset);
-        this.datasets.length += 1;
+        var newDataset: Dataset = {id_key: id, courses: JSON.parse(stringifiedDataset)};
+        this.datasets.sets.push(newDataset);
     }
 }

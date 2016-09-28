@@ -32,43 +32,43 @@ describe("JSONParser", function () {
 
         let result = JSONParser.parseCourse("BIOL","200",testCourse1sect);
         let actualSect: Section = {avg: 70, professor: "chen, liane", title: "fund cell bio", pass: 1087, fail: 66, audit:3};
-        let actual: Course = {dept: "BIOL", id: "200", section_id: [actualSect]};
+        let actual: Course = {id_key: "BIOL200", dept: "BIOL", course_num: "200", sections: []};
+        actual.sections.push(actualSect);
 
-        expect(result.id).to.equal(actual.id);
-        expect(result.dept).to.equal(actual.dept);
+        expect(result.id_key).to.equal(actual.id_key);
 
-        expect(result[0].avg).to.equal(actualSect.avg);
-        expect(result[0].professor).to.equal(actualSect.professor);
-        expect(result[0].title).to.equal(actualSect.title);
-        expect(result[0].pass).to.equal(actualSect.pass);
-        expect(result[0].fail).to.equal(actualSect.fail);
-        expect(result[0].audit).to.equal(actualSect.audit);
+        expect(result.sections[0].avg).to.equal(actualSect.avg);
+        expect(result.sections[0].professor).to.equal(actualSect.professor);
+        expect(result.sections[0].title).to.equal(actualSect.title);
+        expect(result.sections[0].pass).to.equal(actualSect.pass);
+        expect(result.sections[0].fail).to.equal(actualSect.fail);
+        expect(result.sections[0].audit).to.equal(actualSect.audit);
     });
 
     it("Should be able to handle a course with more than one section", function(){
 
         let result = JSONParser.parseCourse("TEST", "123", testCourse3Sections);
 
-        expect(result[0]).to.have.property("avg");      //testing avg to make sure these fields actually exist
-        expect(result[1]).to.have.property("avg");      //and having an "avg" field is enough to make them a course
-        expect(result[2]).to.have.property("avg");
-        expect(result[3]).to.be.undefined;
+        expect(result.sections[0]).to.have.property("avg");      //testing avg to make sure these fields actually exist
+        expect(result.sections[1]).to.have.property("avg");      //and having an "avg" field is enough to make them a course
+        expect(result.sections[2]).to.have.property("avg");
+        expect(result.sections[3]).to.equal(undefined);
     });
 
     it("Should be able to handle courses with a missing property", function(){
         let result: Course = JSONParser.parseCourse("test","123",testCourse1NoAvg);
 
-        expect(result[0].avg).to.be.undefined;
-        expect(result[0].professor).to.not.be.undefined;        //check that with a missing field
-        expect(result[0].title).to.not.be.undefined;            //that that field is not present
-        expect(result[0].pass).to.not.be.undefined;             //but all others are preserved
-        expect(result[0].fail).to.not.be.undefined;
-        expect(result[0].audit).to.not.be.undefined;
+        expect(result.sections[0].avg).to.equal(undefined);
+        expect(result.sections[0].professor).to.not.equal(undefined);        //check that with a missing field
+        expect(result.sections[0].title).to.not.equal(undefined);            //that that field is not present
+        expect(result.sections[0].pass).to.not.equal(undefined);             //but all others are preserved
+        expect(result.sections[0].fail).to.not.equal(undefined);
+        expect(result.sections[0].audit).to.not.equal(undefined);
 
         let result2: Course = JSONParser.parseCourse("test", "123", testCourse1NoProfandAVG);
 
-        expect(result2[0].avg).to.be.undefined;                //check that it can handle more than 1
-        expect(result2[0].professor).to.be.undefined;          // missing field
+        expect(result2.sections[0].avg).to.equal(undefined);                //check that it can handle more than 1
+        expect(result2.sections[0].professor).to.equal(undefined);          // missing field
 
     });
 

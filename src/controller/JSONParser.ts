@@ -7,51 +7,58 @@ import {Course} from "./DatasetController";
 
 export default class JsonParser{
 
-    public static parseCourse(department: string, id: string, course: string): Course {
+    public static parseCourse(department: string, course_num: string, course: string): Course {
 
-        let returnCourse: Course = {dept: department, id: id};  //init Course to be returned at end
-        let courseJSON: any = JSON.parse(course);           //parse Course string data into JSON
-
-        let num_sections: number = courseJSON.result.length;//init number of courses contained in file
-        for(let i: number = 0; i < num_sections; i++){      //loop and parse all contained sections
-            returnCourse[i] = JsonParser.parseSection(courseJSON.result[i]);
+        let returnCourse: Course = {id_key: department+course_num,
+            dept: department,
+            course_num: course_num,
+            sections: []};
+        let courseJSON: any = JSON.parse(course);
+        let num_sections: number = courseJSON.result.length;
+        for (let i: number = 0; i < num_sections; i++) {
+            returnCourse.sections[i] = JsonParser.parseSection(courseJSON.result[i]);
         }
         return returnCourse;
     }
 
     private static parseSection(section: any): Section{
+        let returnSection: Section = {
+            avg: null,
+            professor: null,
+            title: null,
+            pass: null,
+            fail: null,
+            audit: null};
 
-        let returnSection: Section = {avg: null, professor: null, title: null, pass: null, fail: null, audit: null};  //initialize section to be returend
-        let sectionJSON = section;                // turn section into JSON object
-
-        try{                                                  //Add all fields into returnSection
-            returnSection.avg = sectionJSON.Avg;              //if field DNE, handle w/ catch
+        // If field does not exist, do nothing usng catch block.
+        try{
+            returnSection.avg = section.Avg;
         }
         catch(err){}
 
         try{
-            returnSection.professor = sectionJSON.Professor;
+            returnSection.professor = section.Professor;
         }
         catch(err){}
 
         try{
-            returnSection.title = sectionJSON.Title;
+            returnSection.title = section.Title;
         }
         catch(err){}
 
         try{
-            returnSection.pass = sectionJSON.Pass;
+            returnSection.pass = section.Pass;
 
         }
         catch(err){}
 
         try{
-            returnSection.fail = sectionJSON.Fail;
+            returnSection.fail = section.Fail;
         }
         catch(err){}
 
         try{
-            returnSection.audit = sectionJSON.Audit;
+            returnSection.audit = section.Audit;
         }
         catch(err){}
 
