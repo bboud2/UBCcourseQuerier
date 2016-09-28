@@ -36,6 +36,9 @@ export interface Course {
  * Representation of a Section
  */
 export interface Section {
+    id_key: string;
+    dept: string;
+    course_num: string;
     avg?: number;
     professor?: string;
     title?: string;

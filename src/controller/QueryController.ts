@@ -30,61 +30,90 @@ export default class QueryController {
         return false;
     }
 
-    private getAllCourses(datasets: Datasets): Course[] {
-        var courseList: Course[] = [];
+    private getAllSections(datasets: Datasets): Section[] {
+        var sectionList: Section[] = [];
         for(var set in this.datasets.sets){
             let trueSet: any = set;
-            courseList.push(trueSet);
+            for (var course in trueSet.courses) {
+                let trueCourse: any = course;
+                sectionList.concat(trueCourse.sections)
+            }
         }
-        return courseList;
+        return sectionList;
     }
 
     public query(query: QueryRequest): QueryResponse {
         Log.trace('QueryController::query( ' + JSON.stringify(query) + ' )');
-        var allCourses: Course[] = this.getAllCourses(this.datasets);
+        var allSections: Section[] = this.getAllSections(this.datasets);
         let whereObject: any = query.WHERE;
         let operation: any = whereObject.keys[0];
-        var filteredCourses: Course[] = this.filterCourses(operation, whereObject[operation], allCourses, false);
+        var filteredSections: Section[] = this.filterSections(operation, whereObject[operation], allSections, false);
 
 
         return {status: 'received', ts: new Date().getTime()};
     }
 
-    private baseCourseFilter(opCode: string, rest: any, courses: Course[]): Course[] {
-        // also implement NEQ for negations
+
+
+    private baseCourseFilter(opCode: string, rest: any, sections: Section[]): Section[] {
+        let numSections: number = sections.length;
+        let filteredSections: Section[] = [];
+        let key: string = rest.keys[0];
+        let value: string | number = rest[rest.keys[0]];
+        let operator: any;
+        switch (opCode) {
+            case "GT":
+                // TODO
+            case "LT":
+            // TODO
+            case "EQ":
+            // TODO
+            case "IS":
+            // TODO
+            case "NEQ":
+            // TODO
+            case "NIS":
+            // TODO
+            default:
+                Log.trace("Invalid base op code passed to baseCourseFilter");
+                return sections;
+        }
     }
 
-    private joinFilters(opCode: string, course_arrays: Course[][]): Course[] {
+    private joinFilters(opCode: string, course_arrays: Section[][]): Section[] {
 
     }
 
-    public filterCourses(opCode: string, rest: any, courses: Course[], negated: boolean): Course[] {
-        if (opCode == "GT" || opCode == "LT" || opCode == "EQ") {
+    public filterSections(opCode: string, rest: any, sections: Section[], negated: boolean): Section[] {
+        if (opCode == "GT" || opCode == "LT" || opCode == "EQ" || opCode == "IS") {
             if (!negated) {
-                return this.baseCourseFilter(opCode, rest, courses);
+                return this.baseCourseFilter(opCode, rest, sections);
             } else {
                 switch (opCode) {
                     case "GT":
-                        return this.baseCourseFilter("LT", rest, courses);
+                        return this.baseCourseFilter("LT", rest, sections);
                     case "LT":
-                        return this.baseCourseFilter("GT", rest, courses);
+                        return this.baseCourseFilter("GT", rest, sections);
                     case "EQ":
-                        return this.baseCourseFilter("NEQ", rest, courses);
+                        return this.baseCourseFilter("NEQ", rest, sections);
+                    case "IS":
+                        return this.baseCourseFilter("NIS", rest, sections);
                     default:
                         Log.trace("Invalid base op code");
+                        return sections;
                 }
             }
         } else if (opCode == "NOT") {
             let nextOpCode: string = rest.keys[0];
             let nextRest: any = rest[rest.keys[0]];
-            return this.filterCourses(nextOpCode, nextRest, courses, !negated);
+            return this.filterSections(nextOpCode, nextRest, sections, !negated);
         } else {
             let numKeys: number = rest.keys.length;
-            var conditionArrays: Course[][] = [];
+            var conditionArrays: Section[][] = [];
             for (let i = 0; i < numKeys; i++) {
                 let nextOpCode: string = rest.keys[i];
                 let nextRest: any = rest[rest.keys[i]];
-                conditionArrays.push(this.filterCourses(nextOpCode, nextRest, courses, negated));
+                conditionArrays.push(this.filterSections(nextOpCode, nextRest, sections, negated));
             }
             return this.joinFilters(opCode, conditionArrays)
         }
