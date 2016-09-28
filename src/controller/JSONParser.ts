@@ -25,7 +25,7 @@ export default class JsonParser{
         let courseJSON: any = JSON.parse(course);           //parse Course string data into JSON
 
         let num_sections: number = courseJSON.result.length;//init number of courses contained in file
-        for(let i: number = 0; i < num_sections; i++){      //loop and parse all contained Course-sections
+        for(let i: number = 0; i < num_sections; i++){      //loop and parse all contained sections
             returnCourse[i] = JsonParser.parseSection(courseJSON.result[i]);
         }
     return returnCourse;
