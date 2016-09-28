@@ -4,8 +4,7 @@
 
 import Log from "../Util";
 
-import {Section} from "./DatasetController";
-import {Course} from "./DatasetController";
+import {Section, Course} from "./DatasetController";
 
 export default class JsonParser{
 
