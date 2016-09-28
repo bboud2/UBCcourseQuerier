@@ -18,7 +18,7 @@ export interface Datasets {
  * Representation of an object containing one or more courses
  */
 export interface Dataset {
-    id_key: String;
+    id_key: string;
     courses: Course[];
 }
 
@@ -57,7 +57,7 @@ export default class DatasetController {
     constructor() {
     }
 
-    private static containsID(array: any[], id: String): boolean {
+    private static containsID(array: any[], id: string): boolean {
         for (var i = 0; i < array.length; i++) {
             if (array[i].id_key == id) {
                 return true;
@@ -66,7 +66,7 @@ export default class DatasetController {
         return false;
     }
 
-    private static getElementFromId(array: any[], id: String): any {
+    private static getElementFromId(array: any[], id: string): any {
         for (var i = 0; i < array.length; i++) {
             if (array[i].id_key == id) {
                 return array[i];
