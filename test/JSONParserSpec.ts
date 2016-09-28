@@ -2,8 +2,6 @@
  * Created by Ben on 9/25/2016.
  */
 
-import JSONParser from "../src/controller/JSONParser"
-
 import DatasetController from "../src/controller/DatasetController";
 import JSONParser from "../src/controller/JSONParser";
 

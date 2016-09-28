@@ -43,11 +43,13 @@ export interface Section {
 }
 
 export default class DatasetController {
-
-    private datasets: Datasets = {};
+    /**
+     * All of the datasets that are in memory
+     * @type {{}}
+     */
+    public datasets: Datasets = {};
 
     constructor() {
-        Log.trace('DatasetController::init()');
     }
     /**
      * Returns the referenced dataset. If the dataset is not in memory, it should be
@@ -58,15 +60,16 @@ export default class DatasetController {
      * @returns {{}}
      */
     public getDataset(id: string): any {
-        // TODO: this should check if the dataset is on disk in ./data if it is not already in memory.
-
-        return this.datasets[id];
-    }
-
-    public getDatasets(): Datasets {
-        // TODO: if datasets is empty, load all dataset files in ./data from disk
-
-        return this.datasets;
+        if (this.datasets[id] != undefined) {
+            return this.datasets[id];
+        } else {
+            var that = this;
+            fs.readFile("./data/"+id+".json", function read(err, data) {
+                that.load(id, data.toString());
+                return that.datasets[id];
+            });
+            return null;
+        }
     }
 
     /**
@@ -77,7 +80,6 @@ export default class DatasetController {
      * @returns {Promise<boolean>} returns true if successful; false if the dataset was invalid (for whatever reason)
      */
     public process(id: string, data: any): Promise<boolean> {
-        Log.trace('DatasetController::process( ' + id + '... )');
 
         let that = this;
         return new Promise(function (fulfill, reject) {
@@ -91,7 +93,6 @@ export default class DatasetController {
             try {
                 let myZip = new JSZip();
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
-                    Log.trace('DatasetController::process(..) - unzipped');
 
                     // TODO: wtf... html files?
                     let processedDataset: Dataset = {};
@@ -101,18 +102,15 @@ export default class DatasetController {
                         let loc_period: number = fileName.search(".");
                         let dept: string = fileName.substring(0,loc_firstDigit);
                         let id: string = fileName.substring(loc_firstDigit, loc_period);
-                        let curr: Course = JsonParser.parseCourse(dept, id, file.toString());
-                        processedDataset[curr.dept + curr.id] = curr;
+                        processedDataset[id] = JsonParser.parseCourse(dept, id, JSON.stringify(file));
                     });
 
                     that.save(id, processedDataset);
                     fulfill(true);
                 }).catch(function (err) {
-                    Log.trace('DatasetController::process(..) - unzip ERROR: ' + err.message);
                     reject(err);
                 });
             } catch (err) {
-                Log.trace('DatasetController::process(..) - ERROR: ' + err);
                 reject(err);
             }
         });
@@ -125,12 +123,20 @@ export default class DatasetController {
      * @param id
      * @param processedDataset
      */
-    private save(id: string, processedDataset: Dataset) {
-        // add it to the memory model
+    public save(id: string, processedDataset: Dataset) {
         this.datasets[id] = processedDataset;
-
         let output: string = JSON.stringify(processedDataset);
         fs.writeFile("./data/"+id+".json", output)
 
+    }
+
+    /**
+     * Loads a previously processed dataset on disk into memory under the ID given by its file name.
+     *
+     * @param id
+     * @param stringifiedDataset
+     */
+    private load(id: string, stringifiedDataset: string) {
+        this.datasets[id] = JSON.parse(stringifiedDataset);
     }
 }
