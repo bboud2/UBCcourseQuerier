@@ -11,7 +11,8 @@ import JsonParser from "./JSONParser";
  * In memory representation of all datasets.
  */
 export interface Datasets {
-    [id: string]: Dataset;
+    length: number;
+    [id: string]: any; //dataset
 }
 
 /**
@@ -47,7 +48,7 @@ export default class DatasetController {
      * All of the datasets that are in memory
      * @type {{}}
      */
-    public datasets: Datasets = {};
+    public datasets: Datasets = {length: 0};
 
     constructor() {
     }
@@ -73,6 +74,23 @@ export default class DatasetController {
     }
 
     /**
+     * Returns all datasets in memory, or if none, loads all possible datasets from disk and returns them
+     * @returns {Datasets}
+     */
+    public getDatasets(): Datasets {
+        if (this.datasets.length > 0 ) {
+            return this.datasets;
+        }
+        var that = this;
+        var files = fs.readdirSync("./data/");
+        files.forEach( function(file, index ) {
+            var data = fs.readFileSync("./data/"+file);
+            that.load(file, data.toString());
+        });
+        return this.datasets;
+    }
+
+    /**
      * Process the dataset; save it to disk when complete.
      *
      * @param id
@@ -86,8 +104,8 @@ export default class DatasetController {
 
             let curr_dataset: any = that.getDataset(id);
             if (curr_dataset != null) {
-                that.datasets[id] = curr_dataset;
                 fulfill(true);
+                return;
             }
 
             try {
@@ -125,9 +143,9 @@ export default class DatasetController {
      */
     public save(id: string, processedDataset: Dataset) {
         this.datasets[id] = processedDataset;
+        this.datasets.length += 1;
         let output: string = JSON.stringify(processedDataset);
-        fs.writeFile("./data/"+id+".json", output)
-
+        fs.writeFileSync("./data/"+id+".json", output)
     }
 
     /**
@@ -138,5 +156,6 @@ export default class DatasetController {
      */
     private load(id: string, stringifiedDataset: string) {
         this.datasets[id] = JSON.parse(stringifiedDataset);
+        this.datasets.length += 1;
     }
 }

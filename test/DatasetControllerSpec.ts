@@ -7,7 +7,7 @@ import Log from "../src/Util";
 
 import JSZip = require('jszip');
 import {expect} from 'chai';
-import {Dataset, Course, Section} from "../src/controller/DatasetController";
+import {Dataset, Course, Section, Datasets} from "../src/controller/DatasetController";
 
 describe("DatasetController", function () {
 
