@@ -44,7 +44,7 @@ describe("DatasetController", function () {
     });
 
     it("Should return the correct dataset if the object is present on disk but not in memory", function() {
-        var fake_section: Section = {avg: 50, professor: "no one", title: "nothing", pass: 50, fail: 50, audit: 5};
+        var fake_section: Section = {id_key: "0", dept: "w.e", course_num: "100", avg: 50, professor: "no one", title: "nothing", pass: 50, fail: 50, audit: 5};
         var fake_course: Course = {id_key: "test dept100", dept: "test dept", course_num: "100", sections: []};
         fake_course.sections.push(fake_section);
         var fake_course2: Course = {id_key: "test dept100", dept: "test_dept2", course_num: "101", sections: []};
@@ -58,7 +58,7 @@ describe("DatasetController", function () {
     });
 
     it("Should return the correct dataset if the object is present in memory", function() {
-        var fake_section: Section = {avg: 50, professor: "no one", title: "nothing", pass: 50, fail: 50, audit: 5};
+        var fake_section: Section = {id_key: "0", dept: "w.e", course_num: "100", avg: 50, professor: "no one", title: "nothing", pass: 50, fail: 50, audit: 5};
         var fake_course: Course = {id_key: "test dept100", dept: "test dept", course_num: "100", sections: []};
         fake_course.sections.push(fake_section);
         var fake_course2: Course = {id_key: "test dept100", dept: "test_dept2", course_num: "101", sections: []};

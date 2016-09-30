@@ -31,7 +31,7 @@ describe("JSONParser", function () {
     it("Should be able to return a course with a single section with all fields avail", function () {
 
         let result = JSONParser.parseCourse("BIOL","200",testCourse1sect);
-        let actualSect: Section = {avg: 70, professor: "chen, liane", title: "fund cell bio", pass: 1087, fail: 66, audit:3};
+        let actualSect: Section = {id_key: "w.e", course_num: "100", dept: "w.w", avg: 70, professor: "chen, liane", title: "fund cell bio", pass: 1087, fail: 66, audit:3};
         let actual: Course = {id_key: "BIOL200", dept: "BIOL", course_num: "200", sections: []};
         actual.sections.push(actualSect);
 
