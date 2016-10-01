@@ -97,7 +97,6 @@ export default class RouteHandler {
         catch (err){
             res.json(400);
         }
-
-
+        return next();
     }
 }
