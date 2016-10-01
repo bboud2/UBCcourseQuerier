@@ -70,18 +70,34 @@ export default class RouteHandler {
             let query: QueryRequest = req.params;
             let datasets: Datasets = RouteHandler.datasetController.getDatasets();
             let controller = new QueryController(datasets);
-            let isValid = controller.isValid(query);
+            let isValid = QueryController.isValid(query);
 
-            if (isValid === true) {
+            try {
                 let result = controller.query(query);
                 res.json(200, result);
-            } else {
-                res.json(400, {status: 'invalid query'});
+            } catch (err) {
+                res.json(400, {status: 'invalid query: ' + err});
             }
+
         } catch (err) {
             Log.error('RouteHandler::postQuery(..) - ERROR: ' + err);
             res.send(403);
         }
         return next();
+    }
+
+
+    public static deleteDataset(req: restify.Request, res: restify.Response, next: restify.Next){
+        Log.trace('RouteHandler::deleteDataset(..) - params: '+ JSON.stringify(req.params));
+        try{
+            let id: string = req.params.id;
+            RouteHandler.datasetController.delete(id);
+            res.json(204);
+        }
+        catch (err){
+            res.json(400);
+        }
+
+
     }
 }
