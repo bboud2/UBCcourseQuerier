@@ -24,30 +24,30 @@ export default class QueryController {
         this.datasets = datasets;
     }
 
-    public isValid(query: QueryRequest): boolean {
+    public static isValid(query: QueryRequest): boolean {
         if (typeof query !== 'undefined' && query !== null && Object.keys(query).length > 0) {
             return true;
         }
-        return false;
+        throw("Query is undefined");
     }
 
-    private getAllSections(datasets: Datasets): Section[] {
+    private getAllSections(): Section[] {
         var sectionList: Section[] = [];
-        for(var set in this.datasets.sets){
-            let trueSet: any = set;
-            for (var course in trueSet.courses) {
-                let trueCourse: any = course;
-                sectionList.concat(trueCourse.sections)
+        for(let i = 0; i < this.datasets.sets.length; i++){
+            for (let j = 0; j < this.datasets.sets[i].courses.length; j++) {
+                sectionList = sectionList.concat(this.datasets.sets[i].courses[j].sections)
             }
         }
         return sectionList;
     }
 
     public query(query: QueryRequest): QueryResponse {
-        Log.trace('QueryController::query( ' + JSON.stringify(query) + ' )');
-        var allSections: Section[] = this.getAllSections(this.datasets);
+        if (!QueryController.isValid(query)) {
+            return {}
+        }
+        var allSections: Section[] = this.getAllSections();
         let whereObject: any = query.WHERE;
-        let operation: any = whereObject.keys[0];
+        let operation: any = Object.keys(whereObject)[0];
         var filteredSections: Section[] = QueryController.filterSections(operation, whereObject[operation], allSections, false);
 
         let trueGet: any = [];
@@ -94,17 +94,15 @@ export default class QueryController {
                 key = "audit";
                 break;
             default:
-                Log.trace("improper base key sent");
+                throw("key not corresponding to valid field: " + key);
         }
         return key;
     }
 
     private static baseCourseFilter(opCode: string, rest: any, sections: Section[]): Section[] {
-        let numSections: number = sections.length;
-        let filteredSections: Section[] = [];
-        let key: string = rest.keys[0];
+        let key: string = Object.keys(rest)[0];
         key = QueryController.convertFieldNames(key);
-        let value: string | number = rest[rest.keys[0]];
+        let value: string | number = rest[Object.keys(rest)[0]];
         let operator: any;
         switch (opCode) {
             case "GT":
@@ -126,9 +124,10 @@ export default class QueryController {
                 operator = OperatorHelpers.StringIsNotEqualTo;
                 break;
             default:
-                Log.trace("Invalid base op code passed to baseCourseFilter");
-                return sections;
+                throw("Invalid base op code passed to baseCourseFilter" + opCode);
         }
+        let numSections: number = sections.length;
+        let filteredSections: Section[] = [];
         for (let i = 0; i < numSections; i++) {
             let currSection: any = sections[i];
             if (operator(currSection, key, value)) {
@@ -172,8 +171,7 @@ export default class QueryController {
                 }
                 break;
             default:
-                Log.trace("Invalid logical operator given to join filter");
-                return section_arrays[0];
+                throw("Invalid logical operator given to join filter: " + opCode);
         }
         return filtered_sections;
     }
@@ -193,28 +191,30 @@ export default class QueryController {
                     case "IS":
                         return QueryController.baseCourseFilter("NIS", rest, sections);
                     default:
-                        Log.trace("Invalid base op code");
-                        return sections;
+                        throw("Invalid base op code: " + opCode);
                 }
             }
         } else if (opCode == "NOT") {
-            let nextOpCode: string = rest.keys[0];
-            let nextRest: any = rest[rest.keys[0]];
+            let nextOpCode: string = Object.keys(rest)[0];
+            let nextRest: any = rest[Object.keys(rest)[0]];
             return QueryController.filterSections(nextOpCode, nextRest, sections, !negated);
-        } else {
-            let numKeys: number = rest.keys.length;
+        } else if (opCode == "OR" || opCode == "AND") {
+            let numKeys: number = Object.keys(rest).length;
             var conditionArrays: Section[][] = [];
             for (let i = 0; i < numKeys; i++) {
-                let nextOpCode: string = rest.keys[i];
-                let nextRest: any = rest[rest.keys[i]];
+                let conditionObject: any = rest[Object.keys(rest)[i]];
+                let nextOpCode: string = Object.keys(conditionObject)[0];
+                let nextRest: any = conditionObject[nextOpCode];
                 conditionArrays.push(QueryController.filterSections(nextOpCode, nextRest, sections, negated));
             }
             return QueryController.joinFilters(opCode, conditionArrays)
+        } else {
+            throw("Invalid opCode: " + opCode)
         }
     }
 
-    private static orderSections(filteredSections: Section[], instructions: string):Section[] {
-        switch (instructions) {
+    private static orderSections(filteredSections: Section[], instruction: string):Section[] {
+        switch (instruction) {
             case "courses_dept":
                 return filteredSections.sort(OperatorHelpers.deptCompare);
             case "courses_id":
@@ -231,23 +231,23 @@ export default class QueryController {
                 return filteredSections.sort(OperatorHelpers.failCompare);
             case "courses_audit":
                 return filteredSections.sort(OperatorHelpers.auditCompare);
+            default:
+                throw("Invalid instruction for ordering: " + instruction);
         }
-        return filteredSections;
     }
 
     private static displaySections(sectionArray: Section[], colTypes: string[]): any{
         let returnObjectArray: any[] = [];
         let convertedColumnTypes: string[] = [];
-        for(var z in colTypes){
-            let convertedField: string = QueryController.convertFieldNames(z);
+        for(let z = 0; z < colTypes.length; z++){
+            let convertedField: string = QueryController.convertFieldNames(colTypes[z]);
             convertedColumnTypes.push(convertedField);
         }
-
-        for(var s in sectionArray){       //create column objects and push into returnObjectArray
+        let trueSectionArray: any = sectionArray;
+        for(let s = 0; s < trueSectionArray.length; s++){       //create column objects and push into returnObjectArray
             let columnObject: any = {};
-            let trueSection: any = s;
             for(let i = 0; i < convertedColumnTypes.length; i++){
-                columnObject[colTypes[i]] = trueSection[convertedColumnTypes[i]];
+                columnObject[colTypes[i]] = trueSectionArray[s][convertedColumnTypes[i]];
             }
             returnObjectArray.push(columnObject);
         }
