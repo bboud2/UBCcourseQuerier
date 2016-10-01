@@ -4,10 +4,12 @@
 
 import DatasetController from "../src/controller/DatasetController";
 import Log from "../src/Util";
+import fs = require('fs');
 
 import JSZip = require('jszip');
 import {expect} from 'chai';
 import {Dataset, Course, Section, Datasets} from "../src/controller/DatasetController";
+import {error} from "util";
 
 describe("DatasetController", function () {
 
@@ -17,8 +19,6 @@ describe("DatasetController", function () {
         controller = new DatasetController();
     });
 
-    afterEach(function () {
-    });
 
 
     it("Should be able to receive a Dataset", function () {
@@ -72,4 +72,43 @@ describe("DatasetController", function () {
         expect(result).to.equal(fake_dataset);
     });
 
+
+    it("Should be able to delete a dataset from disk", function(){
+        var fake_section: Section = {id_key: "0", dept: "w.e", course_num: "100", avg: 50, professor: "no one", title: "nothing", pass: 50, fail: 50, audit: 5};
+        var fake_course: Course = {id_key: "test dept100", dept: "test dept", course_num: "100", sections: []};
+        fake_course.sections.push(fake_section);
+        var fake_course2: Course = {id_key: "test dept100", dept: "test_dept2", course_num: "101", sections: []};
+        fake_course2.sections.push(fake_section);
+        var fake_dataset: Dataset = {id_key: "fake", courses: []};
+        fake_dataset.courses.push(fake_course);
+        fake_dataset.courses.push(fake_course);
+        controller.save("fake", fake_dataset);
+
+        controller.delete("fake");
+
+        expect(function(){
+            fs.statSync("./data/fake.json");
+        }
+        ).to.throw(Error);
+    })
+
+    it("Should be able to delete a dataset from memory", function(){
+        var fake_section: Section = {id_key: "0", dept: "w.e", course_num: "100", avg: 50, professor: "no one", title: "nothing", pass: 50, fail: 50, audit: 5};
+        var fake_course: Course = {id_key: "test dept100", dept: "test dept", course_num: "100", sections: []};
+        fake_course.sections.push(fake_section);
+        var fake_course2: Course = {id_key: "test dept100", dept: "test_dept2", course_num: "101", sections: []};
+        fake_course2.sections.push(fake_section);
+        var fake_dataset: Dataset = {id_key: "fake", courses: []};
+        fake_dataset.courses.push(fake_course);
+        fake_dataset.courses.push(fake_course);
+        var fake_dataset2: Dataset = {id_key: "fake2", courses: []};
+        fake_dataset2.courses.push(fake_course);
+        fake_dataset2.courses.push(fake_course);
+
+        controller.save("fake", fake_dataset);
+
+        controller.delete("fake2");
+
+        expect(controller.datasets.sets.length).to.equal(1);
+    })
 });

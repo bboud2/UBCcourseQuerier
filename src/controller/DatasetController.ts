@@ -189,6 +189,25 @@ export default class DatasetController {
         fs.writeFileSync("./data/"+id+".json", output)
     }
 
+    public delete(id:string) {
+        for (let set in this.datasets.sets) {
+            let trueSet: any = this.datasets.sets[set];
+            if (trueSet.id_key == id) {
+                let i = this.datasets.sets.indexOf(trueSet);
+                if (i != -1) {
+                    this.datasets.sets.splice(i);
+                }
+                break;
+            }
+        }
+        try {
+            if (fs.existsSync("./data/" + id + ".json")) {
+                fs.unlinkSync("./data/" + id + ".json");
+            }
+        }
+        catch(err){}
+    }
+
     /**
      * Loads a previously processed dataset on disk into memory under the ID given by its file name.
      *
