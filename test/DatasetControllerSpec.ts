@@ -20,6 +20,7 @@ describe("DatasetController", function () {
     afterEach(function () {
     });
 
+
     it("Should be able to receive a Dataset", function () {
         Log.test('Creating dataset');
         let content = {key: 'value'};
@@ -63,7 +64,7 @@ describe("DatasetController", function () {
         fake_course.sections.push(fake_section);
         var fake_course2: Course = {id_key: "test dept100", dept: "test_dept2", course_num: "101", sections: []};
         fake_course2.sections.push(fake_section);
-        var fake_dataset: Dataset = {id_key: "fake", courses: []};
+        var fake_dataset: Dataset = {id_key: "fake2", courses: []};
         fake_dataset.courses.push(fake_course);
         fake_dataset.courses.push(fake_course);
         controller.datasets.sets.push(fake_dataset);

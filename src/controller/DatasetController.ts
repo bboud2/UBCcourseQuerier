@@ -143,29 +143,23 @@ export default class DatasetController {
                 let myZip = new JSZip();
                 var processedDataset: Dataset = {id_key: id, courses: []};
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
-
-                    // TODO: wtf... html files?
-                    var iter: number = 0;
-                    var target: number = 0;
+                    var files: String[] = [];
                     myZip.folder("courses").forEach(function (relativePath, file) {
-                        target++;
                         Log.trace("new file");
                         let fileName: string = relativePath.replace(/^.*[\\\/]/, '');
                         let loc_firstDigit: number = fileName.search(/\d/);
                         let dept: string = fileName.substring(0,loc_firstDigit);
                         let course_num: string = fileName.substring(loc_firstDigit);
-                        file.async("string").then(function success(content: any) {
+                        file.async("string").then(function (content: any) {
                             processedDataset.courses.push(JsonParser.parseCourse(dept, course_num, content));
-                        }, function error(e) {
+                            files.push(fileName)
+                        }, function error() {
                             Log.trace("couldn't get string from file with filename "+fileName)
-                        }).then(function () {
-                            iter++;
-                            if (iter == target) {
-                                Log.trace("saving dataset");
-                                that.save(id, processedDataset);
-                                fulfill(true);
-                            }
                         });
+                    });
+                    Promise.all(files).then(function() {
+                        that.save(id, processedDataset);
+                        fulfill(true);
                     });
                 }).catch(function (err) {
                     reject(err);
