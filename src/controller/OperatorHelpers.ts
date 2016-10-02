@@ -2,19 +2,19 @@ import {Section} from "./DatasetController";
 
 export default class OperatorHelpers {
     public static GreaterThan(section: any, field: string, value: number) {
-        return section[field] > value;
+        return section[field] > Number(value);
     }
 
     public static LessThan(section: any, field: string, value: number) {
-        return section[field] < value;
+        return section[field] < Number(value);
     }
 
     public static EqualTo(section: any, field: string, value: number) {
-        return section[field] == value;
+        return section[field] == Number(value);
     }
 
     public static NotEqualTo(section: any, field: string, value: number) {
-        return section[field] != value;
+        return section[field] != Number(value);
     }
 
     public static StringIsEqualTo(section: any, field: string, value: string) {

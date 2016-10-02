@@ -31,24 +31,20 @@ export default class QueryController {
         throw("Query is undefined");
     }
 
-    private getAllSections(): Section[] {
+    private getAllSections(id: String): Section[] {
         var sectionList: Section[] = [];
         for(let i = 0; i < this.datasets.sets.length; i++){
-            for (let j = 0; j < this.datasets.sets[i].courses.length; j++) {
-                sectionList = sectionList.concat(this.datasets.sets[i].courses[j].sections)
+            if (this.datasets.sets[i].id_key == id) {
+                for (let j = 0; j < this.datasets.sets[i].courses.length; j++) {
+                    sectionList = sectionList.concat(this.datasets.sets[i].courses[j].sections)
+                }
             }
         }
         return sectionList;
     }
 
-    public query(query: QueryRequest): QueryResponse {
-        if (!QueryController.isValid(query)) {
-            return {}
-        }
-        var allSections: Section[] = this.getAllSections();
-        let whereObject: any = query.WHERE;
-        let operation: any = Object.keys(whereObject)[0];
-        var filteredSections: Section[] = QueryController.filterSections(operation, whereObject[operation], allSections, false);
+    public query(query: QueryRequest, id: string): QueryResponse {
+        QueryController.isValid(query);
 
         let trueGet: any = [];
         if (typeof(query.GET) == "string") {
@@ -57,6 +53,13 @@ export default class QueryController {
             trueGet = query.GET;
         }
 
+        var allSections: Section[] = this.getAllSections(id);
+        let whereObject: any = query.WHERE;
+        let operation: any = Object.keys(whereObject)[0];
+        var filteredSections: Section[] = QueryController.filterSections(operation, whereObject[operation], allSections, false);
+
+
+
         if(query.ORDER !== undefined) {
             var orderedSections: Section[] = QueryController.orderSections(filteredSections, query.ORDER);
             var display_object: any = QueryController.displaySections(orderedSections, trueGet);
@@ -64,16 +67,19 @@ export default class QueryController {
         else{
             var display_object: any = QueryController.displaySections(filteredSections, trueGet);
         }
+        Log.trace(JSON.stringify(display_object));
         return display_object;
     }
 
     private static convertFieldNames(key: string): string {
+        key = key.replace("[","");
+        key = key.replace("]","");
         switch (key) {
             case "courses_dept":
                 key = "dept";
                 break;
             case "courses_id":
-                key = "id";
+                key = "id_key";
                 break;
             case "courses_avg":
                 key = "avg";
@@ -251,8 +257,7 @@ export default class QueryController {
             }
             returnObjectArray.push(columnObject);
         }
-
-        return {"render": 'Table', "result": returnObjectArray};
+        return {"render": 'TABLE', "result": returnObjectArray};
     }
 
 }

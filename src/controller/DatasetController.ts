@@ -85,12 +85,9 @@ export default class DatasetController {
      * @returns {{}}
      */
     public getDataset(id: string): any {
-        Log.trace("trying to get dataset");
         if (DatasetController.containsID(this.datasets.sets, id)) {
-            Log.trace("dataset contains id");
             return DatasetController.getElementFromId(this.datasets.sets, id);
         } else {
-            Log.trace("dataset does not contain id");
             var that = this;
             fs.readFile("./data/"+id+".json", function read(err, data) {
                 if (err) {
@@ -114,10 +111,9 @@ export default class DatasetController {
         }
         var that = this;
         var files = fs.readdirSync("./data/");
-        files.forEach( function(file, index ) {
-            var data = fs.readFileSync("./data/"+file);
-            that.load(file, data.toString());
-        });
+        for (let i = 0; i < files.length; i++) {
+            that.load(files[i], fs.readFileSync("./data/"+files[i]).toString());
+        }
         return this.datasets;
     }
 
@@ -129,7 +125,6 @@ export default class DatasetController {
      * @returns {Promise<boolean>} returns true if successful; false if the dataset was invalid (for whatever reason)
      */
     public process(id: string, data: any): Promise<boolean> {
-        Log.trace("process started");
         let that = this;
         return new Promise(function (fulfill, reject) {
 
@@ -139,27 +134,30 @@ export default class DatasetController {
             }
 
             try {
-                Log.trace("new zip");
                 let myZip = new JSZip();
                 var processedDataset: Dataset = {id_key: id, courses: []};
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
-                    var files: String[] = [];
+                    var files: Promise<boolean>[] = [];
                     myZip.folder("courses").forEach(function (relativePath, file) {
-                        Log.trace("new file");
                         let fileName: string = relativePath.replace(/^.*[\\\/]/, '');
                         let loc_firstDigit: number = fileName.search(/\d/);
                         let dept: string = fileName.substring(0,loc_firstDigit);
                         let course_num: string = fileName.substring(loc_firstDigit);
-                        file.async("string").then(function (content: any) {
-                            processedDataset.courses.push(JsonParser.parseCourse(dept, course_num, content));
-                            files.push(fileName)
-                        }, function error() {
-                            Log.trace("couldn't get string from file with filename "+fileName)
-                        });
+                        files.push(new Promise(function (fulfill, reject) {
+                            file.async("string").then(function (content: any) {
+                                processedDataset.courses.push(JsonParser.parseCourse(dept, course_num, content));
+                                fulfill(true);
+                            }).catch(function error() {
+                                Log.trace("couldn't get string from file with filename "+fileName);
+                                reject(false);
+                            });
+                        }));
                     });
                     Promise.all(files).then(function() {
                         that.save(id, processedDataset);
                         fulfill(true);
+                    }).catch(function() {
+
                     });
                 }).catch(function (err) {
                     reject(err);
@@ -215,7 +213,7 @@ export default class DatasetController {
      * @param stringifiedDataset
      */
     private load(id: string, stringifiedDataset: string) {
-        var newDataset: Dataset = {id_key: id, courses: JSON.parse(stringifiedDataset)};
+        var newDataset: Dataset = JSON.parse(stringifiedDataset);
         this.datasets.sets.push(newDataset);
     }
 }

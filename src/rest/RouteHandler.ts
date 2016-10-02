@@ -48,13 +48,24 @@ export default class RouteHandler {
                 Log.trace('RouteHandler::postDataset(..) on end; total length: ' + req.body.length);
 
                 let controller = RouteHandler.datasetController;
-                controller.process(id, req.body).then(function (result) {
-                    Log.trace('RouteHandler::postDataset(..) - processed');
-                    res.json(200, {success: result});
-                }).catch(function (err: Error) {
-                    Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.message);
-                    res.json(400, {err: err.message});
-                });
+                let wasSeenPrevious: any = controller.getDataset(id);
+                if (wasSeenPrevious) {
+                    controller.process(id, req.body).then(function (result) {
+                        Log.trace('RouteHandler::postDataset(..) - processed');
+                        res.json(201, {success: result});
+                    }).catch(function (err: Error) {
+                        Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.message);
+                        res.json(400, {err: err.message});
+                    });
+                } else {
+                    controller.process(id, req.body).then(function (result) {
+                        Log.trace('RouteHandler::postDataset(..) - processed');
+                        res.json(204, {success: result});
+                    }).catch(function (err: Error) {
+                        Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.message);
+                        res.json(400, {err: err.message});
+                    });
+                }
             });
 
         } catch (err) {
@@ -70,10 +81,26 @@ export default class RouteHandler {
             let query: QueryRequest = req.params;
             let datasets: Datasets = RouteHandler.datasetController.getDatasets();
             let controller = new QueryController(datasets);
-            let isValid = QueryController.isValid(query);
 
             try {
-                let result = controller.query(query);
+                let trueGet: any = [];
+                if (typeof(query.GET) == "string") {
+                    trueGet.push(query.GET);
+                } else {
+                    trueGet = query.GET;
+                }
+                var id: string = trueGet[0].substr(0, trueGet[0].indexOf("_"));
+                let exists: boolean = false;
+                for (let i = 0; i < datasets.sets.length; i++) {
+                    if (datasets.sets[i].id_key == id) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    res.json(424, {missing: [id]})
+                }
+                let result = controller.query(query, id);
                 res.json(200, result);
             } catch (err) {
                 res.json(400, {status: 'invalid query: ' + err});
@@ -95,7 +122,7 @@ export default class RouteHandler {
             res.json(204);
         }
         catch (err){
-            res.json(400);
+            res.json(404);
         }
         return next();
     }
