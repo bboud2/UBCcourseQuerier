@@ -53,7 +53,7 @@ describe("QueryController", function () {
             professor: "Couch", title: "computer programming"};
         let course1: Course = {id_key: "CPSC110", course_num: "110", dept: "CPSC", sections: [section1, section2]};
         let course2: Course = {id_key: "BIOL200", course_num: "200", dept: "BIOL", sections: [section3, section4, section5]};
-        let dataset: Dataset = {id_key: "D1", courses:[course1, course2]};
+        let dataset: Dataset = {id_key: "courses", courses:[course1, course2]};
         let datasets: Datasets = {sets: [dataset]};
         let query: QueryRequest = {
             "GET": ["courses_dept", "courses_id", "courses_avg"],
@@ -70,7 +70,7 @@ describe("QueryController", function () {
             "AS": "TABLE"
         };
         let controller = new QueryController(datasets);
-        var x: any = controller.query(query);
+        var x: any = controller.query(query, "courses");
         console.log(x);
     })
 });
