@@ -94,7 +94,7 @@ export default class DatasetController {
                     return null;
                 }
                 that.load(id, data.toString());
-                return DatasetController.getElementFromId(this.datasets.sets, id);
+                return DatasetController.getElementFromId(that.datasets.sets, id);
             });
             return null;
         }

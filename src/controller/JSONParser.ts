@@ -26,7 +26,7 @@ export default class JsonParser{
         let returnSection: Section = {
             id_key: department+course_num,
             dept: department.toLowerCase(),
-            course_num: course_num,
+            course_num: course_num.toLowerCase(),
             avg: null,
             professor: null,
             title: null,
@@ -43,7 +43,7 @@ export default class JsonParser{
 
         try{
             returnSection.professor = section.Professor;
-            returnSection.id_key += section.Avg.toString();
+            returnSection.id_key += section.Professor;
         }
         catch(err){}
 

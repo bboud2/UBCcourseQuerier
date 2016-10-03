@@ -156,8 +156,8 @@ export default class QueryController {
                     let should_add: boolean;
                     for (let j = 1; j < section_arrays.length; j++) {
                         should_add = false;
-                        for (let jj = 0; jj < section_arrays[j].length; jj++) {
-                            if (section_arrays[j][jj].id_key === currKey) {
+                        for (let ii = 0; ii < section_arrays[j].length; ii++) {
+                            if (section_arrays[j][ii].id_key == currKey) {
                                 should_add = true;
                                 break;
                             }
