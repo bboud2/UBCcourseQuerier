@@ -9,7 +9,7 @@ import fs = require('fs');
 import JSZip = require('jszip');
 import {expect} from 'chai';
 import {Dataset, Course, Section, Datasets} from "../src/controller/DatasetController";
-import {error} from "util";
+import {fail} from "assert";
 
 describe("DatasetController", function () {
 
@@ -19,7 +19,15 @@ describe("DatasetController", function () {
         controller = new DatasetController();
     });
 
-
+    it("Should fail if I don't pass a zip", function (done) {
+        let x: any = {hi:"this is not a zip"};
+        let result: any = controller.process("bad", x).then(function () {
+            fail();
+            done();
+        }).catch(function() {
+            done();
+        });
+    });
 
     it("Should be able to receive a Dataset", function () {
         Log.test('Creating dataset');
@@ -87,10 +95,10 @@ describe("DatasetController", function () {
         controller.delete("fake");
 
         expect(function(){
-            fs.statSync("./data/fake.json");
-        }
+                fs.statSync("./data/fake.json");
+            }
         ).to.throw(Error);
-    })
+    });
 
     it("Should be able to delete a dataset from memory", function(){
         var fake_section: Section = {id_key: "0", dept: "w.e", course_num: "100", avg: 50, professor: "no one", title: "nothing", pass: 50, fail: 50, audit: 5};
@@ -110,5 +118,5 @@ describe("DatasetController", function () {
         controller.delete("fake2");
 
         expect(controller.datasets.sets.length).to.equal(1);
-    })
+    });
 });

@@ -128,15 +128,16 @@ export default class DatasetController {
         let that = this;
         return new Promise(function (fulfill, reject) {
 
-            let curr_dataset: any = that.getDataset(id);
-            if (curr_dataset != null) {
-                fulfill(true);
-            }
-
             try {
                 let myZip = new JSZip();
                 var processedDataset: Dataset = {id_key: id, courses: []};
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
+
+                    let curr_dataset: any = that.getDataset(id);
+                    if (curr_dataset != null) {
+                        fulfill("dataset already exists");
+                    }
+
                     var files: Promise<boolean>[] = [];
                     myZip.folder("courses").forEach(function (relativePath, file) {
                         let fileName: string = relativePath.replace(/^.*[\\\/]/, '');
@@ -156,14 +157,15 @@ export default class DatasetController {
                     Promise.all(files).then(function() {
                         that.save(id, processedDataset);
                         fulfill(true);
-                    }).catch(function() {
-
+                    }).catch(function(err) {
+                        Log.trace("couldn't save the dataset");
+                        reject("couldn't save the dataset");
                     });
                 }).catch(function (err) {
-                    reject(err);
+                    reject("couldn't read from zip");
                 })
             } catch (err) {
-                reject(err);
+                reject("this error should never be reached");
             }
         });
     }

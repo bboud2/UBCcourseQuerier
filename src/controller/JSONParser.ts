@@ -11,7 +11,7 @@ export default class JsonParser{
     public static parseCourse(department: string, course_num: string, course: string): Course {
 
         let returnCourse: Course = {id_key: department+course_num,
-            dept: department,
+            dept: department.toLowerCase(),
             course_num: course_num,
             sections: []};
         let courseJSON: any = JSON.parse(course);
@@ -25,7 +25,7 @@ export default class JsonParser{
     private static parseSection(section: any, department: string, course_num: string): Section{
         let returnSection: Section = {
             id_key: department+course_num,
-            dept: department,
+            dept: department.toLowerCase(),
             course_num: course_num,
             avg: null,
             professor: null,
