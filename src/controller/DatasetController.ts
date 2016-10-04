@@ -132,7 +132,7 @@ export default class DatasetController {
                 let myZip = new JSZip();
                 var processedDataset: Dataset = {id_key: id, courses: []};
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
-
+                let parser: any = new JsonParser();
                     let curr_dataset: any = that.getDataset(id);
                     if (curr_dataset != null) {
                         fulfill("dataset already exists");
@@ -146,7 +146,7 @@ export default class DatasetController {
                         let course_num: string = fileName.substring(loc_firstDigit);
                         files.push(new Promise(function (fulfill, reject) {
                             file.async("string").then(function (content: any) {
-                                processedDataset.courses.push(JsonParser.parseCourse(dept, course_num, content));
+                                processedDataset.courses.push(parser.parseCourse(dept, course_num, content));
                                 fulfill(true);
                             }).catch(function error() {
                                 Log.trace("couldn't get string from file with filename "+fileName);

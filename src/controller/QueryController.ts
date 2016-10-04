@@ -6,6 +6,7 @@ import {Datasets} from "./DatasetController";
 import Log from "../Util";
 import {Section} from "./DatasetController";
 import OperatorHelpers from "./OperatorHelpers";
+import fs = require('fs');
 
 export interface QueryRequest {
     GET: string|string[];
@@ -71,6 +72,8 @@ export default class QueryController {
         else{
             var display_object: any = this.displaySections(filteredSections, trueGet);
         }
+        //let output: string = JSON.stringify(display_object);
+        //fs.writeFileSync("./data/"+id+"_query.json", output);
         return display_object;
     }
 

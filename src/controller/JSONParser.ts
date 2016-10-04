@@ -8,7 +8,13 @@ import {Section, Course} from "./DatasetController";
 
 export default class JsonParser{
 
-    public static parseCourse(department: string, course_num: string, course: string): Course {
+    private next_id: number;
+
+    constructor() {
+        this.next_id = 0;
+    }
+
+    public parseCourse(department: string, course_num: string, course: string): Course {
 
         let returnCourse: Course = {id_key: department+course_num,
             dept: department.toLowerCase(),
@@ -17,14 +23,14 @@ export default class JsonParser{
         let courseJSON: any = JSON.parse(course);
         let num_sections: number = courseJSON.result.length;
         for (let i: number = 0; i < num_sections; i++) {
-            returnCourse.sections[i] = JsonParser.parseSection(courseJSON.result[i], department, course_num);
+            returnCourse.sections[i] = this.parseSection(courseJSON.result[i], department, course_num);
         }
         return returnCourse;
     }
 
-    private static parseSection(section: any, department: string, course_num: string): Section{
+    private parseSection(section: any, department: string, course_num: string): Section{
         let returnSection: Section = {
-            id_key: department+course_num,
+            id_key: this.next_id.toString(),
             dept: department.toLowerCase(),
             course_num: course_num.toLowerCase(),
             avg: null,
@@ -37,41 +43,36 @@ export default class JsonParser{
         // If field does not exist, do nothing usng catch block.
         try{
             returnSection.avg = section.Avg;
-            returnSection.id_key += section.Avg;
         }
         catch(err){}
 
         try{
             returnSection.professor = section.Professor;
-            returnSection.id_key += section.Professor;
         }
         catch(err){}
 
         try{
             returnSection.title = section.Title;
-            returnSection.id_key += section.Title;
         }
         catch(err){}
 
         try{
             returnSection.pass = section.Pass;
-            returnSection.id_key += section.Pass.toString();
 
         }
         catch(err){}
 
         try{
             returnSection.fail = section.Fail;
-            returnSection.id_key += section.Fail.toString();
         }
         catch(err){}
 
         try{
             returnSection.audit = section.Audit;
-            returnSection.id_key += section.Audit.toString();
         }
         catch(err){}
 
+        this.next_id++;
         return returnSection;
     }
 }
