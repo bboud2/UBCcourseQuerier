@@ -61,26 +61,26 @@ export default class OperatorHelpers {
         if (s2.includes("*")) {
             let s2Parts: string[] = s2.split("*");
             let is1: number = 0;
-            if (s2[0] !== "*") {
+            if (s2[0] !== "*") {                //check that first chunk is not embedded
                 is1 = s1.indexOf(s2Parts[0]);
                 if (is1 !== 0) {
-                    return negated;
+                    return negated;             //if chunk is not at the first location, return false
                 }
             }
             for (let i = 0; i < s2Parts.length; i++) {
-                is1 = s1.indexOf(s2Parts[i], is1);
+                is1 = s1.indexOf(s2Parts[i], is1);  //find [ith] chunk location
                 if (is1 === -1) {
                     return negated;
                 }
-                is1 += s2Parts[i].length;
+                is1 += s2Parts[i].length;  //shift location over to end of chunk
             }
-            if (s2[s2.length - 1] !== "*") {
+            if (s2[s2.length - 1] !== "*") {  //check if extra characters are allowed on the end
                 if (s1.length != is1) {
                     return negated;
                 }
             }
             return !negated;
-        } else {
+        } else {   //no wild card case
             if (s1.length != s2.length) {
                 return negated;
             }
