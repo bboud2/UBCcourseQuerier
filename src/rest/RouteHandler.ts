@@ -48,14 +48,14 @@ export default class RouteHandler {
                 let wasSeenPrevious: any = controller.getDataset(id);
                 if (wasSeenPrevious) {
                     controller.process(id, req.body).then(function (result) {
-                        res.json(201, {success: result});
+                        res.json(204, {success: result});
                     }).catch(function (err: Error) {
                         Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.message);
                         res.json(400, {err: err.message});
                     });
                 } else {
                     controller.process(id, req.body).then(function (result) {
-                        res.json(204, {success: result});
+                        res.json(201, {success: result});
                     }).catch(function (err: Error) {
                         Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.message);
                         res.json(400, {err: err.message});
