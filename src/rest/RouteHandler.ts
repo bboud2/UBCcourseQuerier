@@ -45,17 +45,28 @@ export default class RouteHandler {
                 req.body = concated.toString('base64');
 
                 let controller = RouteHandler.datasetController;
-                let wasSeenPrevious: any = controller.getDataset(id);
+                let wasSeenPrevious: boolean = false;
+                for (let i = 0; i < controller.datasets.sets.length; i++) {
+                    let curr_dataset: any = controller.datasets.sets[i];
+                    if (curr_dataset.id_key == id) {
+                        wasSeenPrevious = true;
+                        break;
+                    }
+                }
                 if (wasSeenPrevious) {
+                    // was seen previously
                     controller.process(id, req.body).then(function (result) {
-                        res.json(204, {success: result});
+                        Log.trace("201");
+                        res.json(201, {success: result});
                     }).catch(function (err: Error) {
                         Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.message);
                         res.json(400, {err: err.message});
                     });
                 } else {
+                    // new dataset
                     controller.process(id, req.body).then(function (result) {
-                        res.json(201, {success: result});
+                        Log.trace("204");
+                        res.json(204, {success: result});
                     }).catch(function (err: Error) {
                         Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.message);
                         res.json(400, {err: err.message});

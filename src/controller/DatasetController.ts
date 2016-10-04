@@ -93,7 +93,7 @@ export default class DatasetController {
                 if (err) {
                     return null;
                 }
-                that.load(id, data.toString());
+                that.load(data.toString());
                 return DatasetController.getElementFromId(that.datasets.sets, id);
             });
             return null;
@@ -112,7 +112,7 @@ export default class DatasetController {
         var that = this;
         var files = fs.readdirSync("./data/");
         for (let i = 0; i < files.length; i++) {
-            that.load(files[i], fs.readFileSync("./data/"+files[i]).toString());
+            that.load(fs.readFileSync("./data/"+files[i]).toString());
         }
         return this.datasets;
     }
@@ -214,7 +214,7 @@ export default class DatasetController {
      * @param id
      * @param stringifiedDataset
      */
-    private load(id: string, stringifiedDataset: string) {
+    private load(stringifiedDataset: string) {
         var newDataset: Dataset = JSON.parse(stringifiedDataset);
         this.datasets.sets.push(newDataset);
     }
