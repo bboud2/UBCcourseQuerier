@@ -2,7 +2,7 @@
  * Created by rtholmes on 2016-10-31.
  */
 
-import {Datasets, Section, Course, Dataset} from "../src/controller/DatasetController";
+import {Datasets, Section, Dataset} from "../src/controller/DatasetController";
 import QueryController from "../src/controller/QueryController";
 import {QueryRequest} from "../src/controller/QueryController";
 import Log from "../src/Util";
@@ -51,9 +51,7 @@ describe("QueryController", function () {
             professor: "Weir", title: "computer programming"};
         let section5: Section = {id_key: "section5", audit: 1, avg: 65, course_num: "200", dept: "BIOL", fail: 5, pass: 100,
             professor: "Couch", title: "computer programming"};
-        let course1: Course = {id_key: "CPSC110", course_num: "110", dept: "CPSC", sections: [section1, section2]};
-        let course2: Course = {id_key: "BIOL200", course_num: "200", dept: "BIOL", sections: [section3, section4, section5]};
-        let dataset: Dataset = {id_key: "courses", courses:[course1, course2]};
+        let dataset: Dataset = {id_key: "courses", sections:[section1,section2,section3,section4]};
         let datasets: Datasets = {sets: [dataset]};
         let query: QueryRequest = {
             "GET": ["courses_dept", "courses_id", "courses_avg"],

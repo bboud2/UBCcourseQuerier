@@ -35,11 +35,9 @@ export default class QueryController {
 
     private getAllSections(id: String): Section[] {
         var sectionList: Section[] = [];
-        for(let i = 0; i < this.datasets.sets.length; i++){
+        for (let i = 0; i < this.datasets.sets.length; i++){
             if (this.datasets.sets[i].id_key == id) {
-                for (let j = 0; j < this.datasets.sets[i].courses.length; j++) {
-                    sectionList = sectionList.concat(this.datasets.sets[i].courses[j].sections)
-                }
+                return this.datasets.sets[i].sections;
             }
         }
         return sectionList;
@@ -58,6 +56,12 @@ export default class QueryController {
         var allSections: Section[] = this.getAllSections(id);
         let whereObject: any = query.WHERE;
         let operation: any = Object.keys(whereObject)[0];
+        Log.trace(allSections.length.toString());
+        Log.trace(JSON.stringify(allSections[0]));
+        Log.trace(JSON.stringify(allSections[1000]));
+        Log.trace(JSON.stringify(allSections[2000]));
+        Log.trace(JSON.stringify(allSections[3000]));
+        Log.trace(JSON.stringify(allSections[4000]));
         var filteredSections: Section[] = this.filterSections(operation, whereObject[operation], allSections, false);
 
 

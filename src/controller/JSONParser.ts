@@ -4,7 +4,7 @@
 
 import Log from "../Util";
 
-import {Section, Course} from "./DatasetController";
+import {Section} from "./DatasetController";
 
 export default class JsonParser{
 
@@ -14,25 +14,23 @@ export default class JsonParser{
         this.next_id = 0;
     }
 
-    public parseCourse(department: string, course_num: string, course: string): Course {
+    public parseCourse(course: string): Section[] {
 
-        let returnCourse: Course = {id_key: department+course_num,
-            dept: department.toLowerCase(),
-            course_num: course_num,
-            sections: []};
         let courseJSON: any = JSON.parse(course);
         let num_sections: number = courseJSON.result.length;
+        let return_sections: Section[] = [];
         for (let i: number = 0; i < num_sections; i++) {
-            returnCourse.sections[i] = this.parseSection(courseJSON.result[i], department, course_num);
+            return_sections.push(this.parseSection(courseJSON.result[i]));
         }
-        return returnCourse;
+        //Log.trace(JSON.stringify(return_sections[0]));
+        return return_sections;
     }
 
-    private parseSection(section: any, department: string, course_num: string): Section{
+    private parseSection(section: any): Section {
         let returnSection: Section = {
             id_key: this.next_id.toString(),
-            dept: department.toLowerCase(),
-            course_num: course_num.toLowerCase(),
+            dept: null,
+            course_num: null,
             avg: null,
             professor: null,
             title: null,
@@ -41,6 +39,16 @@ export default class JsonParser{
             audit: null};
 
         // If field does not exist, do nothing usng catch block.
+        try{
+            returnSection.dept = section.Subject;
+        }
+        catch(err){}
+
+        try{
+            returnSection.course_num = section.Course;
+        }
+        catch(err){}
+
         try{
             returnSection.avg = section.Avg;
         }

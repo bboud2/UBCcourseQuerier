@@ -15,20 +15,10 @@ export interface Datasets {
 }
 
 /**
- * Representation of an object containing one or more courses
+ * Representation of an object containing one or more sections
  */
 export interface Dataset {
     id_key: string;
-    courses: Course[];
-}
-
-/**
- * Represenation of a Course
- */
-export interface Course {
-    id_key: string;
-    dept: string;
-    course_num: string;
     sections: Section[];
 }
 
@@ -37,8 +27,8 @@ export interface Course {
  */
 export interface Section {
     id_key: string;
-    dept: string;
-    course_num: string;
+    dept?: string;
+    course_num?: string;
     avg?: number;
     professor?: string;
     title?: string;
@@ -129,7 +119,7 @@ export default class DatasetController {
         return new Promise(function (fulfill, reject) {
             try {
                 let myZip = new JSZip();
-                var processedDataset: Dataset = {id_key: id, courses: []};
+                var processedDataset: Dataset = {id_key: id, sections: []};
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
                 let parser: any = new JsonParser();
                     let regObject: RegExp = new RegExp(id);
@@ -139,16 +129,12 @@ export default class DatasetController {
                     }
                     var files: Promise<boolean>[] = [];
                     zip.folder(id).forEach(function (relativePath, file) {
-                        let fileName: string = relativePath.replace(/^.*[\\\/]/, '');
-                        let loc_firstDigit: number = fileName.search(/\d/);
-                        let dept: string = fileName.substring(0,loc_firstDigit);
-                        let course_num: string = fileName.substring(loc_firstDigit);
                         files.push(new Promise(function (fulfill, reject) {
                             file.async("string").then(function (content: any) {
-                                processedDataset.courses.push(parser.parseCourse(dept, course_num, content));
+                                processedDataset.sections = processedDataset.sections.concat(parser.parseCourse(content));
                                 fulfill(true);
                             }).catch(function error() {
-                                Log.trace("couldn't get string from file with filename "+fileName);
+                                Log.trace("couldn't get string from file with filename");
                                 reject(false);
                             });
                         }));
@@ -180,7 +166,7 @@ export default class DatasetController {
         if (DatasetController.containsID(this.datasets.sets, id)) {
             let oldDataset: Dataset = DatasetController.getElementFromId(this.datasets.sets, id);
             oldDataset.id_key = processedDataset.id_key;
-            oldDataset.courses = processedDataset.courses;
+            oldDataset.sections = processedDataset.sections;
         } else {
             this.datasets.sets.push(processedDataset);
         }
