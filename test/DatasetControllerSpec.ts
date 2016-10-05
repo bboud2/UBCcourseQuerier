@@ -31,9 +31,9 @@ describe("DatasetController", function () {
 
     it("Should be able to receive a Dataset", function () {
         Log.test('Creating dataset');
-        let content = {key: 'value'};
+        let content: any = {"result":[],"rank":0};
         let zip = new JSZip();
-        zip.file('content.obj', JSON.stringify(content));
+        zip.file('setA/content.json', JSON.stringify(content));
         const opts = {
             compression: 'deflate', compressionOptions: {level: 2}, type: 'base64'
         };
