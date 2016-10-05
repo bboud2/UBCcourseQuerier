@@ -185,22 +185,14 @@ export default class DatasetController {
     }
 
     public delete(id:string) {
-        for (let set in this.datasets.sets) {
-            let trueSet: any = this.datasets.sets[set];
+        fs.unlinkSync("./data/" + id + ".json");
+        for (let i = 0; i < this.datasets.sets.length; i ++) {
+            let trueSet: Dataset = this.datasets.sets[i];
             if (trueSet.id_key == id) {
-                let i = this.datasets.sets.indexOf(trueSet);
-                if (i != -1) {
-                    this.datasets.sets.splice(i);
-                }
+                this.datasets.sets.splice(i, 1);
                 break;
             }
         }
-        try {
-            if (fs.existsSync("./data/" + id + ".json")) {
-                fs.unlinkSync("./data/" + id + ".json");
-            }
-        }
-        catch(err){}
     }
 
     /**

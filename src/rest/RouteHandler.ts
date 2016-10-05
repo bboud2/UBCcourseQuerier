@@ -133,7 +133,7 @@ export default class RouteHandler {
             res.json(204);
         }
         catch (err){
-            res.json(404);
+            res.json(404, {status: 'cant delete dataset: ' + err});
         }
         return next();
     }

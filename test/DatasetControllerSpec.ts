@@ -114,8 +114,9 @@ describe("DatasetController", function () {
         fake_dataset2.courses.push(fake_course);
 
         controller.save("fake", fake_dataset);
+        controller.save("fake2", fake_dataset2);
 
-        controller.delete("fake2");
+        controller.delete("fake");
 
         expect(controller.datasets.sets.length).to.equal(1);
     });
