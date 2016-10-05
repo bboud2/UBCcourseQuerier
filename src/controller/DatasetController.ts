@@ -133,11 +133,6 @@ export default class DatasetController {
                 var processedDataset: Dataset = {id_key: id, courses: []};
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
                 let parser: any = new JsonParser();
-                    let curr_dataset: any = that.getDataset(id);
-                    if (curr_dataset != null) {
-                        fulfill("dataset already exists");
-                    }
-
                     var files: Promise<boolean>[] = [];
                     myZip.folder("courses").forEach(function (relativePath, file) {
                         let fileName: string = relativePath.replace(/^.*[\\\/]/, '');
