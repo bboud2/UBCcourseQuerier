@@ -29,6 +29,21 @@ export default class RouteHandler {
         });
     }
 
+    private static datasetAlreadyPresent(controller: DatasetController, id: string): boolean {
+        for (let i = 0; i < controller.datasets.sets.length; i++) {
+            let curr_dataset: any = controller.datasets.sets[i];
+            if (curr_dataset.id_key == id) {
+                return true;
+            }
+        }
+        try {
+            fs.readFileSync("./data/"+id+".json");
+            return true;
+        } catch (err) {
+            return false;
+        }
+    }
+
     public static  putDataset(req: restify.Request, res: restify.Response, next: restify.Next) {
         try {
             var id: string = req.params.id;
@@ -43,16 +58,8 @@ export default class RouteHandler {
             req.once('end', function () {
                 let concated = Buffer.concat(buffer);
                 req.body = concated.toString('base64');
-
                 let controller = RouteHandler.datasetController;
-                let wasSeenPrevious: boolean = false;
-                for (let i = 0; i < controller.datasets.sets.length; i++) {
-                    let curr_dataset: any = controller.datasets.sets[i];
-                    if (curr_dataset.id_key == id) {
-                        wasSeenPrevious = true;
-                        break;
-                    }
-                }
+                let wasSeenPrevious: boolean = RouteHandler.datasetAlreadyPresent(controller, id);
                 if (wasSeenPrevious) {
                     // was seen previously
                     controller.process(id, req.body).then(function (result) {
