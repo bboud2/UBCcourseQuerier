@@ -65,26 +65,30 @@ export default class RouteHandler {
                     controller.process(id, req.body).then(function (result) {
                         Log.trace("201");
                         res.json(201, {success: result});
-                    }).catch(function (err: Error) {
-                        Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.message);
-                        res.json(400, {err: err.message});
+                        return next();
+                    }).catch(function (err) {
+                        Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err);
+                        res.json(400, {error: err});
+                        return next();
                     });
                 } else {
                     // new dataset
                     controller.process(id, req.body).then(function (result) {
                         Log.trace("204");
                         res.json(204, {success: result});
-                    }).catch(function (err: Error) {
-                        Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.message);
-                        res.json(400, {err: err.message});
+                        return next();
+                    }).catch(function (err) {
+                        Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err);
+                        res.json(400, {error: err});
+                        return next();
                     });
                 }
             });
         } catch (err) {
-            Log.error('RouteHandler::postDataset(..) - ERROR: ' + err.message);
-            res.send(400, {err: err.message});
+            Log.error('RouteHandler::postDataset(..) - ERROR: ' + err);
+            res.send(400, {err: err});
+            return next();
         }
-        return next();
     }
 
     public static postQuery(req: restify.Request, res: restify.Response, next: restify.Next) {
@@ -109,19 +113,22 @@ export default class RouteHandler {
                     }
                 }
                 if (!exists) {
-                    res.json(424, {missing: [id]})
+                    res.json(424, {missing: id});
+                    return next();
                 }
                 let result = controller.query(query, id);
                 res.json(200, result);
+                return next();
             } catch (err) {
                 res.json(400, {status: 'invalid query: ' + err});
+                return next();
             }
 
         } catch (err) {
             Log.error('RouteHandler::postQuery(..) - ERROR: ' + err);
             res.send(403);
+            return next();
         }
-        return next();
     }
 
 

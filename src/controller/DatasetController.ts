@@ -121,12 +121,11 @@ export default class DatasetController {
                 let myZip = new JSZip();
                 var processedDataset: Dataset = {id_key: id, sections: []};
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
-                let parser: any = new JsonParser();
-                     let regObject: RegExp = new RegExp(id);
-                     if (zip.folder(regObject).length == 0) {
-                         Log.trace(JSON.stringify(zip.folder(regObject)));
-                         reject("folder in dataset corresponding to dataset ID does not exist");
-                     }
+                    let parser: any = new JsonParser();
+                    let regObject: RegExp = new RegExp(id);
+                    if (zip.folder(regObject).length == 0) {
+                        reject("folder in dataset corresponding to dataset ID does not exist");
+                    }
                     var files: Promise<boolean>[] = [];
                     zip.folder(id).forEach(function (relativePath, file) {
                         files.push(new Promise(function (fulfill, reject) {

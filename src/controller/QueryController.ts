@@ -56,12 +56,6 @@ export default class QueryController {
         var allSections: Section[] = this.getAllSections(id);
         let whereObject: any = query.WHERE;
         let operation: any = Object.keys(whereObject)[0];
-        Log.trace(allSections.length.toString());
-        Log.trace(JSON.stringify(allSections[0]));
-        Log.trace(JSON.stringify(allSections[1000]));
-        Log.trace(JSON.stringify(allSections[2000]));
-        Log.trace(JSON.stringify(allSections[3000]));
-        Log.trace(JSON.stringify(allSections[4000]));
         var filteredSections: Section[] = this.filterSections(operation, whereObject[operation], allSections, false);
 
 
