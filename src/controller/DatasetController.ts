@@ -79,13 +79,17 @@ export default class DatasetController {
             return DatasetController.getElementFromId(this.datasets.sets, id);
         } else {
             var that = this;
-            fs.readFile("./data/"+id+".json", function read(err, data) {
-                if (err) {
-                    return null;
-                }
-                that.load(data.toString());
-                return DatasetController.getElementFromId(that.datasets.sets, id);
-            });
+            try {
+                fs.readFile("./data/"+id+".json", function read(err, data) {
+                    if (err) {
+                        return null;
+                    }
+                    that.load(data.toString());
+                    return DatasetController.getElementFromId(that.datasets.sets, id);
+                });
+            } catch (err) {
+                return null;
+            }
             return null;
         }
 
@@ -100,9 +104,14 @@ export default class DatasetController {
             return this.datasets;
         }
         var that = this;
-        var files = fs.readdirSync("./data/");
-        for (let i = 0; i < files.length; i++) {
-            that.load(fs.readFileSync("./data/"+files[i]).toString());
+        try {
+            var files = fs.readdirSync("./data/");
+            for (let i = 0; i < files.length; i++) {
+                that.load(fs.readFileSync("./data/"+files[i]).toString());
+            }
+
+        } catch (err) {
+            this.datasets = {sets: []};
         }
         return this.datasets;
     }
@@ -170,10 +179,15 @@ export default class DatasetController {
             this.datasets.sets.push(processedDataset);
         }
         let output: string = JSON.stringify(processedDataset);
-        fs.writeFileSync("./data/"+id+".json", output)
+        try {
+            fs.statSync("./data");
+        } catch (err) {
+            fs.mkdirSync("./data");
+        }
+        fs.writeFileSync("./data/"+id+".json", output);
     }
 
-    public delete(id:string) {
+    public remove(id:string) {
         fs.unlinkSync("./data/" + id + ".json");
         for (let i = 0; i < this.datasets.sets.length; i ++) {
             let trueSet: Dataset = this.datasets.sets[i];

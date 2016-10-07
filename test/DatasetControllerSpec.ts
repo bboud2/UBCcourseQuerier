@@ -69,12 +69,12 @@ describe("DatasetController", function () {
     });
 
 
-    it("Should be able to delete a dataset from disk", function(){
+    it("Should be able to remove a dataset from disk", function(){
         var fake_section: Section = {id_key: "0", dept: "w.e", course_num: "100", avg: 50, professor: "no one", title: "nothing", pass: 50, fail: 50, audit: 5};
         var fake_dataset: Dataset = {id_key: "fake", sections: [fake_section]};
         controller.save("fake", fake_dataset);
 
-        controller.delete("fake");
+        controller.remove("fake");
 
         expect(function(){
                 fs.statSync("./data/fake.json");
@@ -82,7 +82,7 @@ describe("DatasetController", function () {
         ).to.throw(Error);
     });
 
-    it("Should be able to delete a dataset from memory", function(){
+    it("Should be able to remove a dataset from memory", function(){
         var fake_section: Section = {id_key: "0", dept: "w.e", course_num: "100", avg: 50, professor: "no one", title: "nothing", pass: 50, fail: 50, audit: 5};
         var fake_dataset: Dataset = {id_key: "fake", sections: [fake_section]};
         var fake_dataset2: Dataset = {id_key: "fake2", sections: [fake_section, fake_section]};
@@ -90,7 +90,7 @@ describe("DatasetController", function () {
         controller.save("fake", fake_dataset);
         controller.save("fake2", fake_dataset2);
 
-        controller.delete("fake");
+        controller.remove("fake");
 
         expect(controller.datasets.sets.length).to.equal(1);
     });
