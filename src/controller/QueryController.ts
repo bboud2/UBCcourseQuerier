@@ -27,7 +27,8 @@ export default class QueryController {
     }
 
     public static isValid(query: QueryRequest): boolean {
-        if (typeof query !== 'undefined' && query !== null && Object.keys(query).length > 0 && query.hasOwnProperty("GET")) {
+        if (typeof query !== 'undefined' && query !== null && Object.keys(query).length > 0 &&
+            query.hasOwnProperty("GET") && query.hasOwnProperty("WHERE")) {
             return true;
         }
         throw("Query is undefined");
@@ -52,22 +53,23 @@ export default class QueryController {
         } else {
             trueGet = query.GET;
         }
+        if (trueGet.length == 0) {
+            throw("You have to GET something. Queries can't get nothing");
+        }
 
         var allSections: Section[] = this.getAllSections(id);
         var filteredSections: Section[];
 
-        if(query.hasOwnProperty("WHERE")) {
-            let whereObject: any = query.WHERE;
-            let operation: any = Object.keys(whereObject)[0];
-            filteredSections = this.filterSections(operation, whereObject[operation], allSections, false);
+        let whereObject: any = query.WHERE;
+        let operation: any = Object.keys(whereObject)[0];
+        if (Object.keys(whereObject).length != 1) {
+            throw("Where has multiple or zero initial keys");
         }
-        else{
-            throw("Missing Where");
-        }
+        filteredSections = this.filterSections(operation, whereObject[operation], allSections, false);
 
         var asType: string = query.AS;
 
-        if(asType != "TABLE"){
+        if(asType != "TABLE") {
             throw("Invalid as type");
         }
 
@@ -82,8 +84,6 @@ export default class QueryController {
         else{
             var display_object: any = this.displaySections(filteredSections, trueGet, asType);
         }
-        //let output: string = JSON.stringify(display_object);
-        //fs.writeFileSync("./data/"+id+"_query.json", output);
         return display_object;
     }
 
@@ -220,6 +220,9 @@ export default class QueryController {
                 }
             }
         } else if (opCode == "NOT") {
+            if (Object.keys(rest).length != 1) {
+                throw("0 or 2+ keys within NOT");
+            }
             let nextOpCode: string = Object.keys(rest)[0];
             let nextRest: any = rest[Object.keys(rest)[0]];
             return this.filterSections(nextOpCode, nextRest, sections, !negated);
@@ -228,6 +231,9 @@ export default class QueryController {
             var conditionArrays: Section[][] = [];
             for (let i = 0; i < numKeys; i++) {
                 let conditionObject: any = rest[Object.keys(rest)[i]];
+                if (Object.keys(conditionObject).length != 1) {
+                    throw ("condition object within AND or OR has 0 or 2+ keys");
+                }
                 let nextOpCode: string = Object.keys(conditionObject)[0];
                 let nextRest: any = conditionObject[nextOpCode];
                 conditionArrays.push(this.filterSections(nextOpCode, nextRest, sections, negated));

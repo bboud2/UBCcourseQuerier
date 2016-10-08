@@ -107,13 +107,12 @@ describe("QueryController", function () {
         let query: any =
         {
             "GET": ["courses_dept", "courses_avg"],
-
             "ORDER": "courses_avg",
             "AS": "TABLE"
         };
         
         assert.throws(function(){
-            controller.query(query,"courses")}, "Missing Where");
+            controller.query(query,"courses")}, "Query is undefined");
         });
 
 
@@ -142,7 +141,7 @@ describe("QueryController", function () {
         //turns out this test is handled by only ordering things that are caught
         let query: QueryRequest =
         {
-            "GET": [],
+            "GET": ["courses_dept"],
             "WHERE": {
                 "GT": {
                     "courses_avg": 90
