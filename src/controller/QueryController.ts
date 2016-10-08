@@ -141,7 +141,7 @@ export default class QueryController {
         let key: string = Object.keys(rest)[0];
         key = this.convertFieldNames(key);
         let value: string | number = rest[Object.keys(rest)[0]];
-        if (opCode == "IS" || opCode == "nis") {
+        if (opCode == "IS" || opCode == "NIS") {
             QueryController.valid_string(value.toString(), true);
         }
         let operator: any;
