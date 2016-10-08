@@ -44,9 +44,22 @@ export default class QueryController {
         return sectionList;
     }
 
+    private static valid_string(str: string, stars: boolean) {
+        if (stars) {
+            if(/[^a-z\*A-Z0-9,_-]/.test(str)) {
+                throw("invalid string: " + str);
+            }
+        } else {
+            if(/[^a-zA-Z0-9,_-]/.test(str)) {
+                throw("invalid string: " + str);
+            }
+        }
+    }
+
     public query(query: QueryRequest, id: string): QueryResponse {
         QueryController.isValid(query);
         this.id = id;
+        QueryController.valid_string(id, false);
         let trueGet: any = [];
         if (typeof(query.GET) == "string") {
             trueGet.push(query.GET);
@@ -128,6 +141,9 @@ export default class QueryController {
         let key: string = Object.keys(rest)[0];
         key = this.convertFieldNames(key);
         let value: string | number = rest[Object.keys(rest)[0]];
+        if (opCode == "IS" || opCode == "nis") {
+            QueryController.valid_string(value.toString(), true);
+        }
         let operator: any;
         switch (opCode) {
             case "GT":

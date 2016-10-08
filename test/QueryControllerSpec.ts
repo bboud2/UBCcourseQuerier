@@ -84,6 +84,26 @@ describe("QueryController", function () {
         console.log(x);
     });
 
+    it("Should fail on a non-valid string within IS", function () {
+
+        let query: QueryRequest = {
+            "GET": ["courses_dept", "courses_id", "courses_avg"],
+            "WHERE": {
+                "OR": [
+                    {"AND": [
+                        {"GT": {"courses_avg": 70}},
+                        {"IS": {"courses_dept": "C%PSC"}}
+                    ]},
+                    {"EQ": {"courses_avg": 90}}
+                ]
+            },
+            "ORDER": "courses_avg",
+            "AS": "TABLE"
+        };
+        assert.throws(function(){
+            controller.query(query,"courses")}, "invalid string: C%PSC");
+    });
+
     it("Should be able to invalidate a QueryRequest with an empty GET", function(){
         let query: any =
         {
