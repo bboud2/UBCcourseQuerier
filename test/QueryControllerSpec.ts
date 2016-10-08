@@ -67,17 +67,17 @@ describe("QueryController", function () {
     it("Should successfully query given a valid query", function () {
 
         let query: QueryRequest = {
-            "GET": ["courses_dept", "courses_id", "courses_avg"],
+            "GET": ["courses_dept", "courses_id", "courses_instructor"],
             "WHERE": {
                 "OR": [
                     {"AND": [
                         {"GT": {"courses_avg": 70}},
-                        {"IS": {"courses_dept": "CPSC"}}
+                        {"IS": {"courses_dept": "cp*"}},
+                        {"NOT": {"IS": {"courses_instructor": "murphy, gail"}}}
                     ]},
-                    {"EQ": {"courses_avg": 90}}
+                    {"IS": {"courses_instructor": "*gregor*"}}
                 ]
             },
-            "ORDER": "courses_avg",
             "AS": "TABLE"
         };
         var x: any = controller.query(query, "courses");
@@ -92,7 +92,7 @@ describe("QueryController", function () {
                 "OR": [
                     {"AND": [
                         {"GT": {"courses_avg": 70}},
-                        {"IS": {"courses_dept": "C%PSC"}}
+                        {"NOT": {"IS": {"courses_dept": "C%PSC"}}}
                     ]},
                     {"EQ": {"courses_avg": 90}}
                 ]

@@ -11,7 +11,7 @@ import fs = require('fs');
 export interface QueryRequest {
     GET: string|string[];
     WHERE: {};
-    ORDER: string;
+    ORDER?: string;
     AS: string;
 }
 
@@ -28,7 +28,7 @@ export default class QueryController {
 
     public static isValid(query: QueryRequest): boolean {
         if (typeof query !== 'undefined' && query !== null && Object.keys(query).length > 0 &&
-            query.hasOwnProperty("GET") && query.hasOwnProperty("WHERE")) {
+            query.hasOwnProperty("GET") && query.hasOwnProperty("WHERE") && query.hasOwnProperty("AS")) {
             return true;
         }
         throw("Query is undefined");
@@ -45,14 +45,29 @@ export default class QueryController {
     }
 
     private static valid_string(str: string, stars: boolean) {
+        if (str.length == 0) {
+            throw("invalid string because length is 0");
+        }
         if (stars) {
-            if(/[^a-z\*A-Z0-9,_-]/.test(str)) {
+            if (str[0] == "*") {
+                str = str.substring(1);
+            }
+            if (str[str.length - 1] == "*") {
+                str = str.substring(0, str.length - 2);
+            }
+            if(/[^a-zA-Z0-9\s,_-]/.test(str)) {
                 throw("invalid string: " + str);
             }
         } else {
-            if(/[^a-zA-Z0-9,_-]/.test(str)) {
+            if(/[^a-zA-Z0-9\s,_-]/.test(str)) {
                 throw("invalid string: " + str);
             }
+        }
+    }
+
+    private static valid_number(num: number) {
+        if (num < 0) {
+            throw("invalid number because you can't have negative numbers");
         }
     }
 
@@ -143,6 +158,11 @@ export default class QueryController {
         let value: string | number = rest[Object.keys(rest)[0]];
         if (opCode == "IS" || opCode == "NIS") {
             QueryController.valid_string(value.toString(), true);
+        } else {
+            if (value.toString().length == 0) {
+                throw("empty number value");
+            }
+            QueryController.valid_number(Number(value.toString()));
         }
         let operator: any;
         switch (opCode) {

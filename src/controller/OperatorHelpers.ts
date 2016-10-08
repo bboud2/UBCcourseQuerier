@@ -25,24 +25,24 @@ export default class OperatorHelpers {
         return OperatorHelpers.compareStringsWithWildcards(section[field], value, true);
     }
 
-    public static deptCompare(a: Section, b: Section){
-        return a.dept.localeCompare(b.dept);
+    public static deptCompare(a: Section, b: Section) {
+        return OperatorHelpers.custom_compare(a.dept, b.dept);
     }
 
-    public static idCompare(a: Section,b:Section){
-        return a.dept.localeCompare(b.dept);
+    public static idCompare(a: Section,b:Section) {
+        return OperatorHelpers.custom_compare(a.course_num, b.course_num);
     }
 
-    public static avgCompare(a: Section, b:Section){
+    public static avgCompare(a: Section, b:Section) {
         return a.avg - b.avg;
     }
 
-    public static instructorCompare(a: Section, b:Section){
-        return a.professor.localeCompare(b.professor);
+    public static instructorCompare(a: Section, b:Section) {
+        return OperatorHelpers.custom_compare(a.professor, b.professor);
     }
 
     public static titleCompare(a: Section, b:Section){
-        return a.title.localeCompare(b.title);
+        return OperatorHelpers.custom_compare(a.title, b.title);
     }
 
     public static passCompare(a:Section, b:Section){
@@ -95,5 +95,15 @@ export default class OperatorHelpers {
 
     public static compare_arrays(a: any[], b: any[]): number {
         return a.length - b.length;
+    }
+
+    private static custom_compare(a: string, b: string) {
+        if(a < b) {
+            return -1;
+        } else if(a == b) {
+            return 0;
+        } else {
+            return 1;
+        }
     }
 }
