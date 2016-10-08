@@ -111,9 +111,9 @@ describe("QueryController", function () {
             "ORDER": "courses_avg",
             "AS": "TABLE"
         };
-        //TODO decide how to handle this situation? !!!!
+        
         assert.throws(function(){
-            controller.query(query,"courses")}, "Query is undefined");
+            controller.query(query,"courses")}, "Missing Where");
         });
 
 

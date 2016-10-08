@@ -62,7 +62,7 @@ export default class QueryController {
             filteredSections = this.filterSections(operation, whereObject[operation], allSections, false);
         }
         else{
-            filteredSections = allSections;
+            throw("Missing Where");
         }
 
         var asType: string = query.AS;
