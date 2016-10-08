@@ -122,6 +122,9 @@ export default class QueryController {
     }
 
     private baseCourseFilter(opCode: string, rest: any, sections: Section[]): Section[] {
+        if (Object.keys(rest).length != 1) {
+            throw("Base op code has multiple interior keys");
+        }
         let key: string = Object.keys(rest)[0];
         key = this.convertFieldNames(key);
         let value: string | number = rest[Object.keys(rest)[0]];
