@@ -27,7 +27,7 @@ export default class QueryController {
     }
 
     public static isValid(query: QueryRequest): boolean {
-        if (typeof query !== 'undefined' && query !== null && Object.keys(query).length > 0) {
+        if (typeof query !== 'undefined' && query !== null && Object.keys(query).length > 0 && query.hasOwnProperty("GET")) {
             return true;
         }
         throw("Query is undefined");
@@ -54,21 +54,33 @@ export default class QueryController {
         }
 
         var allSections: Section[] = this.getAllSections(id);
-        let whereObject: any = query.WHERE;
-        let operation: any = Object.keys(whereObject)[0];
-        var filteredSections: Section[] = this.filterSections(operation, whereObject[operation], allSections, false);
+        var filteredSections: Section[];
 
+        if(query.hasOwnProperty("WHERE")) {
+            let whereObject: any = query.WHERE;
+            let operation: any = Object.keys(whereObject)[0];
+            filteredSections = this.filterSections(operation, whereObject[operation], allSections, false);
+        }
+        else{
+            filteredSections = allSections;
+        }
 
+        var asType: string = query.AS;
 
-        if(query.ORDER !== undefined) {
+        if(asType != "TABLE"){
+            throw("Invalid as type");
+        }
+
+        if(query.hasOwnProperty("ORDER")) {
             if (trueGet.indexOf(query.ORDER) === -1) {
                 throw("Can't order by a non-displayed index");
             }
+
             var orderedSections: Section[] = this.orderSections(filteredSections, query.ORDER);
-            var display_object: any = this.displaySections(orderedSections, trueGet);
+            var display_object: any = this.displaySections(orderedSections, trueGet, asType);
         }
         else{
-            var display_object: any = this.displaySections(filteredSections, trueGet);
+            var display_object: any = this.displaySections(filteredSections, trueGet, asType);
         }
         //let output: string = JSON.stringify(display_object);
         //fs.writeFileSync("./data/"+id+"_query.json", output);
@@ -249,7 +261,7 @@ export default class QueryController {
         }
     }
 
-    private displaySections(sectionArray: Section[], colTypes: string[]): any{
+    private displaySections(sectionArray: Section[], colTypes: string[], displayType: string): any{
         let returnObjectArray: any[] = [];
         let convertedColumnTypes: string[] = [];
         for(let z = 0; z < colTypes.length; z++){
@@ -264,7 +276,10 @@ export default class QueryController {
             }
             returnObjectArray.push(columnObject);
         }
-        return {"render": 'TABLE', "result": returnObjectArray};
+
+
+
+        return {"render": displayType, "result": returnObjectArray};
     }
 
 }
