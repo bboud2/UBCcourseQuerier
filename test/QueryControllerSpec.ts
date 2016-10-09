@@ -175,6 +175,60 @@ describe("QueryController", function () {
             controller.query(query,"courses")}, "Can't order by a non-displayed index");
     });
 
+    it("Should reject a query with a non-number in in the MCOMPARATOR", function(){
+
+        let query: QueryRequest =
+        {
+            "GET": ["courses_dept", "courses_avg"],
+            "WHERE": {
+                "GT": {
+                    "courses_avg": "b"
+                }
+            },
+            "ORDER": "courses_avg",
+            "AS": "TABLE"
+        };
+
+
+        let x:any = controller.query(query, "courses");
+
+        expect(function() {
+            controller.query(query,"courses")}
+        ).to.throw(Error);
+
+
+
+    });
+
+    it("Should be able to reject a query with a number value in IS", function() {
+
+
+        let query: QueryRequest =
+        {
+            "GET": ["courses_dept", "courses_avg"],
+            "WHERE": {
+                "IS": {
+                    "courses_avg": 10
+                }
+            },
+            "ORDER": "courses_avg",
+            "AS": "TABLE"
+        };
+
+        /*
+        expect(function () {
+                controller.query(query, "courses")
+            }
+        ).to.throw(Error);
+        */
+        assert.throws(function(){
+            controller.query(query,"courses")}, "Can't order by a non-displayed index");
+        
+
+    });
+
+
+
 
 
 
