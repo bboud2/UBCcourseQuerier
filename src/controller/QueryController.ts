@@ -157,8 +157,15 @@ export default class QueryController {
         key = this.convertFieldNames(key);
         let value: string | number = rest[Object.keys(rest)[0]];
         if (opCode == "IS" || opCode == "NIS") {
+            if (typeof(value) != "string") {
+                throw("non-string passed to IS or NIS");
+            }
             QueryController.valid_string(value.toString(), true);
         } else {
+            if (typeof(value) != "number") {
+                throw("string passed to numerical comparator");
+            }
+
             if (value.toString().length == 0) {
                 throw("empty number value");
             }

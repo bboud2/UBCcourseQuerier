@@ -189,14 +189,8 @@ describe("QueryController", function () {
             "AS": "TABLE"
         };
 
-
-        let x:any = controller.query(query, "courses");
-
-        expect(function() {
-            controller.query(query,"courses")}
-        ).to.throw(Error);
-
-
+        assert.throws(function(){
+            controller.query(query,"courses")}, "string passed to numerical comparator");
 
     });
 
@@ -215,15 +209,9 @@ describe("QueryController", function () {
             "AS": "TABLE"
         };
 
-        /*
-        expect(function () {
-                controller.query(query, "courses")
-            }
-        ).to.throw(Error);
-        */
+
         assert.throws(function(){
-            controller.query(query,"courses")}, "Can't order by a non-displayed index");
-        
+            controller.query(query,"courses")}, "non-string passed to IS or NIS");
 
     });
 
