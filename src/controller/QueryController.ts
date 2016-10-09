@@ -27,11 +27,22 @@ export default class QueryController {
     }
 
     public static isValid(query: QueryRequest): boolean {
+        let numKeys: number = Object.keys(query).length;
+        if(query.hasOwnProperty("ORDER")) {
+            if (numKeys > 4) {
+                throw ("at least one invalid key present in query base")
+            }
+        } else {
+            if (numKeys > 3) {
+                throw ("at least one invalid key present in query base")
+            }
+        }
+
         if (typeof query !== 'undefined' && query !== null && Object.keys(query).length > 0 &&
             query.hasOwnProperty("GET") && query.hasOwnProperty("WHERE") && query.hasOwnProperty("AS")) {
             return true;
         }
-        throw("Query is undefined");
+        throw("Query is invalid");
     }
 
     private getAllSections(id: String): Section[] {

@@ -118,7 +118,7 @@ describe("QueryController", function () {
 
         assert.throws(function(){
             controller.query(query, "courses")
-        }, "Query is undefined");
+        }, "Query is invalid");
 
 
     });
@@ -132,7 +132,7 @@ describe("QueryController", function () {
         };
         
         assert.throws(function(){
-            controller.query(query,"courses")}, "Query is undefined");
+            controller.query(query,"courses")}, "Query is invalid");
         });
 
 
@@ -215,6 +215,26 @@ describe("QueryController", function () {
 
     });
 
+    it("Should be able to reject a query with an invalid base key", function() {
+
+
+        let query: any =
+        {
+            "GET": ["courses_dept", "courses_avg"],
+            "WHERE": {
+                "IS": {
+                    "courses_avg": 10
+                }
+            },
+            "PUMPKIN": "courses_avg",
+            "AS": "TABLE"
+        };
+
+
+        assert.throws(function(){
+            controller.query(query,"courses")}, "at least one invalid key present in query base");
+
+    });
 
 
 
