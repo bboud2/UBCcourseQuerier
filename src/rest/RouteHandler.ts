@@ -106,7 +106,11 @@ export default class RouteHandler {
                 } else {
                     trueGet = query.GET;
                 }
-                var id: string = trueGet[0].substr(0, trueGet[0].indexOf("_"));
+                var under_index: number = trueGet[0].indexOf("_");
+                if (under_index == -1) {
+                    res.json(400, {failure: 'invalid query: malformed dataset id'});
+                }
+                var id: string = trueGet[0].substr(0, under_index);
                 let exists: boolean = false;
                 for (let i = 0; i < datasets.sets.length; i++) {
                     if (datasets.sets[i].id_key == id) {
