@@ -68,7 +68,7 @@ export default class RouteHandler {
                         return next();
                     }).catch(function (err) {
                         Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.toString());
-                        res.status(400).send(err.toString());
+                        res.json(400, {error: err.toString()});
                         //res.json(400, {failure: err.toString()});
                         return next();
                     });
@@ -80,7 +80,7 @@ export default class RouteHandler {
                         return next();
                     }).catch(function (err) {
                         Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.toString());
-                        res.status(400).send(err.toString());
+                        res.json(400, {error: err.toString()});
                         //res.json(400, {failure: err.toString()});
                         return next();
                     });
@@ -88,7 +88,7 @@ export default class RouteHandler {
             });
         } catch (err) {
             Log.error('RouteHandler::postDataset(..) - ERROR: ' + err);
-            res.json(400, {failure: err});
+            res.json(400, {error: err});
             return next();
         }
     }
@@ -108,7 +108,7 @@ export default class RouteHandler {
                 }
                 var under_index: number = trueGet[0].indexOf("_");
                 if (under_index == -1) {
-                    res.json(400, {failure: 'invalid query: malformed dataset id'});
+                    res.json(400, {error: 'invalid query: malformed dataset id'});
                 }
                 var id: string = trueGet[0].substr(0, under_index);
                 let exists: boolean = false;
@@ -119,17 +119,18 @@ export default class RouteHandler {
                     }
                 }
                 if (!exists) {
-                    res.json(424, {missing: id});
+                    let missing_list: string[] = [id];
+                    res.json(424, {missing: missing_list});
                 }
                 let result = controller.query(query, id);
                 res.json(200, result);
             } catch (err) {
-                res.json(400, {failure: 'invalid query: ' + err});
+                res.json(400, {error: 'invalid query: ' + err});
             }
 
         } catch (err) {
             Log.error('RouteHandler::postQuery(..) - ERROR: ' + err);
-            res.json(400, {failure: 'invalid query: ' + err});
+            res.json(400, {error: 'invalid query: ' + err});
         }
         return next();
     }
@@ -143,7 +144,7 @@ export default class RouteHandler {
             res.json(204);
         }
         catch (err){
-            res.json(404, {failure: 'cant remove dataset: ' + err});
+            res.json(404, {error: 'cant remove dataset: ' + err});
         }
         return next();
     }
