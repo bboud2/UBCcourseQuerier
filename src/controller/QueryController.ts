@@ -284,6 +284,13 @@ export default class QueryController {
             let nextRest: any = rest[Object.keys(rest)[0]];
             return this.filterSections(nextOpCode, nextRest, sections, !negated);
         } else if (opCode == "OR" || opCode == "AND") {
+            if (negated) {
+                if (opCode == "OR") {
+                    opCode = "AND";
+                } else {
+                    opCode = "OR";
+                }
+            }
             let numKeys: number = Object.keys(rest).length;
             var conditionArrays: Section[][] = [];
             for (let i = 0; i < numKeys; i++) {
