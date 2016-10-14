@@ -10,8 +10,20 @@ import fs = require('fs');
 export interface QueryRequest {
     GET: string|string[];
     WHERE: {};
+    GROUP?: string[];
+    APPLY?: {}[];
+    SORT?: sortObject;
     ORDER?: string;
     AS: string;
+}
+
+export interface sortObject {
+    ORDER: orderObject;
+}
+
+export interface orderObject {
+    dir: string;
+    keys: string[];
 }
 
 export interface QueryResponse {
