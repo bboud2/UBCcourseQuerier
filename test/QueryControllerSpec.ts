@@ -276,6 +276,59 @@ describe("QueryController", function () {
         expect(", but it didn't").to.equal("controller.query should have failed");
     });
 
+    it("Should be able to reject a query with a key that doesn't correspond to a dataset in memory", function() {
+
+
+        let query: QueryRequest =
+        {
+            "GET": ["wrong_dept", "wrong_avg"],
+            "WHERE": {
+                "GT": {
+                    "courses_avg": 10
+                }
+            },
+            "ORDER": "courses_avg",
+            "AS": "TABLE"
+        };
+
+        let expected_err: any = {ID: 424, MESSAGE: "dataset not found"};
+        try {
+            controller.query(query);
+        } catch (actual_err) {
+            expect(error_comparison.checkErrors(expected_err, actual_err)).to.equal(true);
+            return;
+        }
+        expect(", but it didn't").to.equal("controller.query should have failed");
+    });
+
+    it("Should be able to reject a query with a deep where not corresponding to a dataset in memory", function() {
+
+
+        let query: QueryRequest = {
+            "GET": ["courses_dept", "courses_id", "courses_instructor"],
+            "WHERE": {
+                "OR": [
+                    {"AND": [
+                        {"GT": {"courses_avg": 70}},
+                        {"IS": {"courses_dept": "cp*"}},
+                        {"NOT": {"IS": {"wrong_instructor": "murphy, gail"}}}
+                    ]},
+                    {"IS": {"courses_instructor": "*gregor*"}}
+                ]
+            },
+            "AS": "TABLE"
+        };
+
+        let expected_err: any = {ID: 424, MESSAGE: "Attempting to use invalid dataset in deep where"};
+        try {
+            controller.query(query);
+        } catch (actual_err) {
+            expect(error_comparison.checkErrors(expected_err, actual_err)).to.equal(true);
+            return;
+        }
+        expect(", but it didn't").to.equal("controller.query should have failed");
+    });
+
 });
 
 class error_comparison {
