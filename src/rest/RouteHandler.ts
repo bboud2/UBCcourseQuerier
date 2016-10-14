@@ -10,10 +10,13 @@ import QueryController from '../controller/QueryController';
 
 import {QueryRequest} from "../controller/QueryController";
 import Log from '../Util';
+import InsightFacade from "../controller/InsightFacade";
+import {InsightResponse} from "../controller/IInsightFacade";
 
 export default class RouteHandler {
 
     private static datasetController = new DatasetController();
+    private static insightFacade = new InsightFacade;
 
     public static getHomepage(req: restify.Request, res: restify.Response, next: restify.Next) {
         Log.trace('RoutHandler::getHomepage(..)');
@@ -58,8 +61,21 @@ export default class RouteHandler {
             req.once('end', function () {
                 let concated = Buffer.concat(buffer);
                 req.body = concated.toString('base64');
-                let controller = RouteHandler.datasetController;
+                RouteHandler.insightFacade.addDataset(id,req.body).then(function (result){
+                    res.json(result.code, result.body);
+                });
+
+            });
+        } catch (err) {
+            Log.error('RouteHandler::postDataset(..) - ERROR: ' + err);
+            res.json(400, {error: err});
+            return next();
+        }
+    }
+
+                /*
                 let wasSeenPrevious: boolean = RouteHandler.datasetAlreadyPresent(controller, id);
+
                 if (wasSeenPrevious) {
                     // was seen previously
                     controller.process(id, req.body).then(function (result) {
@@ -85,15 +101,15 @@ export default class RouteHandler {
                         return next();
                     });
                 }
-            });
-        } catch (err) {
-            Log.error('RouteHandler::postDataset(..) - ERROR: ' + err);
-            res.json(400, {error: err});
-            return next();
-        }
-    }
+                */
+
 
     public static postQuery(req: restify.Request, res: restify.Response, next: restify.Next) {
+
+        RouteHandler.insightFacade.performQuery(req.params).then(function (result){
+            res.json(result.code,result.body);
+        });
+        /*
         try {
             let query: QueryRequest = req.params;
             let datasets: Datasets = RouteHandler.datasetController.getDatasets();
@@ -114,19 +130,16 @@ export default class RouteHandler {
             res.json(400, {error: 'invalid query: ' + err});
         }
         return next();
+        */
     }
 
 
     public static deleteDataset(req: restify.Request, res: restify.Response, next: restify.Next){
         Log.trace('RouteHandler::deleteDataset(..) - params: '+ JSON.stringify(req.params));
-        try{
-            let id: string = req.params.id;
-            RouteHandler.datasetController.remove(id);
-            res.json(204);
-        }
-        catch (err){
-            res.json(404, {error: 'cant remove dataset: ' + err});
-        }
+        let id: string = req.params.id;
+        RouteHandler.insightFacade.removeDataset(id).then(function (result){
+            res.json(result.code,result.body);
+        });
         return next();
     }
 }
