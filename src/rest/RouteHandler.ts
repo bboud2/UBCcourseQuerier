@@ -100,34 +100,15 @@ export default class RouteHandler {
             let controller = new QueryController(datasets);
 
             try {
-                let trueGet: any = [];
-                if (typeof(query.GET) == "string") {
-                    trueGet.push(query.GET);
-                } else {
-                    trueGet = query.GET;
-                }
-                var under_index: number = trueGet[0].indexOf("_");
-                if (under_index == -1) {
-                    res.json(400, {error: 'invalid query: malformed dataset id'});
-                }
-                var id: string = trueGet[0].substr(0, under_index);
-                let exists: boolean = false;
-                for (let i = 0; i < datasets.sets.length; i++) {
-                    if (datasets.sets[i].id_key == id) {
-                        exists = true;
-                        break;
-                    }
-                }
-                if (!exists) {
-                    let missing_list: string[] = [id];
-                    res.json(424, {missing: missing_list});
-                }
-                let result = controller.query(query, id);
+                let result = controller.query(query);
                 res.json(200, result);
             } catch (err) {
-                res.json(400, {error: 'invalid query: ' + err});
+                if (err.ID == 400) {
+                    res.json(400, {error: 'invalid query: ' + err.MESSAGE});
+                } else {
+                    res.json(424, {error: 'invalid query: ' + err.MESSAGE});
+                }
             }
-
         } catch (err) {
             Log.error('RouteHandler::postQuery(..) - ERROR: ' + err);
             res.json(400, {error: 'invalid query: ' + err});

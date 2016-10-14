@@ -3,7 +3,6 @@
  */
 
 import {Datasets} from "./DatasetController";
-import Log from "../Util";
 import {Section} from "./DatasetController";
 import OperatorHelpers from "./OperatorHelpers";
 import fs = require('fs');
@@ -26,38 +25,58 @@ export default class QueryController {
         this.datasets = datasets;
     }
 
-    public static isValid(query: QueryRequest): boolean {
+    public static isValid(query: QueryRequest) {
         let numKeys: number = Object.keys(query).length;
         if(query.hasOwnProperty("ORDER")) {
             if (numKeys > 4) {
-                throw ("at least one invalid key present in query base")
+                throw {ID: 400, MESSAGE: "at least one invalid key present in query base"}
             }
         } else {
             if (numKeys > 3) {
-                throw ("at least one invalid key present in query base")
+                throw  {ID: 400, MESSAGE: "at least one invalid key present in query base"}
             }
         }
 
         if (typeof query !== 'undefined' && query !== null && Object.keys(query).length > 0 &&
             query.hasOwnProperty("GET") && query.hasOwnProperty("WHERE") && query.hasOwnProperty("AS")) {
+            let trueGet: any = [];
+            if (typeof(query.GET) == "string") {
+                trueGet.push(query.GET);
+            } else {
+                trueGet = query.GET;
+            }
+            if (trueGet.length == 0) {
+                throw  {ID: 400, MESSAGE: "You have to GET something. Queries can't get nothing"};
+            }
+            for (let i = 0; i < trueGet.length; i++) {
+                if (trueGet[i].indexOf("_") == -1) {
+                    throw  {ID: 400, MESSAGE: "Malformed dataset id: " + trueGet[i]};
+                }
+            }
+            let dataset_id: string = trueGet[0].substr(0,trueGet[0].indexOf("_"));
+            for (let i = 1; i < trueGet.length; i++) {
+                QueryController.valid_string(trueGet[i], false);
+                if (trueGet[i].substr(0,trueGet[i].indexOf("_")) != dataset_id) {
+                    throw  {ID: 400, MESSAGE: "Not all get keys are for the same dataset"};
+                }
+            }
             return true;
         }
-        throw("Query is invalid");
+        throw {ID: 400, MESSAGE: "Query is invalid"}
     }
 
     private getAllSections(id: String): Section[] {
-        var sectionList: Section[] = [];
         for (let i = 0; i < this.datasets.sets.length; i++){
             if (this.datasets.sets[i].id_key == id) {
                 return this.datasets.sets[i].sections;
             }
         }
-        return sectionList;
+        throw  {ID: 424, MESSAGE: "dataset not found"};
     }
 
     private static valid_string(str: string, stars: boolean) {
         if (str.length == 0) {
-            throw("invalid string because length is 0");
+            throw  {ID: 400, MESSAGE: "invalid string because length is 0"};
         }
         if (stars) {
             if (str[0] == "*") {
@@ -66,55 +85,49 @@ export default class QueryController {
             if (str[str.length - 1] == "*") {
                 str = str.substring(0, str.length - 2);
             }
-            if(/[^a-zA-Z0-9\s,_-]/.test(str)) {
-                throw("invalid string: " + str);
-            }
-        } else {
-            if(/[^a-zA-Z0-9\s,_-]/.test(str)) {
-                throw("invalid string: " + str);
-            }
+        }
+        if (typeof(str) !== "string") {
+            throw  {ID: 400, MESSAGE: "number passed as string: " + str};
         }
     }
 
     private static valid_number(num: number) {
+        if (typeof(num) !== "number") {
+            throw  {ID: 400, MESSAGE: "string passed as number: " + num};
+        }
         if (num < 0) {
-            throw("invalid number because you can't have negative numbers");
+            throw  {ID: 400, MESSAGE: "invalid number because it's negative"};
         }
     }
 
-    public query(query: QueryRequest, id: string): QueryResponse {
+    public query(query: QueryRequest): QueryResponse {
         QueryController.isValid(query);
-        this.id = id;
-        QueryController.valid_string(id, false);
         let trueGet: any = [];
         if (typeof(query.GET) == "string") {
             trueGet.push(query.GET);
         } else {
             trueGet = query.GET;
         }
-        if (trueGet.length == 0) {
-            throw("You have to GET something. Queries can't get nothing");
-        }
-
-        var allSections: Section[] = this.getAllSections(id);
+        this.id = trueGet[0].substr(0,trueGet[0].indexOf("_"));
+        var allSections: Section[] = this.getAllSections(this.id);
         var filteredSections: Section[];
 
         let whereObject: any = query.WHERE;
         let operation: any = Object.keys(whereObject)[0];
         if (Object.keys(whereObject).length != 1) {
-            throw("Where has multiple or zero initial keys");
+            throw  {ID: 400, MESSAGE: "Where has multiple or zero initial keys"};
         }
         filteredSections = this.filterSections(operation, whereObject[operation], allSections, false);
 
         var asType: string = query.AS;
 
         if(asType != "TABLE") {
-            throw("Invalid as type");
+            throw  {ID: 400, MESSAGE: "Invalid type given for AS"};
         }
 
         if(query.hasOwnProperty("ORDER")) {
             if (trueGet.indexOf(query.ORDER) === -1) {
-                throw("Can't order by a non-displayed index");
+                throw  {ID: 400, MESSAGE: "Key for ORDER not present in keys for GET"};
             }
 
             var orderedSections: Section[] = this.orderSections(filteredSections, query.ORDER);
@@ -155,32 +168,29 @@ export default class QueryController {
                 key = "audit";
                 break;
             default:
-                throw("key not corresponding to valid field: " + key);
+                if (key.indexOf("_") == -1 || key.substr(0, key.indexOf("_")) == this.id) {
+                    throw  {ID: 400, MESSAGE: "key not corresponding to valid field: " + key};
+                }
+                throw  {ID: 424, MESSAGE: "Attempting to use invalid dataset in deep where"};
+
         }
         return key;
     }
 
     private baseCourseFilter(opCode: string, rest: any, sections: Section[]): Section[] {
         if (Object.keys(rest).length != 1) {
-            throw("Base op code has multiple interior keys");
+            throw  {ID: 400, MESSAGE: "Base opCode has many or zero initial keys"};
         }
         let key: string = Object.keys(rest)[0];
         key = this.convertFieldNames(key);
-        let value: string | number = rest[Object.keys(rest)[0]];
+        let value: any = rest[Object.keys(rest)[0]];
         if (opCode == "IS" || opCode == "NIS") {
-            if (typeof(value) != "string") {
-                throw("non-string passed to IS or NIS");
-            }
-            QueryController.valid_string(value.toString(), true);
+            QueryController.valid_string(value, true);
         } else {
-            if (typeof(value) != "number") {
-                throw("string passed to numerical comparator");
-            }
-
             if (value.toString().length == 0) {
-                throw("empty number value");
+                throw  {ID: 400, MESSAGE: "Empty number/string passed to " + opCode};
             }
-            QueryController.valid_number(Number(value.toString()));
+            QueryController.valid_number(value);
         }
         let operator: any;
         switch (opCode) {
@@ -203,7 +213,7 @@ export default class QueryController {
                 operator = OperatorHelpers.StringIsNotEqualTo;
                 break;
             default:
-                throw("Invalid base op code passed to baseCourseFilter" + opCode);
+                throw  {ID: 400, MESSAGE: "Invalid base op code passed to baseCourseFilter: " + opCode};
         }
         let numSections: number = sections.length;
         let filteredSections: Section[] = [];
@@ -253,7 +263,7 @@ export default class QueryController {
                 }
                 break;
             default:
-                throw("Invalid logical operator given to join filter: " + opCode);
+                throw  {ID: 400, MESSAGE: "Invalid logical operator given to join filter: " + opCode};
         }
         return filtered_sections;
     }
@@ -273,12 +283,12 @@ export default class QueryController {
                     case "IS":
                         return this.baseCourseFilter("NIS", rest, sections);
                     default:
-                        throw("Invalid base op code: " + opCode);
+                        throw  {ID: 400, MESSAGE: "Invalid base opCode: " + opCode};
                 }
             }
         } else if (opCode == "NOT") {
             if (Object.keys(rest).length != 1) {
-                throw("0 or 2+ keys within NOT");
+                throw  {ID: 400, MESSAGE: "0 or many keys passed to NOT"};
             }
             let nextOpCode: string = Object.keys(rest)[0];
             let nextRest: any = rest[Object.keys(rest)[0]];
@@ -296,7 +306,7 @@ export default class QueryController {
             for (let i = 0; i < numKeys; i++) {
                 let conditionObject: any = rest[Object.keys(rest)[i]];
                 if (Object.keys(conditionObject).length != 1) {
-                    throw ("condition object within AND or OR has 0 or 2+ keys");
+                    throw  {ID: 400, MESSAGE: "condition object within AND or OR has 0 or 2+ keys"};
                 }
                 let nextOpCode: string = Object.keys(conditionObject)[0];
                 let nextRest: any = conditionObject[nextOpCode];
@@ -304,7 +314,7 @@ export default class QueryController {
             }
             return QueryController.joinFilters(opCode, conditionArrays)
         } else {
-            throw("Invalid opCode: " + opCode)
+            throw  {ID: 400, MESSAGE: "Invalid opCode: " + opCode};
         }
     }
 
@@ -327,7 +337,7 @@ export default class QueryController {
             case this.id+"_audit":
                 return filteredSections.sort(OperatorHelpers.auditCompare);
             default:
-                throw("Invalid instruction for ordering: " + instruction);
+                throw  {ID: 400, MESSAGE: "Invalid instruction for ordering: " + instruction};
         }
     }
 

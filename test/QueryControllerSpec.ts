@@ -5,10 +5,9 @@
 import {Datasets, Section, Dataset} from "../src/controller/DatasetController";
 import QueryController from "../src/controller/QueryController";
 import {QueryRequest} from "../src/controller/QueryController";
-import Log from "../src/Util";
+import {expect} from 'chai';
 
-import {expect, assert} from 'chai';
-import {error} from "util";
+
 describe("QueryController", function () {
     var section1: Section;
     var section2: Section;
@@ -42,7 +41,7 @@ describe("QueryController", function () {
 
     it("Should be able to validate a valid query", function () {
         // NOTE: this is not actually a valid query for D1
-        let query: QueryRequest = {GET: 'food', WHERE: {IS: 'apple'}, ORDER: 'food', AS: 'table'};
+        let query: QueryRequest = {GET: 'food_food', WHERE: {IS: 'apple'}, ORDER: 'food', AS: 'table'};
         let dataset: Datasets = {sets: []};
         let controller = new QueryController(dataset);
         let isValid = QueryController.isValid(query);
@@ -80,7 +79,7 @@ describe("QueryController", function () {
             },
             "AS": "TABLE"
         };
-        var x: any = controller.query(query, "courses");
+        var x: any = controller.query(query);
         console.log(x);
     });
 
@@ -92,7 +91,7 @@ describe("QueryController", function () {
                 "OR": [
                     {"AND": [
                         {"GT": {"courses_avg": 70}},
-                        {"NOT": {"IS": {"courses_dept": "C%PSC"}}}
+                        {"NOT": {"IS": {"courses_dept": 234}}}
                     ]},
                     {"EQ": {"courses_avg": 90}}
                 ]
@@ -100,8 +99,14 @@ describe("QueryController", function () {
             "ORDER": "courses_avg",
             "AS": "TABLE"
         };
-        assert.throws(function(){
-            controller.query(query,"courses")}, "invalid string: C%PSC");
+        let expected_err: any = {ID: 400, MESSAGE: "number passed as string: " + 234};
+        try {
+            controller.query(query);
+        } catch (actual_err) {
+            expect(error_comparison.checkErrors(expected_err, actual_err)).to.equal(true);
+            return;
+        }
+        expect(", but it didn't").to.equal("controller.query should have failed");
     });
 
     it("Should be able to invalidate a QueryRequest with an empty GET", function(){
@@ -115,11 +120,14 @@ describe("QueryController", function () {
             "ORDER": "courses_avg",
             "AS": "TABLE"
         };
-
-        assert.throws(function(){
-            controller.query(query, "courses")
-        }, "Query is invalid");
-
+        let expected_err: any = {ID: 400, MESSAGE: "Query is invalid"};
+        try {
+            controller.query(query);
+        } catch (actual_err) {
+            expect(error_comparison.checkErrors(expected_err, actual_err)).to.equal(true);
+            return;
+        }
+        expect(", but it didn't").to.equal("controller.query should have failed");
 
     });
 
@@ -130,9 +138,15 @@ describe("QueryController", function () {
             "ORDER": "courses_avg",
             "AS": "TABLE"
         };
-        
-        assert.throws(function(){
-            controller.query(query,"courses")}, "Query is invalid");
+
+        let expected_err: any = {ID: 400, MESSAGE: "Query is invalid"};
+        try {
+            controller.query(query);
+        } catch (actual_err) {
+            expect(error_comparison.checkErrors(expected_err, actual_err)).to.equal(true);
+            return;
+        }
+        expect(", but it didn't").to.equal("controller.query should have failed");
         });
 
 
@@ -151,14 +165,19 @@ describe("QueryController", function () {
             "AS": ""
         };
 
-        assert.throws(function(){
-            controller.query(query,"courses")}, "Invalid as type");
+        let expected_err: any = {ID: 400, MESSAGE: "Invalid type given for AS"};
+        try {
+            controller.query(query);
+        } catch (actual_err) {
+            expect(error_comparison.checkErrors(expected_err, actual_err)).to.equal(true);
+            return;
+        }
+        expect(", but it didn't").to.equal("controller.query should have failed");
 
     });
 
 
-    it("Should be able to reject a QueryRequest with an empty GET", function(){
-        //turns out this test is handled by only ordering things that are caught
+    it("Should be able to reject a QueryRequest where we're trying to order by something not in GET", function(){
         let query: QueryRequest =
         {
             "GET": ["courses_dept"],
@@ -171,8 +190,14 @@ describe("QueryController", function () {
             "AS": "TABLE"
         };
 
-        assert.throws(function(){
-            controller.query(query,"courses")}, "Can't order by a non-displayed index");
+        let expected_err: any = {ID: 400, MESSAGE: "Key for ORDER not present in keys for GET"};
+        try {
+            controller.query(query);
+        } catch (actual_err) {
+            expect(error_comparison.checkErrors(expected_err, actual_err)).to.equal(true);
+            return;
+        }
+        expect(", but it didn't").to.equal("controller.query should have failed");
     });
 
     it("Should reject a query with a non-number in in the MCOMPARATOR", function(){
@@ -189,8 +214,14 @@ describe("QueryController", function () {
             "AS": "TABLE"
         };
 
-        assert.throws(function(){
-            controller.query(query,"courses")}, "string passed to numerical comparator");
+        let expected_err: any = {ID: 400, MESSAGE: "string passed as number: " + "b"};
+        try {
+            controller.query(query);
+        } catch (actual_err) {
+            expect(error_comparison.checkErrors(expected_err, actual_err)).to.equal(true);
+            return;
+        }
+        expect(", but it didn't").to.equal("controller.query should have failed");
 
     });
 
@@ -209,9 +240,14 @@ describe("QueryController", function () {
             "AS": "TABLE"
         };
 
-
-        assert.throws(function(){
-            controller.query(query,"courses")}, "non-string passed to IS or NIS");
+        let expected_err: any = {ID: 400, MESSAGE: "number passed as string: " + 10};
+        try {
+            controller.query(query);
+        } catch (actual_err) {
+            expect(error_comparison.checkErrors(expected_err, actual_err)).to.equal(true);
+            return;
+        }
+        expect(", but it didn't").to.equal("controller.query should have failed");
 
     });
 
@@ -230,14 +266,20 @@ describe("QueryController", function () {
             "AS": "TABLE"
         };
 
-
-        assert.throws(function(){
-            controller.query(query,"courses")}, "at least one invalid key present in query base");
-
+        let expected_err: any = {ID: 400, MESSAGE: "at least one invalid key present in query base"};
+        try {
+            controller.query(query);
+        } catch (actual_err) {
+            expect(error_comparison.checkErrors(expected_err, actual_err)).to.equal(true);
+            return;
+        }
+        expect(", but it didn't").to.equal("controller.query should have failed");
     });
 
-
-
-
-
 });
+
+class error_comparison {
+    public static checkErrors(e1: any, e2: any) {
+        return (e1.ID === e2.ID && e1.MESSAGE === e2.MESSAGE);
+    }
+}
