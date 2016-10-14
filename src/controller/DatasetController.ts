@@ -29,6 +29,7 @@ export interface Section {
     id_key: string;
     dept?: string;
     course_num?: string;
+    section_id?: string;
     avg?: number;
     professor?: string;
     title?: string;

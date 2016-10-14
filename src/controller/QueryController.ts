@@ -149,6 +149,9 @@ export default class QueryController {
             case this.id+"_id":
                 key = "course_num";
                 break;
+            case this.id+"_uuid":
+                key = "section_id";
+                break;
             case this.id+"_avg":
                 key = "avg";
                 break;
@@ -324,6 +327,8 @@ export default class QueryController {
                 return filteredSections.sort(OperatorHelpers.deptCompare);
             case this.id+"_id":
                 return filteredSections.sort(OperatorHelpers.idCompare);
+            case this.id+"_uuid":
+                return filteredSections.sort(OperatorHelpers.uuidCompare);
             case this.id+"_avg":
                 return filteredSections.sort(OperatorHelpers.avgCompare);
             case this.id+"_instructor":

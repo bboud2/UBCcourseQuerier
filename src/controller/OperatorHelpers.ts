@@ -32,6 +32,9 @@ export default class OperatorHelpers {
     public static idCompare(a: Section,b:Section) {
         return OperatorHelpers.custom_compare(a.course_num, b.course_num);
     }
+    public static uuidCompare(a: Section,b:Section) {
+        return OperatorHelpers.custom_compare(a.section_id, b.section_id);
+    }
 
     public static avgCompare(a: Section, b:Section) {
         return a.avg - b.avg;

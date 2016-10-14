@@ -31,6 +31,7 @@ export default class JsonParser{
             id_key: this.next_id.toString(),
             dept: null,
             course_num: null,
+            section_id: null,
             avg: null,
             professor: null,
             title: null,
@@ -46,6 +47,11 @@ export default class JsonParser{
 
         try{
             returnSection.course_num = section.Course;
+        }
+        catch(err){}
+
+        try{
+            returnSection.section_id = section.id.toString();
         }
         catch(err){}
 
