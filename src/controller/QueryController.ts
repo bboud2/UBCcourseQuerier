@@ -12,8 +12,7 @@ export interface QueryRequest {
     WHERE: {};
     GROUP?: string[];
     APPLY?: {}[];
-    SORT?: sortObject;
-    ORDER?: string;
+    ORDER?: string | sortObject;
     AS: string;
 }
 
@@ -333,7 +332,7 @@ export default class QueryController {
         }
     }
 
-    private orderSections(filteredSections: Section[], instruction: string):Section[] {
+    private orderSections(filteredSections: Section[], instruction: string | sortObject):Section[] {
         switch (instruction) {
             case this.id+"_dept":
                 return filteredSections.sort(OperatorHelpers.deptCompare);
