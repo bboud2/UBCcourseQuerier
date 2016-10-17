@@ -1,5 +1,3 @@
-import {Section} from "./DatasetController";
-
 export default class OperatorHelpers {
     public static GreaterThan(section: any, field: string, value: number) {
         return section[field] > Number(value);
@@ -25,41 +23,21 @@ export default class OperatorHelpers {
         return OperatorHelpers.compareStringsWithWildcards(section[field], value, true);
     }
 
-    public static deptCompare(a: Section, b: Section) {
-        return OperatorHelpers.custom_compare(a.dept, b.dept);
+    public static dynamicSort(field: string, ascending: boolean): any {
+        let reverse: number = (ascending) ? 1: -1;
+        return function (a: any, b: any) {
+            if (a[field] < b[field]) {
+                return -1 * reverse;
+            } else if (a[field] == b[field]) {
+                return 0;
+            } else {
+                return reverse;
+            }
+        }
     }
 
-    public static idCompare(a: Section,b:Section) {
-        return OperatorHelpers.custom_compare(a.course_num, b.course_num);
-    }
-    public static uuidCompare(a: Section,b:Section) {
-        return OperatorHelpers.custom_compare(a.section_id, b.section_id);
-    }
-
-    public static avgCompare(a: Section, b:Section) {
-        return a.avg - b.avg;
-    }
-
-    public static instructorCompare(a: Section, b:Section) {
-        return OperatorHelpers.custom_compare(a.professor, b.professor);
-    }
-
-    public static titleCompare(a: Section, b:Section){
-        return OperatorHelpers.custom_compare(a.title, b.title);
-    }
-
-    public static passCompare(a:Section, b:Section){
-        return a.pass - b.pass;
-    }
-
-    public static failCompare(a:Section, b:Section){
-        return a.fail - b.fail;
-    }
-
-    public static auditCompare(a:Section, b:Section){
-        return a.audit - b.audit;
-    }
-
+    
+    // TODO: change this method to not work on wildcard characters in the middle of the string.
     private static compareStringsWithWildcards(s1: string, s2: string, negated: boolean): boolean {
         if (s2.includes("*")) {
             let s2Parts: string[] = s2.split("*");
@@ -100,13 +78,4 @@ export default class OperatorHelpers {
         return a.length - b.length;
     }
 
-    private static custom_compare(a: string, b: string) {
-        if(a < b) {
-            return -1;
-        } else if(a == b) {
-            return 0;
-        } else {
-            return 1;
-        }
-    }
 }

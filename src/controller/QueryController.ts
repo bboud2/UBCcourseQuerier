@@ -36,16 +36,70 @@ export default class QueryController {
         this.datasets = datasets;
     }
 
-    public static isValid(query: QueryRequest) {
-        let numKeys: number = Object.keys(query).length;
-        if(query.hasOwnProperty("ORDER")) {
-            if (numKeys > 4) {
-                throw {ID: 400, MESSAGE: "at least one invalid key present in query base"}
+    /**
+        Ensures that a specific key in GET is valid such that it either is a valid dataset ID (contains an _) if
+        GROUP/ORDER are not present, or it is present in GROUP/ORDER if they are present.
+
+        This method is only used to check keys in GET. It does not ensure that the keys in ORDER or GROUP are valid.
+     **/
+    private static isValidKey(key: string, groupOrderExists: boolean, query: QueryRequest) {
+        if (groupOrderExists) {
+            let foundKey: boolean = false;
+            if (key.indexOf("_") == -1) {
+                for (let i = 0; i < query.APPLY.length; i++) {
+                    let currKey: string = Object.keys(query.APPLY[i])[0];
+                    if (currKey == key) {
+                        foundKey = true;
+                        break;
+                    }
+                }
+                if (!foundKey) {
+                    throw {ID: 400, MESSAGE: "key: " + key + " was not found in APPLY"};
+                }
+            } else {
+                for (let i = 0; i < query.GROUP.length; i++) {
+                    let currKey: string = query.GROUP[i];
+                    if (currKey == key) {
+                        foundKey = true;
+                        break;
+                    }
+                }
+                if (!foundKey) {
+                    throw {ID: 400, MESSAGE: "key: " + key + " was not found in GROUP"};
+                }
             }
         } else {
-            if (numKeys > 3) {
-                throw  {ID: 400, MESSAGE: "at least one invalid key present in query base"}
+            if (key.indexOf("_") == -1) {
+                throw  {ID: 400, MESSAGE: "Malformed dataset id: " + key};
             }
+        }
+    }
+
+    /**
+        Checks basic query validity. Ensures that only the correct keys are present in the base query, as well as
+        ensures that the keys in GET are correct.
+     **/
+    public static isValid(query: QueryRequest) {
+        let actualKeys: number = Object.keys(query).length;
+        let expectedKeys: number = 3;
+        let groupApplyStatus: boolean = false;
+
+        if(query.hasOwnProperty("ORDER")) {
+           expectedKeys++;
+        }
+        if(query.hasOwnProperty("GROUP")) {
+            expectedKeys++;
+            groupApplyStatus = !groupApplyStatus;
+        }
+        if(query.hasOwnProperty("APPLY")) {
+            expectedKeys++;
+            groupApplyStatus = !groupApplyStatus;
+        }
+        if (groupApplyStatus) {
+            throw  {ID: 400, MESSAGE: "One of GROUP/APPLY is present without the other GROUP/APPLY"}
+        }
+        if (actualKeys != expectedKeys) {
+            throw  {ID: 400, MESSAGE: (expectedKeys - actualKeys).toString() + " additional keys in query (negative number means keys are missing"}
         }
 
         if (typeof query !== 'undefined' && query !== null && Object.keys(query).length > 0 &&
@@ -60,22 +114,18 @@ export default class QueryController {
                 throw  {ID: 400, MESSAGE: "You have to GET something. Queries can't get nothing"};
             }
             for (let i = 0; i < trueGet.length; i++) {
-                if (trueGet[i].indexOf("_") == -1) {
-                    throw  {ID: 400, MESSAGE: "Malformed dataset id: " + trueGet[i]};
-                }
-            }
-            let dataset_id: string = trueGet[0].substr(0,trueGet[0].indexOf("_"));
-            for (let i = 1; i < trueGet.length; i++) {
-                QueryController.valid_string(trueGet[i], false);
-                if (trueGet[i].substr(0,trueGet[i].indexOf("_")) != dataset_id) {
-                    throw  {ID: 400, MESSAGE: "Not all get keys are for the same dataset"};
-                }
+                QueryController.isValidKey(trueGet[i], groupApplyStatus, query);
             }
             return true;
         }
         throw {ID: 400, MESSAGE: "Query is invalid"}
     }
 
+    /**
+     * Gets all sections in the dataset titled id.
+     * @param id
+     * @returns {Section[]}
+     */
     private getAllSections(id: String): Section[] {
         for (let i = 0; i < this.datasets.sets.length; i++){
             if (this.datasets.sets[i].id_key == id) {
@@ -85,32 +135,11 @@ export default class QueryController {
         throw  {ID: 424, MESSAGE: "dataset not found"};
     }
 
-    private static valid_string(str: string, stars: boolean) {
-        if (str.length == 0) {
-            throw  {ID: 400, MESSAGE: "invalid string because length is 0"};
-        }
-        if (stars) {
-            if (str[0] == "*") {
-                str = str.substring(1);
-            }
-            if (str[str.length - 1] == "*") {
-                str = str.substring(0, str.length - 2);
-            }
-        }
-        if (typeof(str) !== "string") {
-            throw  {ID: 400, MESSAGE: "number passed as string: " + str};
-        }
-    }
-
-    private static valid_number(num: number) {
-        if (typeof(num) !== "number") {
-            throw  {ID: 400, MESSAGE: "string passed as number: " + num};
-        }
-        if (num < 0) {
-            throw  {ID: 400, MESSAGE: "invalid number because it's negative"};
-        }
-    }
-
+    /**
+     * Main query method
+     * @param query
+     * @returns {any}
+     */
     public query(query: QueryRequest): QueryResponse {
         QueryController.isValid(query);
         let trueGet: any = [];
@@ -119,37 +148,72 @@ export default class QueryController {
         } else {
             trueGet = query.GET;
         }
-        this.id = trueGet[0].substr(0,trueGet[0].indexOf("_"));
+        for (let i = 0; i < trueGet.length; i++) {
+            let curr_key: string = trueGet[i];
+            if (curr_key.indexOf("_") != -1) {
+                this.id = trueGet[0].substr(0,trueGet[0].indexOf("_"));
+                break;
+            }
+        }
+        if (this.id === null) {
+            throw  {ID: 400, MESSAGE: "No keys with an underscore so no dataset ID to look for"};
+        }
         var allSections: Section[] = this.getAllSections(this.id);
         var filteredSections: Section[];
 
         let whereObject: any = query.WHERE;
         let operation: any = Object.keys(whereObject)[0];
-        if (Object.keys(whereObject).length != 1) {
-            throw  {ID: 400, MESSAGE: "Where has multiple or zero initial keys"};
+        switch (Object.keys(whereObject).length) {
+            case 0:
+                filteredSections = allSections;
+                break;
+            case 1:
+                filteredSections = this.filterSections(operation, whereObject[operation], allSections, false);
+                break;
+            default:
+                throw  {ID: 400, MESSAGE: "Where has multiple initial keys"};
         }
-        filteredSections = this.filterSections(operation, whereObject[operation], allSections, false);
+
+        //TODO: convert all sections to groups either using GROUP or by making every section its own group. While doing this, also do APPLY.
+        // will need to check that group and apply are valid... all keys in group/apply must also be present in GET.
+        var filteredGroups: any[] = null;
 
         var asType: string = query.AS;
-
         if(asType != "TABLE") {
             throw  {ID: 400, MESSAGE: "Invalid type given for AS"};
         }
 
         if(query.hasOwnProperty("ORDER")) {
-            if (trueGet.indexOf(query.ORDER) === -1) {
-                throw  {ID: 400, MESSAGE: "Key for ORDER not present in keys for GET"};
+            if (typeof(query.ORDER) === "object") {
+                let sObject: any = query.ORDER;
+                if (Object.keys(sObject).length != 2 || !sObject.hasOwnProperty("dir") || !sObject.hasOwnProperty("keys")) {
+                    throw  {ID: 400, MESSAGE: "ORDER is an object (not a string) but isn't a valid sortObject"};
+                }
+                for (let i = 0; i < sObject["keys"].length; i++) {
+                    if (trueGet.indexOf(sObject["keys"][i]) === -1) {
+                        throw  {ID: 400, MESSAGE: "Key for ORDER within ORDER.keys is not present in keys for GET"};
+                    }
+                }
+            } else {
+                if (trueGet.indexOf(query.ORDER) === -1) {
+                    throw  {ID: 400, MESSAGE: "Key for ORDER not present in keys for GET"};
+                }
             }
-
-            var orderedSections: Section[] = this.orderSections(filteredSections, query.ORDER);
-            var display_object: any = this.displaySections(orderedSections, trueGet, asType);
+            var orderedGroups: any[] = this.orderSections(filteredGroups, query.ORDER);
+            var display_object: any = this.displaySections(orderedGroups, trueGet, asType);
         }
         else{
-            var display_object: any = this.displaySections(filteredSections, trueGet, asType);
+            var display_object: any = this.displaySections(filteredGroups, trueGet, asType);
         }
         return display_object;
     }
 
+    /**
+     * Convert key corresponding to property of a section to the correct key for SECTION objects. Only call this method
+     * with keys containing underscores.
+     * @param key
+     * @returns {string}
+     */
     private convertFieldNames(key: string): string {
         key = key.replace("[","");
         key = key.replace("]","");
@@ -191,6 +255,14 @@ export default class QueryController {
         return key;
     }
 
+    /**
+     * Filters an array of sections by a specific op code and a specific property of the sections and returns the
+     * filtered array.
+     * @param opCode
+     * @param rest
+     * @param sections
+     * @returns {Section[]}
+     */
     private baseCourseFilter(opCode: string, rest: any, sections: Section[]): Section[] {
         if (Object.keys(rest).length != 1) {
             throw  {ID: 400, MESSAGE: "Base opCode has many or zero initial keys"};
@@ -199,12 +271,13 @@ export default class QueryController {
         key = this.convertFieldNames(key);
         let value: any = rest[Object.keys(rest)[0]];
         if (opCode == "IS" || opCode == "NIS") {
-            QueryController.valid_string(value, true);
-        } else {
-            if (value.toString().length == 0) {
-                throw  {ID: 400, MESSAGE: "Empty number/string passed to " + opCode};
+            if (typeof value !== "string") {
+                throw {ID: 400, MESSAGE: "Base opCode of IS or NIS does not contain string value"};
             }
-            QueryController.valid_number(value);
+        } else {
+            if (typeof value !== "number") {
+                throw {ID: 400, MESSAGE: "Base opCode of GT, LT, EQ or NEQ does not contain numeric value"};
+            }
         }
         let operator: any;
         switch (opCode) {
@@ -240,6 +313,13 @@ export default class QueryController {
         return filteredSections;
     }
 
+    /**
+     * Takes a list of arrays filtered by baseCourseFilter and compares them to find sections in all of the arrays or
+     * in any of the arrays.
+     * @param opCode
+     * @param section_arrays
+     * @returns {Section[]}
+     */
     private static joinFilters(opCode: string, section_arrays: Section[][]): Section[] {
         let filtered_sections: Section[] = [];
         switch (opCode) {
@@ -282,6 +362,14 @@ export default class QueryController {
         return filtered_sections;
     }
 
+    /**
+     * Takes a query.WHERE object and uses it to filter a list of all of the sections in a dataset.
+     * @param opCode
+     * @param rest
+     * @param sections
+     * @param negated
+     * @returns {Section[]}
+     */
     public filterSections(opCode: string, rest: any, sections: Section[], negated: boolean): Section[] {
         if (opCode == "GT" || opCode == "LT" || opCode == "EQ" || opCode == "IS") {
             if (!negated) {
@@ -332,28 +420,23 @@ export default class QueryController {
         }
     }
 
-    private orderSections(filteredSections: Section[], instruction: string | sortObject):Section[] {
-        switch (instruction) {
-            case this.id+"_dept":
-                return filteredSections.sort(OperatorHelpers.deptCompare);
-            case this.id+"_id":
-                return filteredSections.sort(OperatorHelpers.idCompare);
-            case this.id+"_uuid":
-                return filteredSections.sort(OperatorHelpers.uuidCompare);
-            case this.id+"_avg":
-                return filteredSections.sort(OperatorHelpers.avgCompare);
-            case this.id+"_instructor":
-                return filteredSections.sort(OperatorHelpers.instructorCompare);
-            case this.id+"_title":
-                return filteredSections.sort(OperatorHelpers.titleCompare);
-            case this.id+"_pass":
-                return filteredSections.sort(OperatorHelpers.passCompare);
-            case this.id+"_fail":
-                return filteredSections.sort(OperatorHelpers.failCompare);
-            case this.id+"_audit":
-                return filteredSections.sort(OperatorHelpers.auditCompare);
-            default:
-                throw  {ID: 400, MESSAGE: "Invalid instruction for ordering: " + instruction};
+    /**
+     * Order sections by either a string (d1) or a sortObject (d2).
+     * @param filteredGroups
+     * @param instruction
+     * @returns {any[]}
+     */
+    private orderSections(filteredGroups: any[], instruction: string | sortObject): Section[] {
+        if (typeof(instruction) === "string") {
+            return filteredGroups.sort(OperatorHelpers.dynamicSort(<string> instruction, true));
+        } else {
+            let oInstruction: any = instruction;
+            let orderedGroups: any[] = filteredGroups;
+            let ascending: boolean = (oInstruction.dir == "UP") ? true: false;
+            for (let i = oInstruction.keys.length - 1; i >= 0; i--) {
+                orderedGroups = orderedGroups.sort(OperatorHelpers.dynamicSort(oInstruction["keys"][i], ascending))
+            }
+            return orderedGroups;
         }
     }
 
