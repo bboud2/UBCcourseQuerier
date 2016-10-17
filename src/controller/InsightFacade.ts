@@ -86,8 +86,8 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     performQuery(query: QueryRequest): Promise<InsightResponse> {
-        let datasets: Datasets = InsightFacade.datasetController.getDatasets();
-        let controller = new QueryController(datasets);
+
+
 
         return new Promise<InsightResponse>(function (fufill,reject){
             try {

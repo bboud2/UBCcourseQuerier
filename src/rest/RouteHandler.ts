@@ -15,7 +15,6 @@ import {InsightResponse} from "../controller/IInsightFacade";
 
 export default class RouteHandler {
 
-    private static datasetController = new DatasetController();
     private static insightFacade = new InsightFacade;
 
     public static getHomepage(req: restify.Request, res: restify.Response, next: restify.Next) {
@@ -63,6 +62,8 @@ export default class RouteHandler {
                 req.body = concated.toString('base64');
                 RouteHandler.insightFacade.addDataset(id,req.body).then(function (result){
                     res.json(result.code, result.body);
+                }).catch(function (error){
+                    res.json("this code should not be reachead");
                 });
 
             });
@@ -73,64 +74,11 @@ export default class RouteHandler {
         }
     }
 
-                /*
-                let wasSeenPrevious: boolean = RouteHandler.datasetAlreadyPresent(controller, id);
-
-                if (wasSeenPrevious) {
-                    // was seen previously
-                    controller.process(id, req.body).then(function (result) {
-                        Log.trace("201");
-                        res.json(201, {success: result});
-                        return next();
-                    }).catch(function (err) {
-                        Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.toString());
-                        res.json(400, {error: err.toString()});
-                        //res.json(400, {failure: err.toString()});
-                        return next();
-                    });
-                } else {
-                    // new dataset
-                    controller.process(id, req.body).then(function (result) {
-                        Log.trace("204");
-                        res.json(204, {success: result});
-                        return next();
-                    }).catch(function (err) {
-                        Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.toString());
-                        res.json(400, {error: err.toString()});
-                        //res.json(400, {failure: err.toString()});
-                        return next();
-                    });
-                }
-                */
-
-
     public static postQuery(req: restify.Request, res: restify.Response, next: restify.Next) {
 
         RouteHandler.insightFacade.performQuery(req.params).then(function (result){
             res.json(result.code,result.body);
         });
-        /*
-        try {
-            let query: QueryRequest = req.params;
-            let datasets: Datasets = RouteHandler.datasetController.getDatasets();
-            let controller = new QueryController(datasets);
-
-            try {
-                let result = controller.query(query);
-                res.json(200, result);
-            } catch (err) {
-                if (err.ID == 400) {
-                    res.json(400, {error: 'invalid query: ' + err.MESSAGE});
-                } else {
-                    res.json(424, {error: 'invalid query: ' + err.MESSAGE});
-                }
-            }
-        } catch (err) {
-            Log.error('RouteHandler::postQuery(..) - ERROR: ' + err);
-            res.json(400, {error: 'invalid query: ' + err});
-        }
-        return next();
-        */
     }
 
 
