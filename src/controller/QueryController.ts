@@ -210,6 +210,9 @@ export default class QueryController {
 
     private static validateGroupAndApply(group: string[], apply: {}[], get: string[]) {
         //validate group
+        if (group.length == 0) {
+            throw {ID: 400, MESSAGE: "GROUP cannot exist and be empty"};
+        }
         for(let i = 0; i < group.length; i++) {
             let index: number = get.indexOf(group[i]);
             if (index == -1) {
@@ -358,7 +361,6 @@ export default class QueryController {
                     throw  {ID: 400, MESSAGE: "key not corresponding to valid field: " + key};
                 }
                 throw  {ID: 424, MESSAGE: "Attempting to use invalid dataset in deep where"};
-
         }
         return key;
     }
