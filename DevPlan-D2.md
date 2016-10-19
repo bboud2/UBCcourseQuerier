@@ -7,8 +7,11 @@
 
 2	Remaining:
 	Finish Display Sections[Jordan]
+	
 	Group and Apply functionality[Jordan+Ben]
+	
 	fix the errors format:  An error shoudl throw {code: xxx, error: ""}; [Ben]
+	
 	Add some tests to bump our code coverage[Ben]
 
 
