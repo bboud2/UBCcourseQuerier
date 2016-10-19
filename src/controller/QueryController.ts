@@ -295,6 +295,7 @@ export default class QueryController {
                 let opCode: string = Object.keys(innerApplyObject)[0];
                 currGroup[newFieldName] = QueryController.getApplyFieldValue(currGroup, opCode, this.convertFieldNames(innerApplyObject[opCode]))
             }
+            groups[g] = currGroup;
         }
         return groups;
     }
