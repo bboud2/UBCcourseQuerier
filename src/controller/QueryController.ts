@@ -199,7 +199,7 @@ export default class QueryController {
                     throw  {ID: 400, MESSAGE: "Key for ORDER not present in keys for GET"};
                 }
             }
-            var orderedGroups: any[] = QueryController.orderGroups(filteredGroups, query.ORDER);
+            var orderedGroups: any[] = this.orderGroups(filteredGroups, query.ORDER);
             var display_object: any = this.displayGroups(orderedGroups, trueGet, asType);
         }
         else{
@@ -534,15 +534,20 @@ export default class QueryController {
      * @param instruction
      * @returns {any[]}
      */
-    private static orderGroups(filteredGroups: any[], instruction: string | sortObject): Section[] {
+    private orderGroups(filteredGroups: any[], instruction: string | sortObject): Section[] {
         if (typeof(instruction) === "string") {
-            return filteredGroups.sort(OperatorHelpers.dynamicSort(<string> instruction, true));
+            return filteredGroups.sort(OperatorHelpers.dynamicSort(this.convertFieldNames(<string> instruction), true));
         } else {
             let oInstruction: any = instruction;
             let orderedGroups: any[] = filteredGroups;
             let ascending: boolean = (oInstruction.dir == "UP") ? true: false;
             for (let i = oInstruction.keys.length - 1; i >= 0; i--) {
-                orderedGroups = orderedGroups.sort(OperatorHelpers.dynamicSort(oInstruction["keys"][i], ascending))
+                let curr_key: string = oInstruction["keys"][i];
+                if (curr_key.indexOf("_") != -1) {
+                    orderedGroups = orderedGroups.sort(OperatorHelpers.dynamicSort(this.convertFieldNames(curr_key), ascending))
+                } else {
+                    orderedGroups = orderedGroups.sort(OperatorHelpers.dynamicSort(curr_key, ascending))
+                }
             }
             return orderedGroups;
         }
