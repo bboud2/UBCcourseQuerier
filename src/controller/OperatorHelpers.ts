@@ -1,3 +1,4 @@
+import {Section} from "./DatasetController";
 export default class OperatorHelpers {
     public static GreaterThan(section: any, field: string, value: number) {
         return section[field] > Number(value);
@@ -35,7 +36,6 @@ export default class OperatorHelpers {
             }
         }
     }
-
     
     // TODO: change this method to not work on wildcard characters in the middle of the string.
     private static compareStringsWithWildcards(s1: string, s2: string, negated: boolean): boolean {
@@ -76,6 +76,61 @@ export default class OperatorHelpers {
 
     public static compare_arrays(a: any[], b: any[]): number {
         return a.length - b.length;
+    }
+
+    private static isFieldNumeric(field: string) {
+        return (field === "avg" || field === "fail" || field === "pass" || field === "audit");
+    }
+
+    public static handle_max(sections: Section[], field: string) {
+        if (!OperatorHelpers.isFieldNumeric(field)) {
+            throw  {ID: 400, MESSAGE: "Expected a numeric field for handle_max but got " + field};
+        }
+        let max_val =  Number.MIN_SAFE_INTEGER;
+        for (let s = 0; s < sections.length; s++) {
+            let curr_section: any = sections[s];
+            if (curr_section[field] > max_val) {
+                max_val = curr_section[field];
+            }
+        }
+        return max_val;
+    }
+
+    public static handle_min(sections: Section[], field: string) {
+        if (!OperatorHelpers.isFieldNumeric(field)) {
+            throw  {ID: 400, MESSAGE: "Expected a numeric field for handle_min but got " + field};
+        }
+        let min_val =  Number.MAX_SAFE_INTEGER;
+        for (let s = 0; s < sections.length; s++) {
+            let curr_section: any = sections[s];
+            if (curr_section[field] < min_val) {
+                min_val = curr_section[field];
+            }
+        }
+        return min_val;
+    }
+
+    public static handle_avg(sections: Section[], field: string) {
+        if (!OperatorHelpers.isFieldNumeric(field)) {
+            throw  {ID: 400, MESSAGE: "Expected a numeric field for handle_avg but got " + field};
+        }
+        let tally: number = 0;
+        for (let s = 0; s < sections.length; s++) {
+            let curr_section: any = sections[s];
+            tally += curr_section[field];
+        }
+        return Number((tally / sections.length).toFixed(2));
+    }
+
+    public static handle_count(sections: Section[], field: string) {
+        let unique_finds: any[] = [];
+        for (let s = 0; s < sections.length; s++) {
+            let curr_section: any = sections[s];
+            if (unique_finds.indexOf(curr_section[field]) == -1) {
+                unique_finds.push(curr_section[field]);
+            }
+        }
+        return unique_finds.length;
     }
 
 }

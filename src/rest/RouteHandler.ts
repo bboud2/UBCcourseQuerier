@@ -5,13 +5,8 @@ import restify = require('restify');
 import fs = require('fs');
 
 import DatasetController from '../controller/DatasetController';
-import {Datasets} from '../controller/DatasetController';
-import QueryController from '../controller/QueryController';
-
-import {QueryRequest} from "../controller/QueryController";
 import Log from '../Util';
 import InsightFacade from "../controller/InsightFacade";
-import {InsightResponse} from "../controller/IInsightFacade";
 
 export default class RouteHandler {
 
@@ -62,8 +57,8 @@ export default class RouteHandler {
                 req.body = concated.toString('base64');
                 RouteHandler.insightFacade.addDataset(id,req.body).then(function (result){
                     res.json(result.code, result.body);
-                }).catch(function (error){
-                    res.json("this code should not be reachead");
+                }).catch(function (result){
+                    res.json(result.code, {error: result['error']});
                 });
 
             });
@@ -77,7 +72,9 @@ export default class RouteHandler {
     public static postQuery(req: restify.Request, res: restify.Response, next: restify.Next) {
 
         RouteHandler.insightFacade.performQuery(req.params).then(function (result){
-            res.json(result.code,result.body);
+            res.json(result.code, result.body);
+        }).catch(function (result) {
+            res.json(result.code, {error: result['error']});
         });
     }
 
@@ -87,6 +84,8 @@ export default class RouteHandler {
         let id: string = req.params.id;
         RouteHandler.insightFacade.removeDataset(id).then(function (result){
             res.json(result.code,result.body);
+        }).catch(function (result) {
+            res.json(result.code, {error: result['error']});
         });
         return next();
     }

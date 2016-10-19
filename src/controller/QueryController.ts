@@ -37,10 +37,10 @@ export default class QueryController {
     }
 
     /**
-        Ensures that a specific key in GET is valid such that it either is a valid dataset ID (contains an _) if
-        GROUP/ORDER are not present, or it is present in GROUP/ORDER if they are present.
+     Ensures that a specific key in GET is valid such that it either is a valid dataset ID (contains an _) if
+     GROUP/ORDER are not present, or it is present in GROUP/ORDER if they are present.
 
-        This method is only used to check keys in GET. It does not ensure that the keys in ORDER or GROUP are valid.
+     This method is only used to check keys in GET. It does not ensure that the keys in ORDER or GROUP are valid.
      **/
     private static isValidKey(key: string, groupOrderExists: boolean, query: QueryRequest) {
         if (groupOrderExists) {
@@ -76,8 +76,8 @@ export default class QueryController {
     }
 
     /**
-        Checks basic query validity. Ensures that only the correct keys are present in the base query, as well as
-        ensures that the keys in GET are correct.
+     Checks basic query validity. Ensures that only the correct keys are present in the base query, as well as
+     ensures that the keys in GET are correct.
      **/
     public static isValid(query: QueryRequest) {
         let actualKeys: number = Object.keys(query).length;
@@ -85,7 +85,7 @@ export default class QueryController {
         let groupApplyStatus: boolean = false;
 
         if(query.hasOwnProperty("ORDER")) {
-           expectedKeys++;
+            expectedKeys++;
         }
         if(query.hasOwnProperty("GROUP")) {
             expectedKeys++;
@@ -99,7 +99,7 @@ export default class QueryController {
             throw  {ID: 400, MESSAGE: "One of GROUP/APPLY is present without the other GROUP/APPLY"}
         }
         if (actualKeys != expectedKeys) {
-            throw  {ID: 400, MESSAGE: (expectedKeys - actualKeys).toString() + " additional keys in query (negative number means keys are missing"}
+            throw  {ID: 400, MESSAGE: (actualKeys - expectedKeys).toString() + " additional key(s) in query (negative number means keys are missing)"}
         }
 
         if (typeof query !== 'undefined' && query !== null && Object.keys(query).length > 0 &&
@@ -176,7 +176,7 @@ export default class QueryController {
 
         //TODO: convert all sections to groups either using GROUP or by making every section its own group. While doing this, also do APPLY.
         // will need to check that group and apply are valid... all keys in group/apply must also be present in GET.
-        var filteredGroups: any[] = null;
+        var filteredGroups: any[] = this.groupAndApply(filteredSections, query.GROUP, query.APPLY, trueGet);
 
         var asType: string = query.AS;
         if(asType != "TABLE") {
@@ -199,13 +199,121 @@ export default class QueryController {
                     throw  {ID: 400, MESSAGE: "Key for ORDER not present in keys for GET"};
                 }
             }
-            var orderedGroups: any[] = this.orderSections(filteredGroups, query.ORDER);
-            var display_object: any = this.displaySections(orderedGroups, trueGet, asType);
+            var orderedGroups: any[] = QueryController.orderGroups(filteredGroups, query.ORDER);
+            var display_object: any = this.displayGroups(orderedGroups, trueGet, asType);
         }
         else{
-            var display_object: any = this.displaySections(filteredGroups, trueGet, asType);
+            var display_object: any = this.displayGroups(filteredGroups, trueGet, asType);
         }
         return display_object;
+    }
+
+    private static validateGroupAndApply(group: string[], apply: {}[], get: string[]) {
+        //validate group
+        for(let i = 0; i < group.length; i++) {
+            let index: number = get.indexOf(group[i]);
+            if (index == -1) {
+                throw {ID: 400, MESSAGE: group[i] + " was found in GROUP but not in GET"};
+            }
+        }
+
+        //validate apply
+        for(let i = 0; i < apply.length; i++) {
+            let currField: string = Object.keys(apply[i])[0];
+            let index: number = get.indexOf(currField);
+            if (index == -1) {
+                throw {ID: 400, MESSAGE: currField + " was found in APPLY but not in GET"};
+            }
+        }
+    }
+
+    private doGrouping(filteredSections: Section[], group: string[], get: string[]): any[] {
+        let filteredGroups: any[] = [];
+        let sortedSections: Section[] = filteredSections;
+        for (let g = 0; g < group.length; g++) {
+            sortedSections = sortedSections.sort(OperatorHelpers.dynamicSort(this.convertFieldNames(group[g]), true))
+        }
+        let last: any = {};
+        let currGroup: any = {};
+        for (let s = 0; s < sortedSections.length; s++) {
+            let curr: any = sortedSections[s];
+            let same: boolean = true;
+            for (let g = 0; g < group.length; g++) {
+                if (curr[this.convertFieldNames(group[g])] != last[this.convertFieldNames(group[g])]) {
+                    same = false;
+                    break;
+                }
+            }
+            if (!same) {
+                if (currGroup.hasOwnProperty("sections")) {
+                    filteredGroups.push(JSON.parse(JSON.stringify(currGroup)));
+                }
+                currGroup = {sections: [curr]};
+                for (let g = 0; g < group.length; g++) {
+                    currGroup[get[g]] = curr[this.convertFieldNames(group[g])];
+                }
+            } else {
+                currGroup.sections.push(curr);
+            }
+            last = curr;
+        }
+        filteredGroups.push(currGroup);
+        return filteredGroups;
+    }
+
+    private static getApplyFieldValue(group: any, opCode: string, field: string) {
+        let handlerFunction: any;
+        switch (opCode) {
+            case "MAX":
+                handlerFunction = OperatorHelpers.handle_max;
+                break;
+            case "MIN":
+                handlerFunction = OperatorHelpers.handle_min;
+                break;
+            case "AVG":
+                handlerFunction = OperatorHelpers.handle_avg;
+                break;
+            case "COUNT":
+                handlerFunction = OperatorHelpers.handle_count;
+                break;
+            default:
+                throw  {ID: 400, MESSAGE: "Invalid opCode received on APPLY: " + opCode};
+        }
+        return handlerFunction(group.sections, field);
+    }
+
+    private doApplying(groups: any[], apply: {}[]): any[] {
+        for (let g = 0; g < groups.length; g++) {
+            let currGroup: any = groups[g];
+            for (let a = 0; a < apply.length; a++) {
+                let currApplyObject: any = apply[a];
+                let newFieldName: string = Object.keys(currApplyObject)[0];
+                let innerApplyObject: any = currApplyObject[newFieldName];
+                let opCode: string = Object.keys(innerApplyObject)[0];
+                currGroup[newFieldName] = QueryController.getApplyFieldValue(currGroup, opCode, this.convertFieldNames(innerApplyObject[opCode]))
+            }
+        }
+        return groups;
+    }
+
+    private groupAndApply(filteredSections: Section[], group: string[], apply: {}[], get: string[]): any[] {
+        let filteredGroups: any[] = [];
+        if (group == undefined) {
+            // each section is now its own group
+            for (let s = 0; s < filteredSections.length; s++) {
+                let curr: any = filteredSections[s];
+                let newGroup: any = {sections: [curr]};
+                for(let k = 0; k < get.length; k++) {
+                    var convertedField: string = this.convertFieldNames(get[k]);
+                    newGroup[convertedField] = curr[convertedField];
+                }
+                filteredGroups.push(newGroup);
+            }
+            return filteredGroups;
+        }
+        QueryController.validateGroupAndApply(group, apply, get);
+        filteredGroups = this.doGrouping(filteredSections, group, get);
+        return(this.doApplying(filteredGroups, apply));
     }
 
     /**
@@ -426,7 +534,7 @@ export default class QueryController {
      * @param instruction
      * @returns {any[]}
      */
-    private orderSections(filteredGroups: any[], instruction: string | sortObject): Section[] {
+    private static orderGroups(filteredGroups: any[], instruction: string | sortObject): Section[] {
         if (typeof(instruction) === "string") {
             return filteredGroups.sort(OperatorHelpers.dynamicSort(<string> instruction, true));
         } else {
@@ -440,23 +548,33 @@ export default class QueryController {
         }
     }
 
-    private displaySections(sectionArray: Section[], colTypes: string[], displayType: string): any{
+    /**
+     * Takes an array of groups, and the columns from GET and then creates a new display object where each field
+     * corresponds to a string in GET and each value corresponds to a value in our filtered groups object.
+     * @param groupArray
+     * @param columns
+     * @param displayType
+     * @returns {{render: string, result: any[]}}
+     */
+    private displayGroups(groupArray: any[], columns: string[], displayType: string): any{
         let returnObjectArray: any[] = [];
         let convertedColumnTypes: string[] = [];
-        for(let z = 0; z < colTypes.length; z++){
-            let convertedField: string = this.convertFieldNames(colTypes[z]);
+        for(let i = 0; i < columns.length; i++){
+            if (columns[i].indexOf("_") != -1) {
+                var convertedField: string = this.convertFieldNames(columns[i]);
+            } else {
+                var convertedField: string = columns[i];
+            }
             convertedColumnTypes.push(convertedField);
         }
-        let trueSectionArray: any = sectionArray;
-        for(let s = 0; s < trueSectionArray.length; s++){       //create column objects and push into returnObjectArray
+
+        for(let g = 0; g < groupArray.length; g++){       //create column objects and push into returnObjectArray
             let columnObject: any = {};
             for(let i = 0; i < convertedColumnTypes.length; i++){
-                columnObject[colTypes[i]] = trueSectionArray[s][convertedColumnTypes[i]];
+                columnObject[columns[i]] = groupArray[g][convertedColumnTypes[i]];
             }
             returnObjectArray.push(columnObject);
         }
-
-
 
         return {"render": displayType, "result": returnObjectArray};
     }

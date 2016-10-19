@@ -36,7 +36,7 @@ export default class InsightFacade implements IInsightFacade {
                     Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.toString());
                     let res:InsightResponse =  {
                         code: 400,
-                        body: {error: err.toString()}
+                        error: err.toString()
                     };
                     reject(res);
                 })
@@ -55,7 +55,7 @@ export default class InsightFacade implements IInsightFacade {
                     Log.trace('RouteHandler::postDataset(..) - ERROR: ' + err.toString());
                     let res:InsightResponse =  {
                         code: 400,
-                        body: {error: err.toString()}
+                        error: err.toString()
                     };
                     reject(res);
                 })
@@ -77,7 +77,7 @@ export default class InsightFacade implements IInsightFacade {
             catch (err){
                 let res:InsightResponse = {
                     code: 404,
-                    body: {error: 'cant remove dataset: ' + err}
+                    error: 'cant remove dataset: ' + err
                 };
                 reject(res);
             }
@@ -105,13 +105,13 @@ export default class InsightFacade implements IInsightFacade {
                     if (err.ID == 400) {
                         let res:InsightResponse = {
                             code:400,
-                            body:{error: 'invalid query: ' + err.MESSAGE}
+                            error: 'invalid query: ' + err.MESSAGE
                         };
                         reject(res);
                     } else {
                         let res:InsightResponse = {
                             code:424,
-                            body:{error: 'invalid query: ' + err.MESSAGE}
+                            error: 'invalid query: ' + err.MESSAGE
                         };
                         reject(res);
                     }
@@ -120,7 +120,7 @@ export default class InsightFacade implements IInsightFacade {
                 Log.error('RouteHandler::postQuery(..) - ERROR: ' + err);
                 let res:InsightResponse = {
                     code:400,
-                    body:{error: 'invalid query: ' + err}
+                    error: 'invalid query: ' + err
                 };
                 reject(res);
             }

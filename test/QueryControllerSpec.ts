@@ -99,7 +99,7 @@ describe("QueryController", function () {
             "ORDER": "courses_avg",
             "AS": "TABLE"
         };
-        let expected_err: any = {ID: 400, MESSAGE: "number passed as string: " + 234};
+        let expected_err: any = {ID: 400, MESSAGE: "Base opCode of IS or NIS does not contain string value"};
         try {
             controller.query(query);
         } catch (actual_err) {
@@ -120,7 +120,7 @@ describe("QueryController", function () {
             "ORDER": "courses_avg",
             "AS": "TABLE"
         };
-        let expected_err: any = {ID: 400, MESSAGE: "Query is invalid"};
+        let expected_err: any = {ID: 400, MESSAGE: "-1 additional key(s) in query (negative number means keys are missing)"};
         try {
             controller.query(query);
         } catch (actual_err) {
@@ -139,7 +139,7 @@ describe("QueryController", function () {
             "AS": "TABLE"
         };
 
-        let expected_err: any = {ID: 400, MESSAGE: "Query is invalid"};
+        let expected_err: any = {ID: 400, MESSAGE: "-1 additional key(s) in query (negative number means keys are missing)"};
         try {
             controller.query(query);
         } catch (actual_err) {
@@ -214,7 +214,7 @@ describe("QueryController", function () {
             "AS": "TABLE"
         };
 
-        let expected_err: any = {ID: 400, MESSAGE: "string passed as number: " + "b"};
+        let expected_err: any = {ID: 400, MESSAGE: "Base opCode of GT, LT, EQ or NEQ does not contain numeric value"};
         try {
             controller.query(query);
         } catch (actual_err) {
@@ -240,7 +240,7 @@ describe("QueryController", function () {
             "AS": "TABLE"
         };
 
-        let expected_err: any = {ID: 400, MESSAGE: "number passed as string: " + 10};
+        let expected_err: any = {ID: 400, MESSAGE: "Base opCode of IS or NIS does not contain string value"};
         try {
             controller.query(query);
         } catch (actual_err) {
@@ -266,7 +266,7 @@ describe("QueryController", function () {
             "AS": "TABLE"
         };
 
-        let expected_err: any = {ID: 400, MESSAGE: "at least one invalid key present in query base"};
+        let expected_err: any = {ID: 400, MESSAGE: "1 additional key(s) in query (negative number means keys are missing)"};
         try {
             controller.query(query);
         } catch (actual_err) {
