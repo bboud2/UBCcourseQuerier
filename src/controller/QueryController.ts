@@ -116,6 +116,17 @@ export default class QueryController {
             for (let i = 0; i < trueGet.length; i++) {
                 QueryController.isValidKey(trueGet[i], (query.hasOwnProperty("GROUP")), query);
             }
+            let oneUnderscore: boolean = false;
+            for (let i = 0; i < trueGet.length; i++) {
+                let curr_key: string = trueGet[i];
+                if (curr_key.indexOf("_") != -1) {
+                    oneUnderscore = true;
+                    break;
+                }
+            }
+            if (!oneUnderscore) {
+                throw  {ID: 400, MESSAGE: "No keys with an underscore so no dataset ID to look for"};
+            }
             return true;
         }
         throw {ID: 400, MESSAGE: "Query is invalid"}
@@ -154,17 +165,8 @@ export default class QueryController {
         } else {
             trueGet = query.GET;
         }
-        for (let i = 0; i < trueGet.length; i++) {
-            let curr_key: string = trueGet[i];
-            if (curr_key.indexOf("_") != -1) {
-                this.id = trueGet[0].substr(0,trueGet[0].indexOf("_"));
-                break;
-            }
-        }
-        if (this.id === null) {
-            throw  {ID: 400, MESSAGE: "No keys with an underscore so no dataset ID to look for"};
-        }
-        var allSections: Section[] = this.getAllSections(trueGet);
+
+        var allSections: Section[] = this.getAllSections(trueGet); //also sets ID
         var filteredSections: Section[];
 
         let whereObject: any = query.WHERE;
