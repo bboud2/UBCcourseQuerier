@@ -114,7 +114,7 @@ export default class QueryController {
                 throw  {ID: 400, MESSAGE: "You have to GET something. Queries can't get nothing"};
             }
             for (let i = 0; i < trueGet.length; i++) {
-                QueryController.isValidKey(trueGet[i], groupApplyStatus, query);
+                QueryController.isValidKey(trueGet[i], (query.hasOwnProperty("GROUP")), query);
             }
             return true;
         }
@@ -123,13 +123,19 @@ export default class QueryController {
 
     /**
      * Gets all sections in the dataset titled id.
-     * @param id
+     * @param ids
      * @returns {Section[]}
      */
-    private getAllSections(id: String): Section[] {
-        for (let i = 0; i < this.datasets.sets.length; i++){
-            if (this.datasets.sets[i].id_key == id) {
-                return this.datasets.sets[i].sections;
+    private getAllSections(ids: string[]): Section[] {
+        for (let j = 0; j < ids.length; j++) {
+            if (ids[j].indexOf("_") != -1) {
+                let id: string = ids[j].substr(0,ids[j].indexOf("_"));
+                for (let i = 0; i < this.datasets.sets.length; i++) {
+                    if (this.datasets.sets[i].id_key == id) {
+                        this.id = id;
+                        return this.datasets.sets[i].sections;
+                    }
+                }
             }
         }
         throw  {ID: 424, MESSAGE: "dataset not found"};
@@ -158,7 +164,7 @@ export default class QueryController {
         if (this.id === null) {
             throw  {ID: 400, MESSAGE: "No keys with an underscore so no dataset ID to look for"};
         }
-        var allSections: Section[] = this.getAllSections(this.id);
+        var allSections: Section[] = this.getAllSections(trueGet);
         var filteredSections: Section[];
 
         let whereObject: any = query.WHERE;
@@ -174,10 +180,7 @@ export default class QueryController {
                 throw  {ID: 400, MESSAGE: "Where has multiple initial keys"};
         }
 
-        //TODO: convert all sections to groups either using GROUP or by making every section its own group. While doing this, also do APPLY.
-        // will need to check that group and apply are valid... all keys in group/apply must also be present in GET.
         var filteredGroups: any[] = this.groupAndApply(filteredSections, query.GROUP, query.APPLY, trueGet);
-
         var asType: string = query.AS;
         if(asType != "TABLE") {
             throw  {ID: 400, MESSAGE: "Invalid type given for AS"};
@@ -200,10 +203,10 @@ export default class QueryController {
                 }
             }
             var orderedGroups: any[] = this.orderGroups(filteredGroups, query.ORDER);
-            var display_object: any = this.displayGroups(orderedGroups, trueGet, asType);
+            var display_object: any = QueryController.displayGroups(orderedGroups, trueGet, asType);
         }
         else{
-            var display_object: any = this.displayGroups(filteredGroups, trueGet, asType);
+            var display_object: any = QueryController.displayGroups(filteredGroups, trueGet, asType);
         }
         return display_object;
     }
@@ -233,12 +236,18 @@ export default class QueryController {
     private doGrouping(filteredSections: Section[], group: string[], get: string[]): any[] {
         let filteredGroups: any[] = [];
         let sortedSections: Section[] = filteredSections;
+        let convertedFieldNames: string[] = [];
         for (let g = 0; g < group.length; g++) {
-            sortedSections = sortedSections.sort(OperatorHelpers.dynamicSort(this.convertFieldNames(group[g]), true))
+            convertedFieldNames.push(this.convertFieldNames(group[g]));
         }
+        sortedSections = sortedSections.sort(OperatorHelpers.dynamicSort(convertedFieldNames, true));
         let last: any = {};
         let currGroup: any = {};
+
         for (let s = 0; s < sortedSections.length; s++) {
+            if (sortedSections[s].dept == "WOOD" && sortedSections[s].course_num == "475") {
+                console.log(s);
+            }
             let curr: any = sortedSections[s];
             let same: boolean = true;
             for (let g = 0; g < group.length; g++) {
@@ -253,7 +262,7 @@ export default class QueryController {
                 }
                 currGroup = {sections: [curr]};
                 for (let g = 0; g < group.length; g++) {
-                    currGroup[get[g]] = curr[this.convertFieldNames(group[g])];
+                    currGroup[group[g]] = curr[this.convertFieldNames(group[g])];
                 }
             } else {
                 currGroup.sections.push(curr);
@@ -539,20 +548,20 @@ export default class QueryController {
      */
     private orderGroups(filteredGroups: any[], instruction: string | sortObject): Section[] {
         if (typeof(instruction) === "string") {
-            return filteredGroups.sort(OperatorHelpers.dynamicSort(this.convertFieldNames(<string> instruction), true));
+            return filteredGroups.sort(OperatorHelpers.dynamicSort([this.convertFieldNames(<string> instruction)], true));
         } else {
             let oInstruction: any = instruction;
-            let orderedGroups: any[] = filteredGroups;
             let ascending: boolean = (oInstruction.dir == "UP") ? true: false;
+            let convertedInstructions: string[] = [];
             for (let i = oInstruction.keys.length - 1; i >= 0; i--) {
                 let curr_key: string = oInstruction["keys"][i];
                 if (curr_key.indexOf("_") != -1) {
-                    orderedGroups = orderedGroups.sort(OperatorHelpers.dynamicSort(this.convertFieldNames(curr_key), ascending))
+                    convertedInstructions.push(this.convertFieldNames(curr_key));
                 } else {
-                    orderedGroups = orderedGroups.sort(OperatorHelpers.dynamicSort(curr_key, ascending))
+                    convertedInstructions.push(curr_key);
                 }
             }
-            return orderedGroups;
+            return filteredGroups.sort(OperatorHelpers.dynamicSort(convertedInstructions, ascending));
         }
     }
 
@@ -564,22 +573,12 @@ export default class QueryController {
      * @param displayType
      * @returns {{render: string, result: any[]}}
      */
-    private displayGroups(groupArray: any[], columns: string[], displayType: string): any{
+    private static displayGroups(groupArray: any[], columns: string[], displayType: string): any{
         let returnObjectArray: any[] = [];
-        let convertedColumnTypes: string[] = [];
-        for(let i = 0; i < columns.length; i++){
-            if (columns[i].indexOf("_") != -1) {
-                var convertedField: string = this.convertFieldNames(columns[i]);
-            } else {
-                var convertedField: string = columns[i];
-            }
-            convertedColumnTypes.push(convertedField);
-        }
-
         for(let g = 0; g < groupArray.length; g++){       //create column objects and push into returnObjectArray
             let columnObject: any = {};
-            for(let i = 0; i < convertedColumnTypes.length; i++){
-                columnObject[columns[i]] = groupArray[g][convertedColumnTypes[i]];
+            for(let i = 0; i < columns.length; i++){
+                columnObject[columns[i]] = groupArray[g][columns[i]];
             }
             returnObjectArray.push(columnObject);
         }

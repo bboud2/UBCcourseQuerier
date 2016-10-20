@@ -104,13 +104,13 @@ export default class InsightFacade implements IInsightFacade {
                 } catch (err) {
                     if (err.ID == 400) {
                         let res:InsightResponse = {
-                            code:400,
+                            code: 400,
                             error: 'invalid query: ' + err.MESSAGE
                         };
                         reject(res);
                     } else {
                         let res:InsightResponse = {
-                            code:424,
+                            code: 424,
                             error: 'invalid query: ' + err.MESSAGE
                         };
                         reject(res);

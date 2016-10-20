@@ -24,16 +24,17 @@ export default class OperatorHelpers {
         return OperatorHelpers.compareStringsWithWildcards(section[field], value, true);
     }
 
-    public static dynamicSort(field: string, ascending: boolean): any {
+    public static dynamicSort(fields: string[], ascending: boolean): any {
         let reverse: number = (ascending) ? 1: -1;
         return function (a: any, b: any) {
-            if (a[field] < b[field]) {
-                return -1 * reverse;
-            } else if (a[field] == b[field]) {
-                return 0;
-            } else {
-                return reverse;
+            for (let f = 0; f < fields.length; f++) {
+                if (a[fields[f]] < b[fields[f]]) {
+                    return -1 * reverse;
+                } else if (a[fields[f]] > b[fields[f]]) {
+                    return reverse;
+                }
             }
+            return 0;
         }
     }
     

@@ -22,7 +22,6 @@ export default class JsonParser{
         for (let i: number = 0; i < num_sections; i++) {
             return_sections.push(this.parseSection(courseJSON.result[i]));
         }
-        //Log.trace(JSON.stringify(return_sections[0]));
         return return_sections;
     }
 
