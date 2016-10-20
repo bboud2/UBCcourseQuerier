@@ -318,7 +318,7 @@ export default class QueryController {
                 let newGroup: any = {sections: [curr]};
                 for(let k = 0; k < get.length; k++) {
                     var convertedField: string = this.convertFieldNames(get[k]);
-                    newGroup[convertedField] = curr[convertedField];
+                    newGroup[get[k]] = curr[convertedField];
                 }
                 filteredGroups.push(newGroup);
             }
@@ -548,7 +548,7 @@ export default class QueryController {
      */
     private orderGroups(filteredGroups: any[], instruction: string | sortObject): Section[] {
         if (typeof(instruction) === "string") {
-            return filteredGroups.sort(OperatorHelpers.dynamicSort([this.convertFieldNames(<string> instruction)], true));
+            return filteredGroups.sort(OperatorHelpers.dynamicSort([<string> instruction], true));
         } else {
             let oInstruction: any = instruction;
             let ascending: boolean = (oInstruction.dir == "UP") ? true: false;
@@ -582,7 +582,6 @@ export default class QueryController {
             }
             returnObjectArray.push(columnObject);
         }
-
         return {"render": displayType, "result": returnObjectArray};
     }
 
