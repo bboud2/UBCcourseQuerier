@@ -244,7 +244,9 @@ export default class QueryController {
         }
         sortedSections = sortedSections.sort(OperatorHelpers.dynamicSort(convertedFieldNames, true));
         let last: any = {};
-        let currGroup: any = {};
+        if(sortedSections.length > 0) {
+            var currGroup: any = {};
+        }
 
         for (let s = 0; s < sortedSections.length; s++) {
             if (sortedSections[s].dept == "WOOD" && sortedSections[s].course_num == "475") {
@@ -271,7 +273,9 @@ export default class QueryController {
             }
             last = curr;
         }
-        filteredGroups.push(currGroup);
+        if(sortedSections.length > 0) {
+            filteredGroups.push(currGroup);
+        }
         return filteredGroups;
     }
 
