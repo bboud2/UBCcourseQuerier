@@ -218,21 +218,21 @@ export default class QueryController {
         if (group.length == 0) {
             throw {ID: 400, MESSAGE: "GROUP cannot exist and be empty"};
         }
-        for(let i = 0; i < group.length; i++) {
-            let index: number = get.indexOf(group[i]);
-            if (index == -1) {
-                throw {ID: 400, MESSAGE: group[i] + " was found in GROUP but not in GET"};
-            }
-        }
-
-        //validate apply
-        for(let i = 0; i < apply.length; i++) {
-            let currField: string = Object.keys(apply[i])[0];
-            let index: number = get.indexOf(currField);
-            if (index == -1) {
-                throw {ID: 400, MESSAGE: currField + " was found in APPLY but not in GET"};
-            }
-        }
+        // for(let i = 0; i < group.length; i++) {
+        //     let index: number = get.indexOf(group[i]);
+        //     if (index == -1) {
+        //         throw {ID: 400, MESSAGE: group[i] + " was found in GROUP but not in GET"};
+        //     }
+        // }
+        //
+        // //validate apply
+        // for(let i = 0; i < apply.length; i++) {
+        //     let currField: string = Object.keys(apply[i])[0];
+        //     let index: number = get.indexOf(currField);
+        //     if (index == -1) {
+        //         throw {ID: 400, MESSAGE: currField + " was found in APPLY but not in GET"};
+        //     }
+        // }
     }
 
     private doGrouping(filteredSections: Section[], group: string[], get: string[]): any[] {
