@@ -26,7 +26,7 @@ describe("QueryController", function () {
 
     beforeEach(function () {
         section1 = {
-            id_key: "section1", audit: 1, avg: 75, course_num: "110", dept: "CPSC", fail: 5, pass: 100,
+            id_key: "section1", audit: 1, avg: 75, course_num: "110", dept: "CPSC", fail: 8, pass: 100,
             professor: "Kiczales", title: "computer programming", section_id: "1"
         };
         section2 = {
@@ -106,24 +106,25 @@ describe("QueryController", function () {
         expect(x.result[0].courses_id).to.equal('200');
     });
 
-    it("Should be able to reject a query with an extra Group field not present in Get", function () {
-        let query: any = {
-            "GET": ["courses_dept", "courses_id", "numSections"],
-            "WHERE": {},
-            "GROUP": ["courses_dept", "courses_id"],
-            "APPLY": [{"numSections": {"COUNT": "courses_uuid"}}, {"courseAverage": {"AVG": "courses_avg"}}],
-            "ORDER": {"dir": "UP", "keys": ["numSections", "courses_dept", "courses_id"]},
-            "AS": "TABLE"
-        };
-
-        var expected_error: any = {ID: 400, MESSAGE: "courseAverage was found in APPLY but not in GET"};
-        try {
-            controller.query(query);
-        } catch (actual_err) {
-            expect(error_comparison.checkErrors(expected_error, actual_err)).to.equal(true);
-            return;
-        }
-    });
+    // it("Should be able to reject a query with an extra Group field not present in Get", function () {
+    //     let query: any = {
+    //         "GET": ["courses_dept", "courses_id", "numSections"],
+    //         "WHERE": {},
+    //         "GROUP": ["courses_dept", "courses_id"],
+    //         "APPLY": [{"numSections": {"COUNT": "courses_uuid"}}, {"courseAverage": {"AVG": "courses_avg"}}],
+    //         "ORDER": {"dir": "UP", "keys": ["numSections", "courses_dept", "courses_id"]},
+    //         "AS": "TABLE"
+    //     };
+    //
+    //     var expected_error: any = {ID: 400, MESSAGE: "courseAverage was found in APPLY but not in GET"};
+    //     try {
+    //         controller.query(query);
+    //     } catch (actual_err) {
+    //         expect(error_comparison.checkErrors(expected_error, actual_err)).to.equal(true);
+    //         return;
+    //     }
+    //     expect(", but it didn't").to.equal("controller.query should have failed");
+    // });
 
     it("Should be able to reject a query with a field without an _ in GROUP", function () {
 
@@ -144,6 +145,7 @@ describe("QueryController", function () {
             expect(error_comparison.checkErrors(expected_error, actual_err)).to.equal(true);
             return;
         }
+        expect(", but it didn't").to.equal("controller.query should have failed");
     });
 
     it("Should be able to reject a query with an extra key in GROUP not found in GET", function () {
@@ -162,6 +164,7 @@ describe("QueryController", function () {
             expect(error_comparison.checkErrors(expected_error, actual_err)).to.equal(true);
             return;
         }
+        expect(", but it didn't").to.equal("controller.query should have failed");
     });
 
     it("Should be able to invalidate a query with no _ fields in GET", function(){
@@ -180,7 +183,27 @@ describe("QueryController", function () {
             expect(error_comparison.checkErrors(expected_error, actual_err)).to.equal(true);
             return;
         }
+        expect(", but it didn't").to.equal("controller.query should have failed");
 
+    });
+
+    it("Should be able to invalidate a query with same keys in group and apply", function(){
+        let query: any = {
+            "GET": ["numSections", "courses_dept"],
+            "WHERE": {},
+            "GROUP": ["courses_dept", "courses_id"],
+            "APPLY": [{"numSections": {"COUNT": "courses_id"}}],
+            "ORDER": {"dir": "UP", "keys": ["numSections", "courses_dept"]},
+            "AS": "TABLE"
+        };
+        var expected_error: any = {ID: 400, MESSAGE: "The following key was found in both apply and group: courses_id"};
+        try {
+            controller.query(query);
+        } catch (actual_err) {
+            expect(error_comparison.checkErrors(expected_error, actual_err)).to.equal(true);
+            return;
+        }
+        expect(", but it didn't").to.equal("controller.query should have failed");
     });
 
 

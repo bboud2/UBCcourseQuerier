@@ -204,7 +204,7 @@ export default class QueryController {
                     throw  {ID: 400, MESSAGE: "Key for ORDER not present in keys for GET"};
                 }
             }
-            var orderedGroups: any[] = this.orderGroups(filteredGroups, query.ORDER);
+            var orderedGroups: any[] = QueryController.orderGroups(filteredGroups, query.ORDER);
             var display_object: any = QueryController.displayGroups(orderedGroups, trueGet, asType);
         }
         else{
@@ -213,26 +213,24 @@ export default class QueryController {
         return display_object;
     }
 
-    private static validateGroupAndApply(group: string[], apply: {}[], get: string[]) {
+    private static validateGroupAndApply(group: string[], apply: {}[]) {
         //validate group
         if (group.length == 0) {
             throw {ID: 400, MESSAGE: "GROUP cannot exist and be empty"};
         }
-        // for(let i = 0; i < group.length; i++) {
-        //     let index: number = get.indexOf(group[i]);
-        //     if (index == -1) {
-        //         throw {ID: 400, MESSAGE: group[i] + " was found in GROUP but not in GET"};
-        //     }
-        // }
-        //
-        // //validate apply
-        // for(let i = 0; i < apply.length; i++) {
-        //     let currField: string = Object.keys(apply[i])[0];
-        //     let index: number = get.indexOf(currField);
-        //     if (index == -1) {
-        //         throw {ID: 400, MESSAGE: currField + " was found in APPLY but not in GET"};
-        //     }
-        // }
+
+        //make sure no key appears in both group and apply
+        for (let g = 0; g < group.length; g++) {
+            for (let a = 0; a < apply.length; a++) {
+                let applyObject: any = apply[a];
+                let innerObject: any = applyObject[Object.keys(applyObject)[0]];
+                let applyKey: string = innerObject[Object.keys(innerObject)[0]];
+                if (group[g] == applyKey) {
+                    throw {ID: 400, MESSAGE: "The following key was found in both apply and group: " + applyKey};
+                }
+            }
+        }
+
     }
 
     private doGrouping(filteredSections: Section[], group: string[], get: string[]): any[] {
@@ -242,38 +240,32 @@ export default class QueryController {
         for (let g = 0; g < group.length; g++) {
             convertedFieldNames.push(this.convertFieldNames(group[g]));
         }
-        sortedSections = sortedSections.sort(OperatorHelpers.dynamicSort(convertedFieldNames, true));
-        let last: any = {};
         if(sortedSections.length > 0) {
+            sortedSections = sortedSections.sort(OperatorHelpers.dynamicSort(convertedFieldNames, true));
+            let last: any = {};
             var currGroup: any = {};
-        }
-
-        for (let s = 0; s < sortedSections.length; s++) {
-            if (sortedSections[s].dept == "WOOD" && sortedSections[s].course_num == "475") {
-                console.log(s);
-            }
-            let curr: any = sortedSections[s];
-            let same: boolean = true;
-            for (let g = 0; g < group.length; g++) {
-                if (curr[this.convertFieldNames(group[g])] != last[this.convertFieldNames(group[g])]) {
-                    same = false;
-                    break;
-                }
-            }
-            if (!same) {
-                if (currGroup.hasOwnProperty("sections")) {
-                    filteredGroups.push(JSON.parse(JSON.stringify(currGroup)));
-                }
-                currGroup = {sections: [curr]};
+            for (let s = 0; s < sortedSections.length; s++) {
+                let curr: any = sortedSections[s];
+                let same: boolean = true;
                 for (let g = 0; g < group.length; g++) {
-                    currGroup[group[g]] = curr[this.convertFieldNames(group[g])];
+                    if (curr[this.convertFieldNames(group[g])] != last[this.convertFieldNames(group[g])]) {
+                        same = false;
+                        break;
+                    }
                 }
-            } else {
-                currGroup.sections.push(curr);
+                if (!same) {
+                    if (currGroup.hasOwnProperty("sections")) {
+                        filteredGroups.push(JSON.parse(JSON.stringify(currGroup)));
+                    }
+                    currGroup = {sections: [curr]};
+                    for (let g = 0; g < group.length; g++) {
+                        currGroup[group[g]] = curr[this.convertFieldNames(group[g])];
+                    }
+                } else {
+                    currGroup.sections.push(curr);
+                }
+                last = curr;
             }
-            last = curr;
-        }
-        if(sortedSections.length > 0) {
             filteredGroups.push(currGroup);
         }
         return filteredGroups;
@@ -330,7 +322,7 @@ export default class QueryController {
             }
             return filteredGroups;
         }
-        QueryController.validateGroupAndApply(group, apply, get);
+        QueryController.validateGroupAndApply(group, apply);
         filteredGroups = this.doGrouping(filteredSections, group, get);
         return(this.doApplying(filteredGroups, apply));
     }
@@ -552,22 +544,13 @@ export default class QueryController {
      * @param instruction
      * @returns {any[]}
      */
-    private orderGroups(filteredGroups: any[], instruction: string | sortObject): Section[] {
+    private static orderGroups(filteredGroups: any[], instruction: string | sortObject): Section[] {
         if (typeof(instruction) === "string") {
             return filteredGroups.sort(OperatorHelpers.dynamicSort([<string> instruction], true));
         } else {
             let oInstruction: any = instruction;
             let ascending: boolean = (oInstruction.dir == "UP") ? true: false;
-            let convertedInstructions: string[] = [];
-            for (let i = oInstruction.keys.length - 1; i >= 0; i--) {
-                let curr_key: string = oInstruction["keys"][i];
-                if (curr_key.indexOf("_") != -1) {
-                    convertedInstructions.push(this.convertFieldNames(curr_key));
-                } else {
-                    convertedInstructions.push(curr_key);
-                }
-            }
-            return filteredGroups.sort(OperatorHelpers.dynamicSort(convertedInstructions, ascending));
+            return filteredGroups.sort(OperatorHelpers.dynamicSort(oInstruction.keys, ascending));
         }
     }
 

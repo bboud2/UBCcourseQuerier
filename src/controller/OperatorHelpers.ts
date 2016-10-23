@@ -115,7 +115,7 @@ export default class OperatorHelpers {
         if (!OperatorHelpers.isFieldNumeric(field)) {
             throw  {ID: 400, MESSAGE: "Expected a numeric field for handle_avg but got " + field};
         }
-        let tally: number = 0;
+        let tally: number = 0.0;
         for (let s = 0; s < sections.length; s++) {
             let curr_section: any = sections[s];
             tally += curr_section[field];
