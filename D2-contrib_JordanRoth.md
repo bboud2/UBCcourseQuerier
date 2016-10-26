@@ -10,6 +10,7 @@
 - Fixed field name bugs causing all of our tests to fail
 
 **KEY COMMITS**
+
 *Refactoring custom objects*
 - https://github.com/CS310-2016Fall/cpsc310project_team28/commit/bc6c1670ff8d033935514cb11f5086797f13f923
 - https://github.com/CS310-2016Fall/cpsc310project_team28/commit/8f40ee60f11791ca9a561e9373002bffc6d3ad3f
