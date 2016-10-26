@@ -1,4 +1,4 @@
-**GRADE METRICS*
+**GRADE METRICS**
 - Private tests passed: 34/35
 - Code coverage: 81.36%
 
