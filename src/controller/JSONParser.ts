@@ -36,7 +36,9 @@ export default class JsonParser{
             title: null,
             pass: null,
             fail: null,
-            audit: null};
+            audit: null,
+            year: null
+        };
 
         // If field does not exist, do nothing usng catch block.
         try{
@@ -82,6 +84,15 @@ export default class JsonParser{
 
         try{
             returnSection.audit = section.Audit;
+        }
+        catch(err){}
+
+        try{
+            if (section.Section == "overall") {
+                returnSection.year = 1900;
+            } else {
+                returnSection.year = section.Year;
+            }
         }
         catch(err){}
 

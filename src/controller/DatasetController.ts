@@ -37,6 +37,7 @@ export interface Section {
     pass?: number;
     fail?: number;
     audit?: number;
+    year?: number;
 }
 
 /**

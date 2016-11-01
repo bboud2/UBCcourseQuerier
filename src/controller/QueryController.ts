@@ -114,7 +114,7 @@ export default class QueryController {
                 throw  {ID: 400, MESSAGE: "You have to GET something. Queries can't get nothing"};
             }
             for (let i = 0; i < trueGet.length; i++) {
-                QueryController.isValidKey(trueGet[i], (query.hasOwnProperty("GROUP")), query);
+                QueryController.isValidKey(trueGet[i], query.hasOwnProperty("GROUP"), query);
             }
             let oneUnderscore: boolean = false;
             for (let i = 0; i < trueGet.length; i++) {
@@ -133,18 +133,22 @@ export default class QueryController {
     }
 
     /**
-     * Gets all sections in the dataset titled id.
+     * Gets all objects in the dataset titled id.
      * @param ids
-     * @returns {Section[]}
+     * @returns {any[]}
      */
-    private getAllSections(ids: string[]): Section[] {
+    private getAllObjects(ids: string[]): any[] {
         for (let j = 0; j < ids.length; j++) {
             if (ids[j].indexOf("_") != -1) {
                 let id: string = ids[j].substr(0,ids[j].indexOf("_"));
                 for (let i = 0; i < this.datasets.sets.length; i++) {
                     if (this.datasets.sets[i].id_key == id) {
                         this.id = id;
-                        return this.datasets.sets[i].sections;
+                        if (this.datasets.sets[i].hasOwnProperty("sections")) {
+                            return this.datasets.sets[i].sections;
+                        } else {
+                            return this.datasets.sets[i].rooms;
+                        }
                     }
                 }
             }
@@ -166,23 +170,23 @@ export default class QueryController {
             trueGet = query.GET;
         }
 
-        var allSections: Section[] = this.getAllSections(trueGet); //also sets ID
-        var filteredSections: Section[];
+        var allObjects: any[] = this.getAllObjects(trueGet); //also sets ID
+        var filteredObjects: any[];
 
         let whereObject: any = query.WHERE;
         let operation: any = Object.keys(whereObject)[0];
         switch (Object.keys(whereObject).length) {
             case 0:
-                filteredSections = allSections;
+                filteredObjects = allObjects;
                 break;
             case 1:
-                filteredSections = this.filterSections(operation, whereObject[operation], allSections, false);
+                filteredObjects = this.filterObjects(operation, whereObject[operation], allObjects, false);
                 break;
             default:
                 throw  {ID: 400, MESSAGE: "Where has multiple initial keys"};
         }
 
-        var filteredGroups: any[] = this.groupAndApply(filteredSections, query.GROUP, query.APPLY, trueGet);
+        var filteredGroups: any[] = this.groupAndApply(filteredObjects, query.GROUP, query.APPLY, trueGet);
         var asType: string = query.AS;
         if(asType != "TABLE") {
             throw  {ID: 400, MESSAGE: "Invalid type given for AS"};
@@ -233,19 +237,19 @@ export default class QueryController {
 
     }
 
-    private doGrouping(filteredSections: Section[], group: string[], get: string[]): any[] {
+    private doGrouping(filteredObjects: Section[], group: string[], get: string[]): any[] {
         let filteredGroups: any[] = [];
-        let sortedSections: Section[] = filteredSections;
+        let sortedObjects: any[] = filteredObjects;
         let convertedFieldNames: string[] = [];
         for (let g = 0; g < group.length; g++) {
             convertedFieldNames.push(this.convertFieldNames(group[g]));
         }
-        if(sortedSections.length > 0) {
-            sortedSections = sortedSections.sort(OperatorHelpers.dynamicSort(convertedFieldNames, true));
+        if(sortedObjects.length > 0) {
+            sortedObjects = sortedObjects.sort(OperatorHelpers.dynamicSort(convertedFieldNames, true));
             let last: any = {};
             var currGroup: any = {};
-            for (let s = 0; s < sortedSections.length; s++) {
-                let curr: any = sortedSections[s];
+            for (let s = 0; s < sortedObjects.length; s++) {
+                let curr: any = sortedObjects[s];
                 let same: boolean = true;
                 for (let g = 0; g < group.length; g++) {
                     if (curr[this.convertFieldNames(group[g])] != last[this.convertFieldNames(group[g])]) {
@@ -254,15 +258,15 @@ export default class QueryController {
                     }
                 }
                 if (!same) {
-                    if (currGroup.hasOwnProperty("sections")) {
+                    if (currGroup.hasOwnProperty("objects")) {
                         filteredGroups.push(JSON.parse(JSON.stringify(currGroup)));
                     }
-                    currGroup = {sections: [curr]};
+                    currGroup = {objects: [curr]};
                     for (let g = 0; g < group.length; g++) {
                         currGroup[group[g]] = curr[this.convertFieldNames(group[g])];
                     }
                 } else {
-                    currGroup.sections.push(curr);
+                    currGroup.objects.push(curr);
                 }
                 last = curr;
             }
@@ -289,7 +293,7 @@ export default class QueryController {
             default:
                 throw  {ID: 400, MESSAGE: "Invalid opCode received on APPLY: " + opCode};
         }
-        return handlerFunction(group.sections, field);
+        return handlerFunction(group.objects, field);
     }
 
     private doApplying(groups: any[], apply: {}[]): any[] {
@@ -307,13 +311,13 @@ export default class QueryController {
         return groups;
     }
 
-    private groupAndApply(filteredSections: Section[], group: string[], apply: {}[], get: string[]): any[] {
+    private groupAndApply(filteredObjects: Section[], group: string[], apply: {}[], get: string[]): any[] {
         let filteredGroups: any[] = [];
         if (group == undefined) {
-            // each section is now its own group
-            for (let s = 0; s < filteredSections.length; s++) {
-                let curr: any = filteredSections[s];
-                let newGroup: any = {sections: [curr]};
+            // each object is now its own group
+            for (let s = 0; s < filteredObjects.length; s++) {
+                let curr: any = filteredObjects[s];
+                let newGroup: any = {objects: [curr]};
                 for(let k = 0; k < get.length; k++) {
                     var convertedField: string = this.convertFieldNames(get[k]);
                     newGroup[get[k]] = curr[convertedField];
@@ -323,12 +327,12 @@ export default class QueryController {
             return filteredGroups;
         }
         QueryController.validateGroupAndApply(group, apply);
-        filteredGroups = this.doGrouping(filteredSections, group, get);
+        filteredGroups = this.doGrouping(filteredObjects, group, get);
         return(this.doApplying(filteredGroups, apply));
     }
 
     /**
-     * Convert key corresponding to property of a section to the correct key for SECTION objects. Only call this method
+     * Convert key corresponding to property of an object to the correct key for SECTION objects. Only call this method
      * with keys containing underscores.
      * @param key
      * @returns {string}
@@ -336,52 +340,95 @@ export default class QueryController {
     private convertFieldNames(key: string): string {
         key = key.replace("[","");
         key = key.replace("]","");
-        switch (key) {
-            case this.id+"_dept":
-                key = "dept";
-                break;
-            case this.id+"_id":
-                key = "course_num";
-                break;
-            case this.id+"_uuid":
-                key = "section_id";
-                break;
-            case this.id+"_avg":
-                key = "avg";
-                break;
-            case this.id+"_instructor":
-                key = "professor";
-                break;
-            case this.id+"_title":
-                key = "title";
-                break;
-            case this.id+"_pass":
-                key = "pass";
-                break;
-            case this.id+"_fail":
-                key = "fail";
-                break;
-            case this.id+"_audit":
-                key = "audit";
-                break;
-            default:
-                if (key.indexOf("_") == -1 || key.substr(0, key.indexOf("_")) == this.id) {
-                    throw  {ID: 400, MESSAGE: "key not corresponding to valid field: " + key};
-                }
-                throw  {ID: 424, MESSAGE: "Attempting to use invalid dataset in deep where"};
+        if (this.id == "rooms") {
+            switch (key) {
+                case this.id+"_fullname":
+                    key = "full_name";
+                    break;
+                case this.id+"_shortname":
+                    key = "short_name";
+                    break;
+                case this.id+"_number":
+                    key = "number";
+                    break;
+                case this.id+"_name":
+                    key = "name";
+                    break;
+                case this.id+"_address":
+                    key = "address";
+                    break;
+                case this.id+"_lat":
+                    key = "lat";
+                    break;
+                case this.id+"_lon":
+                    key = "lon";
+                    break;
+                case this.id+"_seats":
+                    key = "seats";
+                    break;
+                case this.id+"_type":
+                    key = "type";
+                    break;
+                case this.id+"_furniture":
+                    key = "furniture";
+                    break;
+                case this.id+"_href":
+                    key = "href";
+                    break;
+                default:
+                    if (key.indexOf("_") == -1 || key.substr(0, key.indexOf("_")) == this.id) {
+                        throw  {ID: 400, MESSAGE: "key not corresponding to valid field: " + key};
+                    }
+                    throw  {ID: 424, MESSAGE: "Attempting to use invalid dataset in deep where"};
+            }
+        } else {
+            switch (key) {
+                case this.id+"_dept":
+                    key = "dept";
+                    break;
+                case this.id+"_id":
+                    key = "course_num";
+                    break;
+                case this.id+"_uuid":
+                    key = "section_id";
+                    break;
+                case this.id+"_avg":
+                    key = "avg";
+                    break;
+                case this.id+"_instructor":
+                    key = "professor";
+                    break;
+                case this.id+"_title":
+                    key = "title";
+                    break;
+                case this.id+"_pass":
+                    key = "pass";
+                    break;
+                case this.id+"_fail":
+                    key = "fail";
+                    break;
+                case this.id+"_audit":
+                    key = "audit";
+                    break;
+                default:
+                    if (key.indexOf("_") == -1 || key.substr(0, key.indexOf("_")) == this.id) {
+                        throw  {ID: 400, MESSAGE: "key not corresponding to valid field: " + key};
+                    }
+                    throw  {ID: 424, MESSAGE: "Attempting to use invalid dataset in deep where"};
+            }
         }
         return key;
     }
 
     /**
-     * Filters an array of sections by a specific op code and a specific property of the sections and returns the
+     * Filters an array of objects filtered by a specific op code and a specific property of the objects and returns the
      * filtered array.
      * @param opCode
      * @param rest
-     * @param sections
+     * @param objects
      * @returns {Section[]}
      */
-    private baseCourseFilter(opCode: string, rest: any, sections: Section[]): Section[] {
+    private baseObjectFilter(opCode: string, rest: any, objects: any[]): any[] {
         if (Object.keys(rest).length != 1) {
             throw  {ID: 400, MESSAGE: "Base opCode has many or zero initial keys"};
         }
@@ -418,38 +465,38 @@ export default class QueryController {
                 operator = OperatorHelpers.StringIsNotEqualTo;
                 break;
             default:
-                throw  {ID: 400, MESSAGE: "Invalid base op code passed to baseCourseFilter: " + opCode};
+                throw  {ID: 400, MESSAGE: "Invalid base op code passed to baseObjectFilter: " + opCode};
         }
-        let numSections: number = sections.length;
-        let filteredSections: Section[] = [];
-        for (let i = 0; i < numSections; i++) {
-            let currSection: any = sections[i];
-            if (operator(currSection, key, value)) {
-                filteredSections.push(currSection);
+        let numObjects: number = objects.length;
+        let filteredObjects: any[] = [];
+        for (let i = 0; i < numObjects; i++) {
+            let currObject: any = objects[i];
+            if (operator(currObject, key, value)) {
+                filteredObjects.push(currObject);
             }
         }
-        return filteredSections;
+        return filteredObjects;
     }
 
     /**
-     * Takes a list of arrays filtered by baseCourseFilter and compares them to find sections in all of the arrays or
-     * in any of the arrays.
+     * Takes a list of arrays filtered by baseObjectFilter and compares them to find objects in all of the arrays or
+     * in any of the arrays depending on the op code.
      * @param opCode
-     * @param section_arrays
+     * @param object_arrays
      * @returns {Section[]}
      */
-    private static joinFilters(opCode: string, section_arrays: Section[][]): Section[] {
-        let filtered_sections: Section[] = [];
+    private static joinFilters(opCode: string, object_arrays: any[][]): any[] {
+        let filtered_objects: any[] = [];
         switch (opCode) {
             case "AND":
-                section_arrays.sort(OperatorHelpers.compare_arrays);
-                for (let i = 0; i < section_arrays[0].length; i++) {
-                    let currKey: string = section_arrays[0][i].id_key;
+                object_arrays.sort(OperatorHelpers.compare_arrays);
+                for (let i = 0; i < object_arrays[0].length; i++) {
+                    let currKey: string = object_arrays[0][i].id_key;
                     let should_add: boolean;
-                    for (let j = 1; j < section_arrays.length; j++) {
+                    for (let j = 1; j < object_arrays.length; j++) {
                         should_add = false;
-                        for (let ii = 0; ii < section_arrays[j].length; ii++) {
-                            if (section_arrays[j][ii].id_key == currKey) {
+                        for (let ii = 0; ii < object_arrays[j].length; ii++) {
+                            if (object_arrays[j][ii].id_key == currKey) {
                                 should_add = true;
                                 break;
                             }
@@ -459,17 +506,17 @@ export default class QueryController {
                         }
                     }
                     if (should_add) {
-                        filtered_sections.push(section_arrays[0][i]);
+                        filtered_objects.push(object_arrays[0][i]);
                     }
                 }
                 break;
             case "OR":
-                let filtered_section_keys: any = {};
-                for (let i = 0; i < section_arrays.length; i++) {
-                    for (let j = 0; j < section_arrays[i].length; j++) {
-                        if (!(section_arrays[i][j].id_key in filtered_section_keys)) {
-                            filtered_section_keys[section_arrays[i][j].id_key] = true;
-                            filtered_sections.push(section_arrays[i][j]);
+                let filtered_object_keys: any = {};
+                for (let i = 0; i < object_arrays.length; i++) {
+                    for (let j = 0; j < object_arrays[i].length; j++) {
+                        if (!(object_arrays[i][j].id_key in filtered_object_keys)) {
+                            filtered_object_keys[object_arrays[i][j].id_key] = true;
+                            filtered_objects.push(object_arrays[i][j]);
                         }
                     }
                 }
@@ -477,31 +524,31 @@ export default class QueryController {
             default:
                 throw  {ID: 400, MESSAGE: "Invalid logical operator given to join filter: " + opCode};
         }
-        return filtered_sections;
+        return filtered_objects;
     }
 
     /**
-     * Takes a query.WHERE object and uses it to filter a list of all of the sections in a dataset.
+     * Takes a query.WHERE object and uses it to filter a list of all of the objects in a dataset.
      * @param opCode
      * @param rest
-     * @param sections
+     * @param objects
      * @param negated
      * @returns {Section[]}
      */
-    public filterSections(opCode: string, rest: any, sections: Section[], negated: boolean): Section[] {
+    public filterObjects(opCode: string, rest: any, objects: any[], negated: boolean): any[] {
         if (opCode == "GT" || opCode == "LT" || opCode == "EQ" || opCode == "IS") {
             if (!negated) {
-                return this.baseCourseFilter(opCode, rest, sections);
+                return this.baseObjectFilter(opCode, rest, objects);
             } else {
                 switch (opCode) {
                     case "GT":
-                        return this.baseCourseFilter("LT", rest, sections);
+                        return this.baseObjectFilter("LT", rest, objects);
                     case "LT":
-                        return this.baseCourseFilter("GT", rest, sections);
+                        return this.baseObjectFilter("GT", rest, objects);
                     case "EQ":
-                        return this.baseCourseFilter("NEQ", rest, sections);
+                        return this.baseObjectFilter("NEQ", rest, objects);
                     case "IS":
-                        return this.baseCourseFilter("NIS", rest, sections);
+                        return this.baseObjectFilter("NIS", rest, objects);
                     default:
                         throw  {ID: 400, MESSAGE: "Invalid base opCode: " + opCode};
                 }
@@ -512,7 +559,7 @@ export default class QueryController {
             }
             let nextOpCode: string = Object.keys(rest)[0];
             let nextRest: any = rest[Object.keys(rest)[0]];
-            return this.filterSections(nextOpCode, nextRest, sections, !negated);
+            return this.filterObjects(nextOpCode, nextRest, objects, !negated);
         } else if (opCode == "OR" || opCode == "AND") {
             if (negated) {
                 if (opCode == "OR") {
@@ -530,7 +577,7 @@ export default class QueryController {
                 }
                 let nextOpCode: string = Object.keys(conditionObject)[0];
                 let nextRest: any = conditionObject[nextOpCode];
-                conditionArrays.push(this.filterSections(nextOpCode, nextRest, sections, negated));
+                conditionArrays.push(this.filterObjects(nextOpCode, nextRest, objects, negated));
             }
             return QueryController.joinFilters(opCode, conditionArrays)
         } else {
@@ -539,12 +586,12 @@ export default class QueryController {
     }
 
     /**
-     * Order sections by either a string (d1) or a sortObject (d2).
+     * Order objects by either a string (d1) or a sortObject (d2).
      * @param filteredGroups
      * @param instruction
      * @returns {any[]}
      */
-    private static orderGroups(filteredGroups: any[], instruction: string | sortObject): Section[] {
+    private static orderGroups(filteredGroups: any[], instruction: string | sortObject): any[] {
         if (typeof(instruction) === "string") {
             return filteredGroups.sort(OperatorHelpers.dynamicSort([<string> instruction], true));
         } else {
@@ -562,7 +609,7 @@ export default class QueryController {
      * @param displayType
      * @returns {{render: string, result: any[]}}
      */
-    private static displayGroups(groupArray: any[], columns: string[], displayType: string): any{
+    private static displayGroups(groupArray: any[], columns: string[], displayType: string): any {
         let returnObjectArray: any[] = [];
         for(let g = 0; g < groupArray.length; g++){       //create column objects and push into returnObjectArray
             let columnObject: any = {};
