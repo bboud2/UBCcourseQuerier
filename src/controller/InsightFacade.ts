@@ -20,7 +20,6 @@ export default class InsightFacade implements IInsightFacade {
     private static datasetController = new DatasetController();
 
     addDataset(id: string, content: string): Promise<InsightResponse>{
-
         return new Promise<InsightResponse>(function(fufill, reject){
             let wasSeenPrevious: boolean = InsightFacade.datasetAlreadyPresent(id);
             if(wasSeenPrevious){
@@ -86,9 +85,6 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     performQuery(query: QueryRequest): Promise<InsightResponse> {
-
-
-
         return new Promise<InsightResponse>(function (fufill,reject){
             try {
                 let datasets: Datasets = InsightFacade.datasetController.getDatasets();

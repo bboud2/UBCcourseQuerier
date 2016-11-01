@@ -19,7 +19,8 @@ export interface Datasets {
  */
 export interface Dataset {
     id_key: string;
-    sections: Section[];
+    sections?: Section[];
+    rooms?: Room[];
 }
 
 /**
@@ -36,6 +37,24 @@ export interface Section {
     pass?: number;
     fail?: number;
     audit?: number;
+}
+
+/**
+ * Representation of a Room
+ */
+export interface Room {
+    id_key: string;
+    full_name?: string;
+    short_name?: string;
+    number?: string;
+    name?: string;
+    address?: string;
+    lat?: number;
+    lon?: number;
+    seats?: number;
+    type?: string;
+    furniture?: string;
+    href?: string;
 }
 
 export default class DatasetController {
@@ -129,30 +148,51 @@ export default class DatasetController {
         return new Promise(function (fulfill, reject) {
             try {
                 let myZip = new JSZip();
-                var processedDataset: Dataset = {id_key: id, sections: []};
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
                     let parser: any = new JsonParser();
-                    let regObject: RegExp = new RegExp(id);
+                    if (id == "rooms") {
+                        var regObject: RegExp = new RegExp("campus/discover/buildings-and-classrooms");
+                        var processedDataset: Dataset = {id_key: id, rooms: []};
+                        var roomsToIndex: string[] = null; //TODO: BEN PARSES INDEX.HTML TO GENERATE THIS INDEX
+                    } else {
+                        var regObject: RegExp = new RegExp(id);
+                        var processedDataset: Dataset = {id_key: id, sections: []};
+                    }
                     if (zip.folder(regObject).length == 0) {
                         reject("folder in dataset corresponding to dataset ID does not exist");
                     }
                     var files: Promise<boolean>[] = [];
-                    zip.folder(id).forEach(function (relativePath, file) {
-                        files.push(new Promise(function (fulfill, reject) {
-                            file.async("string").then(function (content: any) {
-                                processedDataset.sections = processedDataset.sections.concat(parser.parseCourse(content));
-                                fulfill(true);
-                            }).catch(function error() {
-                                Log.trace("couldn't get string from file with filename");
-                                reject(false);
-                            });
-                        }));
-                    });
+                    if (id == "rooms") {
+                        zip.folder(id).forEach(function (relativePath, file) {
+                            if (roomsToIndex.indexOf(file.name) != -1) {
+                                files.push(new Promise(function (fulfill, reject) {
+                                    file.async("string").then(function (content: any) {
+                                        processedDataset.sections = processedDataset.sections.concat(null); //TODO: replace null with call to Ben's parser
+                                        fulfill(true);
+                                    }).catch(function error() {
+                                        Log.trace("couldn't get string from file with filename " + file);
+                                        reject(false);
+                                    });
+                                }));
+                            }
+                        });
+                    } else {
+                        zip.folder(id).forEach(function (relativePath, file) {
+                            files.push(new Promise(function (fulfill, reject) {
+                                file.async("string").then(function (content: any) {
+                                    processedDataset.sections = processedDataset.sections.concat(parser.parseCourse(content));
+                                    fulfill(true);
+                                }).catch(function error() {
+                                    Log.trace("couldn't get string from file with filename");
+                                    reject(false);
+                                });
+                            }));
+                        });
+                    }
                     Promise.all(files).then(function() {
                         that.save(id, processedDataset);
                         fulfill(true);
                     }).catch(function(err) {
-                        Log.trace("couldn't save the dataset");
                         reject("couldn't save the dataset");
                     });
                 }).catch(function (err) {
