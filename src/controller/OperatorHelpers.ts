@@ -1,4 +1,3 @@
-import {Section} from "./DatasetController";
 export default class OperatorHelpers {
     public static GreaterThan(object: any, field: string, value: number) {
         return object[field] > Number(value);

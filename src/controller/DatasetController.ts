@@ -6,6 +6,9 @@ import Log from "../Util";
 import JSZip = require('jszip');
 import fs = require('fs');
 import JsonParser from "./JSONParser";
+import parse5 = require('parse5');
+import {ASTNode} from "parse5";
+import {ASTAttribute} from "parse5";
 
 /**
  * In memory representation of all datasets.
@@ -137,6 +140,59 @@ export default class DatasetController {
         return this.datasets;
     }
 
+    private static getTableBody(node: ASTNode): ASTNode {
+        if (node.nodeName == "tbody") {
+            return node;
+        } else {
+            if (node.hasOwnProperty("childNodes")) {
+                let results: ASTNode[] = [];
+                node.childNodes.forEach(function(child: ASTNode) {
+                    results.push(DatasetController.getTableBody(child));
+                });
+                for (let i = 0; i < results.length; i++) {
+                    if (results[i] != null) {
+                        return results[i];
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static getBuildingFromRow(row: ASTNode): string {
+        let output: string = null;
+        if (row.hasOwnProperty("childNodes")) {
+            row.childNodes.forEach(function(cell: ASTNode) {
+                if (cell.hasOwnProperty("attrs")) {
+                    cell.attrs.forEach(function(attr: ASTAttribute) {
+                        if (attr.name == "class" && attr.value == "views-field views-field-field-building-code") {
+                            output = cell.childNodes[0].value.toString().trim();
+                        }
+                    });
+                }
+            });
+        }
+        return output;
+    }
+
+    public parseIndex(indexFile: string): Promise<string[]> {
+        return new Promise(function (fulfill, reject) {
+            let indexNode: ASTNode = parse5.parse(indexFile);
+            let tableNode: ASTNode = DatasetController.getTableBody(indexNode);
+            if (tableNode == null || !tableNode.childNodes) {
+                reject("tbody not found in indexFile or tbody is empty");
+            }
+            let buildings: string[] = [];
+            tableNode.childNodes.forEach(function(child: ASTNode) {
+                let building: string = DatasetController.getBuildingFromRow(child);
+                if (building != null) {
+                    buildings.push(building);
+                }
+            });
+            fulfill(buildings);
+        })
+    }
+
     /**
      * Process the dataset; save it to disk when complete.
      *
@@ -150,11 +206,9 @@ export default class DatasetController {
             try {
                 let myZip = new JSZip();
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
-                    let parser: any = new JsonParser();
                     if (id == "rooms") {
                         var regObject: RegExp = new RegExp("campus/discover/buildings-and-classrooms");
                         var processedDataset: Dataset = {id_key: id, rooms: []};
-                        var roomsToIndex: string[] = null; //TODO: BEN PARSES INDEX.HTML TO GENERATE THIS INDEX
                     } else {
                         var regObject: RegExp = new RegExp(id);
                         var processedDataset: Dataset = {id_key: id, sections: []};
@@ -164,23 +218,49 @@ export default class DatasetController {
                     }
                     var files: Promise<boolean>[] = [];
                     if (id == "rooms") {
-                        zip.folder(id).forEach(function (relativePath, file) {
-                            if (roomsToIndex.indexOf(file.name) != -1) {
-                                files.push(new Promise(function (fulfill, reject) {
-                                    file.async("string").then(function (content: any) {
-                                        processedDataset.sections = processedDataset.sections.concat(null); //TODO: replace null with call to Ben's parser
-                                        fulfill(true);
-                                    }).catch(function error() {
-                                        Log.trace("couldn't get string from file with filename " + file);
-                                        reject(false);
+                        let foundIndex: boolean = false;
+                        // look for index.html
+                        zip.forEach(function (relativePath, file) {
+                            if (file.name == "index.htm") {
+                                foundIndex = true;
+                                // read index.html to generate a list of acceptable rooms, and then parse those rooms
+                                file.async("string").then(function (content: string) {
+                                    that.parseIndex(content).then(function (roomsToIndex: string[]) {
+                                        console.log(roomsToIndex.toString());
+                                        zip.folder(regObject.toString()).forEach(function (relativePath, file) {
+                                            if (roomsToIndex.indexOf(file.name) != -1) {
+                                                files.push(new Promise(function (fulfill, reject) {
+                                                    file.async("string").then(function (content: any) {
+                                                        processedDataset.sections = processedDataset.sections.concat(null); //TODO: replace null with call to Ben's parser
+                                                        fulfill(true);
+                                                    }).catch(function error() {
+                                                        reject("couldn't process individual room");
+                                                    });
+                                                }));
+                                            }
+                                        });
+                                        Promise.all(files).then(function() {
+                                            that.save(id, processedDataset);
+                                            fulfill(true);
+                                        }).catch(function(err) {
+                                            reject("couldn't save the dataset");
+                                        });
+                                    }).catch(function(err: any) {
+                                        reject("parseIndex threw an error");
                                     });
-                                }));
+                                }).catch(function(err: any) {
+                                    reject("index.html could not be asynced by jszip");
+                                });
                             }
                         });
+                        if (!foundIndex) {
+                            reject("index.html not found");
+                        }
                     } else {
+                        let parser: any = new JsonParser();
                         zip.folder(id).forEach(function (relativePath, file) {
                             files.push(new Promise(function (fulfill, reject) {
-                                file.async("string").then(function (content: any) {
+                                file.async("string").then(function (content: string) {
                                     processedDataset.sections = processedDataset.sections.concat(parser.parseCourse(content));
                                     fulfill(true);
                                 }).catch(function error() {
@@ -189,13 +269,13 @@ export default class DatasetController {
                                 });
                             }));
                         });
+                        Promise.all(files).then(function() {
+                            that.save(id, processedDataset);
+                            fulfill(true);
+                        }).catch(function(err) {
+                            reject("couldn't save the dataset");
+                        });
                     }
-                    Promise.all(files).then(function() {
-                        that.save(id, processedDataset);
-                        fulfill(true);
-                    }).catch(function(err) {
-                        reject("couldn't save the dataset");
-                    });
                 }).catch(function (err) {
                     reject("couldn't read from zip");
                 })
