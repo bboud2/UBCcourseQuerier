@@ -140,14 +140,25 @@ export default class DatasetController {
         return this.datasets;
     }
 
-    private static getTableBody(node: ASTNode): ASTNode {
-        if (node.nodeName == "tbody") {
-            return node;
+    //TODO: move the next three methods into HTMLParser
+    private static getTableBody(node: ASTNode, nodeName: string, classText: string): ASTNode {
+        if (node.nodeName == nodeName) {
+            if (classText == null) {
+                return node;
+            } else {
+                if (node.hasOwnProperty("attrs")) {
+                    node.attrs.forEach(function(attr: ASTAttribute) {
+                        if (attr.name == "class" && attr.value == classText) {
+                            return node;
+                        }
+                    });
+                }
+            }
         } else {
             if (node.hasOwnProperty("childNodes")) {
                 let results: ASTNode[] = [];
                 node.childNodes.forEach(function(child: ASTNode) {
-                    results.push(DatasetController.getTableBody(child));
+                    results.push(DatasetController.getTableBody(child, nodeName, classText));
                 });
                 for (let i = 0; i < results.length; i++) {
                     if (results[i] != null) {
@@ -178,7 +189,7 @@ export default class DatasetController {
     public parseIndex(indexFile: string): Promise<string[]> {
         return new Promise(function (fulfill, reject) {
             let indexNode: ASTNode = parse5.parse(indexFile);
-            let tableNode: ASTNode = DatasetController.getTableBody(indexNode);
+            let tableNode: ASTNode = DatasetController.getTableBody(indexNode, "tbody", null);
             if (tableNode == null || !tableNode.childNodes) {
                 reject("tbody not found in indexFile or tbody is empty");
             }
@@ -192,6 +203,8 @@ export default class DatasetController {
             fulfill(buildings);
         })
     }
+
+
 
     /**
      * Process the dataset; save it to disk when complete.
@@ -231,6 +244,7 @@ export default class DatasetController {
                                             if (roomsToIndex.indexOf(file.name) != -1) {
                                                 files.push(new Promise(function (fulfill, reject) {
                                                     file.async("string").then(function (content: any) {
+                                                        // need to pass the current file name, the lat/long, and the html file
                                                         processedDataset.sections = processedDataset.sections.concat(null); //TODO: replace null with call to Ben's parser
                                                         fulfill(true);
                                                     }).catch(function error() {
