@@ -1,27 +1,27 @@
 import {Section} from "./DatasetController";
 export default class OperatorHelpers {
-    public static GreaterThan(section: any, field: string, value: number) {
-        return section[field] > Number(value);
+    public static GreaterThan(object: any, field: string, value: number) {
+        return object[field] > Number(value);
     }
 
-    public static LessThan(section: any, field: string, value: number) {
-        return section[field] < Number(value);
+    public static LessThan(object: any, field: string, value: number) {
+        return object[field] < Number(value);
     }
 
-    public static EqualTo(section: any, field: string, value: number) {
-        return section[field] == Number(value);
+    public static EqualTo(object: any, field: string, value: number) {
+        return object[field] == Number(value);
     }
 
-    public static NotEqualTo(section: any, field: string, value: number) {
-        return section[field] != Number(value);
+    public static NotEqualTo(object: any, field: string, value: number) {
+        return object[field] != Number(value);
     }
 
-    public static StringIsEqualTo(section: any, field: string, value: string) {
-        return OperatorHelpers.compareStringsWithWildcards(section[field], value, false);
+    public static StringIsEqualTo(object: any, field: string, value: string) {
+        return OperatorHelpers.compareStringsWithWildcards(object[field], value, false);
     }
 
-    public static StringIsNotEqualTo(section: any, field: string, value: string) {
-        return OperatorHelpers.compareStringsWithWildcards(section[field], value, true);
+    public static StringIsNotEqualTo(object: any, field: string, value: string) {
+        return OperatorHelpers.compareStringsWithWildcards(object[field], value, true);
     }
 
     public static dynamicSort(fields: string[], ascending: boolean): any {
@@ -80,55 +80,56 @@ export default class OperatorHelpers {
     }
 
     private static isFieldNumeric(field: string) {
-        return (field === "avg" || field === "fail" || field === "pass" || field === "audit");
+        return (field === "avg" || field === "fail" || field === "pass" || field === "audit"
+        || field === "lat" || field === "lon" || field === "seats");
     }
 
-    public static handle_max(sections: Section[], field: string) {
+    public static handle_max(objects: any[], field: string) {
         if (!OperatorHelpers.isFieldNumeric(field)) {
             throw  {ID: 400, MESSAGE: "Expected a numeric field for handle_max but got " + field};
         }
         let max_val =  Number.MIN_SAFE_INTEGER;
-        for (let s = 0; s < sections.length; s++) {
-            let curr_section: any = sections[s];
-            if (curr_section[field] > max_val) {
-                max_val = curr_section[field];
+        for (let s = 0; s < objects.length; s++) {
+            let curr_object: any = objects[s];
+            if (curr_object[field] > max_val) {
+                max_val = curr_object[field];
             }
         }
         return max_val;
     }
 
-    public static handle_min(sections: Section[], field: string) {
+    public static handle_min(objects: any[], field: string) {
         if (!OperatorHelpers.isFieldNumeric(field)) {
             throw  {ID: 400, MESSAGE: "Expected a numeric field for handle_min but got " + field};
         }
         let min_val =  Number.MAX_SAFE_INTEGER;
-        for (let s = 0; s < sections.length; s++) {
-            let curr_section: any = sections[s];
-            if (curr_section[field] < min_val) {
-                min_val = curr_section[field];
+        for (let s = 0; s < objects.length; s++) {
+            let curr_object: any = objects[s];
+            if (curr_object[field] < min_val) {
+                min_val = curr_object[field];
             }
         }
         return min_val;
     }
 
-    public static handle_avg(sections: Section[], field: string) {
+    public static handle_avg(objects: any[], field: string) {
         if (!OperatorHelpers.isFieldNumeric(field)) {
             throw  {ID: 400, MESSAGE: "Expected a numeric field for handle_avg but got " + field};
         }
         let tally: number = 0.0;
-        for (let s = 0; s < sections.length; s++) {
-            let curr_section: any = sections[s];
-            tally += curr_section[field];
+        for (let s = 0; s < objects.length; s++) {
+            let curr_object: any = objects[s];
+            tally += curr_object[field];
         }
-        return Number((tally / sections.length).toFixed(2));
+        return Number((tally / objects.length).toFixed(2));
     }
 
-    public static handle_count(sections: Section[], field: string) {
+    public static handle_count(objects: any[], field: string) {
         let unique_finds: any[] = [];
-        for (let s = 0; s < sections.length; s++) {
-            let curr_section: any = sections[s];
-            if (unique_finds.indexOf(curr_section[field]) == -1) {
-                unique_finds.push(curr_section[field]);
+        for (let s = 0; s < objects.length; s++) {
+            let curr_object: any = objects[s];
+            if (unique_finds.indexOf(curr_object[field]) == -1) {
+                unique_finds.push(curr_object[field]);
             }
         }
         return unique_finds.length;
