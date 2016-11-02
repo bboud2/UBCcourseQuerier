@@ -9,6 +9,7 @@ import JsonParser from "./JSONParser";
 import parse5 = require('parse5');
 import {ASTNode} from "parse5";
 import {ASTAttribute} from "parse5";
+import HTMLParser from "./HTMLParser";
 
 /**
  * In memory representation of all datasets.
@@ -224,13 +225,14 @@ export default class DatasetController {
                         var processedDataset: Dataset = {id_key: id, rooms: []};
                     } else {
                         var regObject: RegExp = new RegExp(id);
-                        var processedDataset: Dataset = {id_key: id, sections: []};
+                        var processedDataset: Dataset = {id_key: id, sections: [], rooms: []};
                     }
                     if (zip.folder(regObject).length == 0) {
                         reject("folder in dataset corresponding to dataset ID does not exist");
                     }
                     var files: Promise<boolean>[] = [];
                     if (id == "rooms") {
+                        let parser: any = new HTMLParser();
                         let foundIndex: boolean = false;
                         // look for index.html
                         zip.forEach(function (relativePath, file) {
@@ -240,12 +242,16 @@ export default class DatasetController {
                                 file.async("string").then(function (content: string) {
                                     that.parseIndex(content).then(function (roomsToIndex: string[]) {
                                         console.log(roomsToIndex.toString());
-                                        zip.folder(regObject.toString()).forEach(function (relativePath, file) {
+                                        console.log("after print rooms to index");
+                                        zip.folder("campus").folder("discover").folder("buildings-and-classrooms").forEach(function (relativePath, file) {
+                                            console.log(file.name);
                                             if (roomsToIndex.indexOf(file.name) != -1) {
+                                                console.log("got out of the if");
                                                 files.push(new Promise(function (fulfill, reject) {
                                                     file.async("string").then(function (content: any) {
                                                         // need to pass the current file name, the lat/long, and the html file
-                                                        processedDataset.sections = processedDataset.sections.concat(null); //TODO: replace null with call to Ben's parser
+                                                        console.log("about to go into parseRooms");
+                                                        processedDataset.rooms = processedDataset.rooms.concat(parser.parseRooms(content, "ABC")); //TODO: replace null with call to Ben's parser
                                                         fulfill(true);
                                                     }).catch(function error() {
                                                         reject("couldn't process individual room");
