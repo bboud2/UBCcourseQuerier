@@ -22,12 +22,12 @@ export default class HTMLParser {
 
     public parseRooms(html: string, short_name: string): Room[] {
 
-        console.log("We are in parseRooms");
         let document: ASTNode = parse5.parse(html);
         let returnRooms: Room[] = [];
 
-        let roomTableInfoBody: ASTNode = HTMLParser.getHTMLNode(document, "table", "views-table cols-5 table").childNodes[1];
+        let roomTableInfoBody: ASTNode = HTMLParser.getHTMLNode(document, "tbody", null);
 
+        console.log(roomTableInfoBody.childNodes.toString());
         roomTableInfoBody.childNodes.forEach(function(child: ASTNode) {
             returnRooms.push(this.parseRoom(child,short_name));
         });
@@ -37,6 +37,7 @@ export default class HTMLParser {
     }
     private parseRoom(node: ASTNode, short_name: string): Room{
 
+        console.log("in parseRoom");
         let returnRoom : Room = {
             id_key: this.next_id.toString(),
             full_name: null,
@@ -57,6 +58,7 @@ export default class HTMLParser {
 
             let header: string = child.attrs[0].value.toString(); //get the value in the class field of each field
 
+            console.log(header);
             switch (header) {
                 case("views-field views-field-field-room-number"):
                     returnRoom.number = child.childNodes[0].childNodes[0].toString();
@@ -75,7 +77,7 @@ export default class HTMLParser {
                     break;
             }
         });
-        console.log(returnRoom.number.toString());
+        console.log(returnRoom.toString());
         return returnRoom;
     }
 //stored under <table class="views-table cols-5 table" >

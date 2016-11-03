@@ -242,15 +242,12 @@ export default class DatasetController {
                                 file.async("string").then(function (content: string) {
                                     that.parseIndex(content).then(function (roomsToIndex: string[]) {
                                         console.log(roomsToIndex.toString());
-                                        console.log("after print rooms to index");
                                         zip.folder("campus").folder("discover").folder("buildings-and-classrooms").forEach(function (relativePath, file) {
-                                            console.log(file.name);
-                                            if (roomsToIndex.indexOf(file.name) != -1) {
-                                                console.log("got out of the if");
+                                            let shortenedFileName: string = file.name.substring(41); //deletes all the parent directories from the filename
+                                            if (roomsToIndex.indexOf(shortenedFileName) != -1) {
                                                 files.push(new Promise(function (fulfill, reject) {
                                                     file.async("string").then(function (content: any) {
                                                         // need to pass the current file name, the lat/long, and the html file
-                                                        console.log("about to go into parseRooms");
                                                         processedDataset.rooms = processedDataset.rooms.concat(parser.parseRooms(content, "ABC")); //TODO: replace null with call to Ben's parser
                                                         fulfill(true);
                                                     }).catch(function error() {
