@@ -141,72 +141,6 @@ export default class DatasetController {
         return this.datasets;
     }
 
-    //TODO: move the next three methods into HTMLParser
-    private static getTableBody(node: ASTNode, nodeName: string, classText: string): ASTNode {
-        if (node.nodeName == nodeName) {
-            if (classText == null) {
-                return node;
-            } else {
-                if (node.hasOwnProperty("attrs")) {
-                    node.attrs.forEach(function(attr: ASTAttribute) {
-                        if (attr.name == "class" && attr.value == classText) {
-                            return node;
-                        }
-                    });
-                }
-            }
-        } else {
-            if (node.hasOwnProperty("childNodes")) {
-                let results: ASTNode[] = [];
-                node.childNodes.forEach(function(child: ASTNode) {
-                    results.push(DatasetController.getTableBody(child, nodeName, classText));
-                });
-                for (let i = 0; i < results.length; i++) {
-                    if (results[i] != null) {
-                        return results[i];
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private static getBuildingFromRow(row: ASTNode): string {
-        let output: string = null;
-        if (row.hasOwnProperty("childNodes")) {
-            row.childNodes.forEach(function(cell: ASTNode) {
-                if (cell.hasOwnProperty("attrs")) {
-                    cell.attrs.forEach(function(attr: ASTAttribute) {
-                        if (attr.name == "class" && attr.value == "views-field views-field-field-building-code") {
-                            output = cell.childNodes[0].value.toString().trim();
-                        }
-                    });
-                }
-            });
-        }
-        return output;
-    }
-
-    public parseIndex(indexFile: string): Promise<string[]> {
-        return new Promise(function (fulfill, reject) {
-            let indexNode: ASTNode = parse5.parse(indexFile);
-            let tableNode: ASTNode = DatasetController.getTableBody(indexNode, "tbody", null);
-            if (tableNode == null || !tableNode.childNodes) {
-                reject("tbody not found in indexFile or tbody is empty");
-            }
-            let buildings: string[] = [];
-            tableNode.childNodes.forEach(function(child: ASTNode) {
-                let building: string = DatasetController.getBuildingFromRow(child);
-                if (building != null) {
-                    buildings.push(building);
-                }
-            });
-            fulfill(buildings);
-        })
-    }
-
-
-
     /**
      * Process the dataset; save it to disk when complete.
      *
@@ -239,7 +173,7 @@ export default class DatasetController {
                                 foundIndex = true;
                                 // read index.html to generate a list of acceptable rooms, and then parse those rooms
                                 file.async("string").then(function (content: string) {
-                                    that.parseIndex(content).then(function (roomsToIndex: string[]) {
+                                    HTMLParser.parseIndex(content).then(function (roomsToIndex: string[]) {
                                         console.log(roomsToIndex.toString());
                                         zip.folder("campus").folder("discover").folder("buildings-and-classrooms").forEach(function (relativePath, file) {
                                             let shortenedFileName: string = file.name.substring(41); //deletes all the parent directories from the filename
