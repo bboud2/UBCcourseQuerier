@@ -221,14 +221,13 @@ export default class DatasetController {
                 let myZip = new JSZip();
                 myZip.loadAsync(data, {base64: true}).then(function (zip: JSZip) {
                     if (id == "rooms") {
-                        var regObject: RegExp = new RegExp("campus/discover/buildings-and-classrooms");
                         var processedDataset: Dataset = {id_key: id, rooms: []};
                     } else {
                         var regObject: RegExp = new RegExp(id);
-                        var processedDataset: Dataset = {id_key: id, sections: [], rooms: []};
-                    }
-                    if (zip.folder(regObject).length == 0) {
-                        reject("folder in dataset corresponding to dataset ID does not exist");
+                        var processedDataset: Dataset = {id_key: id, sections: []};
+                        if (zip.folder(regObject).length == 0) {
+                            reject("folder in dataset corresponding to dataset ID does not exist");
+                        }
                     }
                     var files: Promise<boolean>[] = [];
                     if (id == "rooms") {
@@ -248,7 +247,7 @@ export default class DatasetController {
                                                 files.push(new Promise(function (fulfill, reject) {
                                                     file.async("string").then(function (content: any) {
                                                         // need to pass the current file name, the lat/long, and the html file
-                                                        processedDataset.rooms = processedDataset.rooms.concat(parser.parseRooms(content, "ABC")); //TODO: replace null with call to Ben's parser
+                                                        processedDataset.rooms = processedDataset.rooms.concat(parser.parseRooms(content, "ABC"));
                                                         fulfill(true);
                                                     }).catch(function error() {
                                                         reject("couldn't process individual room");
