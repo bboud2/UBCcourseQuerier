@@ -25,25 +25,30 @@ export default class HTMLParser {
         let document: ASTNode = parse5.parse(html);
         let returnRooms: Room[] = [];
 
+        let addressBody:ASTNode = HTMLParser.getHTMLNode(document, "div" , "skip");
+        console.log(addressBody);
+
         let roomTableInfoBody: ASTNode = HTMLParser.getHTMLNode(document, "tbody", null);
-
-        console.log(roomTableInfoBody.childNodes.toString());
+        let that = this;
+        //console.log(roomTableInfoBody);
+        //console.log(roomTableInfoBody.childNodes[0]);
         roomTableInfoBody.childNodes.forEach(function(child: ASTNode) {
-            returnRooms.push(this.parseRoom(child,short_name));
+            //console.log(child.nodeName);
+            if(child.nodeName == "tr") {
+                returnRooms.push(that.parseRoom(child, short_name));
+            }
         });
-
 
         return returnRooms;
     }
     private parseRoom(node: ASTNode, short_name: string): Room{
 
-        console.log("in parseRoom");
         let returnRoom : Room = {
             id_key: this.next_id.toString(),
             full_name: null,
             short_name: short_name,
             number: null,
-            name: null,
+            name: "",
             address: null,
             lat: null,
             lon: null,
@@ -53,43 +58,66 @@ export default class HTMLParser {
             href: null
         };
 
+        //console.log(node);
+        node.childNodes.forEach(function (child: ASTNode) {
 
-        node.childNodes.forEach(function (child) {
+            if(child.hasOwnProperty("attrs")) {
+                let header: string = child.attrs[0].value; //get the value in the class field of each field
 
-            let header: string = child.attrs[0].value.toString(); //get the value in the class field of each field
+                //console.log(header);
 
-            console.log(header);
-            switch (header) {
-                case("views-field views-field-field-room-number"):
-                    returnRoom.number = child.childNodes[0].childNodes[0].toString();
-                    break;
-                case("views-field views-field-field-room-capacity"):
-                    returnRoom.seats = Number(child.childNodes[0]);
-                    break;
-                case("views-field views-field-field-room-furniture"):
-                    returnRoom.furniture = child.childNodes[0].toString();
-                    break;
-                case("views-field views-field-field-room-type"):
-                    returnRoom.type = child.childNodes[0].toString();
-                    break;
-                case("views-field views-field-nothing"):
-                    returnRoom.href = child.childNodes[0].attrs[0].value.toString(); //TODO convert this to appropriate URL format
-                    break;
+                switch (header) {
+                    case("views-field views-field-field-room-number"):
+                        //console.log("got into the right switch statement");
+                        child.childNodes.forEach(function(targetChild: ASTNode){
+                            if(targetChild.nodeName == "a") {
+                                returnRoom.number = targetChild.childNodes[0].value;
+                            }
+                        });
+                        break;
+                    case("views-field views-field-field-room-capacity"):
+                        returnRoom.seats = Number(child.childNodes[0].value.trim());
+                        break;
+                    case("views-field views-field-field-room-furniture"):
+                        //console.log(child.childNodes[0].value.trim());
+                        returnRoom.furniture = child.childNodes[0].value.trim();
+                        //console.log(returnRoom);
+                        break;
+                    case("views-field views-field-field-room-type"):
+                        //console.log(child.childNodes[0].value.trim());
+                        returnRoom.type = child.childNodes[0].value.trim();
+                        //console.log(returnRoom);
+                        break;
+                    case("views-field views-field-nothing"):
+                        //console.log(child);
+                        child.childNodes.forEach(function(targetChild: ASTNode){
+                           if(targetChild.nodeName == "a"){
+                               //console.log(targetChild);
+                               returnRoom.href = targetChild.attrs[0].value;
+                               //console.log(returnRoom);
+                           }
+                        });
+                        break;
+                    default:
+                        console.log("BAD!");
+                }
             }
         });
-        console.log(returnRoom.toString());
+
+        //returnRoom.name.concat(returnRoom.short_name.toString());  //TODO ???
+        this.next_id++;
         return returnRoom;
     }
 //stored under <table class="views-table cols-5 table" >
 
-    private static getHTMLNode(node: ASTNode, nodeName: string, classText: string): ASTNode {
-        if (node.nodeName == nodeName) {
-            if (classText == null) {
+    private static getHTMLNode(node: ASTNode, nodeName: string, idText: string): ASTNode {
+        if (node.nodeName.trim() == nodeName) {
+            if (idText == null) {
                 return node;
             } else {
                 if (node.hasOwnProperty("attrs")) {
                     node.attrs.forEach(function(attr: ASTAttribute) {
-                        if (attr.name == "class" && attr.value == classText) {
+                        if (attr.name == "class" && attr.value.trim() == idText) {
                             return node;
                         }
                     });
@@ -99,7 +127,7 @@ export default class HTMLParser {
             if (node.hasOwnProperty("childNodes")) {
                 let results: ASTNode[] = [];
                 node.childNodes.forEach(function(child: ASTNode) {
-                    results.push(HTMLParser.getHTMLNode(child, nodeName, classText));
+                    results.push(HTMLParser.getHTMLNode(child, nodeName, idText));
                 });
                 for (let i = 0; i < results.length; i++) {
                     if (results[i] != null) {

@@ -257,6 +257,8 @@ export default class DatasetController {
                                             }
                                         });
                                         Promise.all(files).then(function() {
+                                            console.log("in promise.all");
+                                            console.log(processedDataset);
                                             that.save(id, processedDataset);
                                             fulfill(true);
                                         }).catch(function(err) {
