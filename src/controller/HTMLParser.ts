@@ -139,6 +139,38 @@ export default class HTMLParser {
         return null;
     }
 
+    private static getBuildingFromRow(row: ASTNode): string {
+        let output: string = null;
+        if (row.hasOwnProperty("childNodes")) {
+            row.childNodes.forEach(function(cell: ASTNode) {
+                if (cell.hasOwnProperty("attrs")) {
+                    cell.attrs.forEach(function(attr: ASTAttribute) {
+                        if (attr.name == "class" && attr.value == "views-field views-field-field-building-code") {
+                            output = cell.childNodes[0].value.toString().trim();
+                        }
+                    });
+                }
+            });
+        }
+        return output;
+    }
 
+    public static parseIndex(indexFile: string): Promise<string[]> {
+        return new Promise(function (fulfill, reject) {
+            let indexNode: ASTNode = parse5.parse(indexFile);
+            let tableNode: ASTNode = HTMLParser.getHTMLNode(indexNode, "tbody", null);
+            if (tableNode == null || !tableNode.childNodes) {
+                reject("tbody not found in indexFile or tbody is empty");
+            }
+            let buildings: string[] = [];
+            tableNode.childNodes.forEach(function(child: ASTNode) {
+                let building: string = HTMLParser.getBuildingFromRow(child);
+                if (building != null) {
+                    buildings.push(building);
+                }
+            });
+            fulfill(buildings);
+        })
+    }
 }
 
