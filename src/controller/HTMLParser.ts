@@ -104,14 +104,14 @@ export default class HTMLParser {
             }
         });
 
-        //returnRoom.name.concat(returnRoom.short_name.toString());  //TODO ???
+        returnRoom.name.concat(returnRoom.short_name); // FIX THIS
         this.next_id++;
         return returnRoom;
     }
 //stored under <table class="views-table cols-5 table" >
 
     private static getHTMLNode(node: ASTNode, nodeName: string, idText: string): ASTNode {
-        if (node.nodeName.trim() == nodeName) {
+        if (node.nodeName == nodeName) {
             if (idText == null) {
                 return node;
             } else {
