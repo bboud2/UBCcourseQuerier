@@ -10,6 +10,7 @@ import parse5 = require('parse5');
 import {ASTNode} from "parse5";
 import {ASTAttribute} from "parse5";
 import Log from "../Util";
+import HTML = Mocha.reporters.HTML;
 
 
 export default class HTMLParser {
@@ -24,30 +25,39 @@ export default class HTMLParser {
         let document: ASTNode = parse5.parse(html);
         let returnRooms: Room[] = [];
 
-        let addressBody:ASTNode = HTMLParser.getHTMLNode(document, "div" , "id", "building-info");
-        console.log(addressBody);
+
+
+
+
+        let addressNode: ASTNode = HTMLParser.getHTMLNode(document, "div", "class","field-content" );
+        //console.log(addressNode);
+        let address:string = addressNode.childNodes[0].value.trim();
+
+        let fullNameNode: ASTNode = HTMLParser.getHTMLNode(document, "span", "class", "field-content");
+        //console.log(addressBody);
+        let fullName: string = fullNameNode.childNodes[0].value.trim();
+
 
         let roomTableInfoBody: ASTNode = HTMLParser.getHTMLNode(document, "tbody", null, null);
         let that = this;
-        //console.log(roomTableInfoBody);
-        //console.log(roomTableInfoBody.childNodes[0]);
+
         roomTableInfoBody.childNodes.forEach(function(child: ASTNode) {
-            //console.log(child.nodeName);
+
             if(child.nodeName == "tr") {
-                returnRooms.push(that.parseRoom(child, short_name));
+                returnRooms.push(that.parseRoom(child, short_name, fullName,address);
             }
         });
 
         return returnRooms;
     }
-    private parseRoom(node: ASTNode, short_name: string): Room{
+    private parseRoom(node: ASTNode, short_name: string, fullName:string, address:string): Room{
         let returnRoom : Room = {
             id_key: this.next_id.toString(),
-            full_name: null,
+            full_name: fullName,
             short_name: short_name,
             number: null,
             name: "",
-            address: null,
+            address: address,
             lat: null,
             lon: null,
             seats: null,
@@ -108,38 +118,42 @@ export default class HTMLParser {
             }
         });
 
-        returnRoom.name.concat(returnRoom.short_name); // FIX THIS
+        returnRoom.name = returnRoom.name.concat(returnRoom.short_name);
+        returnRoom.name = returnRoom.name.concat(" ");
+        returnRoom.name = returnRoom.name.concat(returnRoom.number);
         this.next_id++;
+        console.log(returnRoom);
         return returnRoom;
     }
-//stored under <table class="views-table cols-5 table" >
+
 
     private static getHTMLNode(node: ASTNode, nodeName: string, attrName: string, attrText: string): ASTNode {
-        if (node.nodeName == nodeName) {
+        var results: ASTNode[] = [];
+        if (node.nodeName.trim() == nodeName) {
             if (attrName == null) {
                 return node;
             } else {
-                let returnNode: ASTNode = null;
+                let isNode: boolean = false;
                 if (node.hasOwnProperty("attrs")) {
                     node.attrs.forEach(function(attr: ASTAttribute) {
                         if (attr.name.trim() == attrName && attr.value.trim() == attrText) {
-                            returnNode = node;
+                            isNode = true;
                         }
                     });
                 }
-                return returnNode;
-            }
-        } else {
-            if (node.hasOwnProperty("childNodes")) {
-                let results: ASTNode[] = [];
-                node.childNodes.forEach(function(child: ASTNode) {
-                    results.push(HTMLParser.getHTMLNode(child, nodeName, attrName, attrText));
-                });
-                for (let i = 0; i < results.length; i++) {
-                    if (results[i] != null) {
-                        return results[i];
-                    }
+                if (isNode) {
+                    return node;
                 }
+            }
+        }
+        if (node.hasOwnProperty("childNodes")) {
+            node.childNodes.forEach(function(child: ASTNode) {
+                results.push(HTMLParser.getHTMLNode(child, nodeName, attrName, attrText));
+            });
+        }
+        for (let i = 0; i < results.length; i++) {
+            if (results[i] != null) {
+                return results[i];
             }
         }
         return null;
