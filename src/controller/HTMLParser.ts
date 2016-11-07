@@ -21,14 +21,13 @@ export default class HTMLParser {
     }
 
     public parseRooms(html: string, short_name: string): Room[] {
-
         let document: ASTNode = parse5.parse(html);
         let returnRooms: Room[] = [];
 
-        let addressBody:ASTNode = HTMLParser.getHTMLNode(document, "div" , "skip");
+        let addressBody:ASTNode = HTMLParser.getHTMLNode(document, "div" , "id", "building-info");
         console.log(addressBody);
 
-        let roomTableInfoBody: ASTNode = HTMLParser.getHTMLNode(document, "tbody", null);
+        let roomTableInfoBody: ASTNode = HTMLParser.getHTMLNode(document, "tbody", null, null);
         let that = this;
         //console.log(roomTableInfoBody);
         //console.log(roomTableInfoBody.childNodes[0]);
@@ -42,7 +41,6 @@ export default class HTMLParser {
         return returnRooms;
     }
     private parseRoom(node: ASTNode, short_name: string): Room{
-
         let returnRoom : Room = {
             id_key: this.next_id.toString(),
             full_name: null,
@@ -60,10 +58,16 @@ export default class HTMLParser {
 
         //console.log(node);
         node.childNodes.forEach(function (child: ASTNode) {
-
             if(child.hasOwnProperty("attrs")) {
-                let header: string = child.attrs[0].value; //get the value in the class field of each field
-
+                let header: string = null;
+                for(let i = 0; i < child.attrs.length; i++) {
+                    if (child.attrs[i].name.trim() == "class") {
+                        header = child.attrs[i].value; //get the value in the class field of each row
+                    }
+                }
+                if (header == null) {
+                    throw("no class attribute on ASTNode");
+                }
                 //console.log(header);
 
                 switch (header) {
@@ -110,24 +114,26 @@ export default class HTMLParser {
     }
 //stored under <table class="views-table cols-5 table" >
 
-    private static getHTMLNode(node: ASTNode, nodeName: string, idText: string): ASTNode {
+    private static getHTMLNode(node: ASTNode, nodeName: string, attrName: string, attrText: string): ASTNode {
         if (node.nodeName == nodeName) {
-            if (idText == null) {
+            if (attrName == null) {
                 return node;
             } else {
+                let returnNode: ASTNode = null;
                 if (node.hasOwnProperty("attrs")) {
                     node.attrs.forEach(function(attr: ASTAttribute) {
-                        if (attr.name == "class" && attr.value.trim() == idText) {
-                            return node;
+                        if (attr.name.trim() == attrName && attr.value.trim() == attrText) {
+                            returnNode = node;
                         }
                     });
                 }
+                return returnNode;
             }
         } else {
             if (node.hasOwnProperty("childNodes")) {
                 let results: ASTNode[] = [];
                 node.childNodes.forEach(function(child: ASTNode) {
-                    results.push(HTMLParser.getHTMLNode(child, nodeName, idText));
+                    results.push(HTMLParser.getHTMLNode(child, nodeName, attrName, attrText));
                 });
                 for (let i = 0; i < results.length; i++) {
                     if (results[i] != null) {
@@ -158,7 +164,7 @@ export default class HTMLParser {
     public static parseIndex(indexFile: string): Promise<string[]> {
         return new Promise(function (fulfill, reject) {
             let indexNode: ASTNode = parse5.parse(indexFile);
-            let tableNode: ASTNode = HTMLParser.getHTMLNode(indexNode, "tbody", null);
+            let tableNode: ASTNode = HTMLParser.getHTMLNode(indexNode, "tbody", null, null);
             if (tableNode == null || !tableNode.childNodes) {
                 reject("tbody not found in indexFile or tbody is empty");
             }
