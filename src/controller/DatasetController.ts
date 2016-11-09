@@ -174,15 +174,19 @@ export default class DatasetController {
                                 // read index.html to generate a list of acceptable rooms, and then parse those rooms
                                 file.async("string").then(function (content: string) {
                                     HTMLParser.parseIndex(content).then(function (roomsToIndex: string[]) {
-                                        console.log(roomsToIndex.toString());
+                                        console.log(roomsToIndex);
                                         zip.folder("campus").folder("discover").folder("buildings-and-classrooms").forEach(function (relativePath, file) {
                                             let shortenedFileName: string = file.name.substring(41); //deletes all the parent directories from the filename
                                             if (roomsToIndex.indexOf(shortenedFileName) != -1) {
                                                 files.push(new Promise(function (fulfill, reject) {
                                                     file.async("string").then(function (content: any) {
                                                         // need to pass the current file name, the lat/long, and the html file
-                                                        processedDataset.rooms = processedDataset.rooms.concat(parser.parseRooms(content, "ABC"));
-                                                        fulfill(true);
+                                                        parser.parseRooms(content, shortenedFileName).then(function (rooms: Room[]) {
+                                                            processedDataset.rooms = processedDataset.rooms.concat(rooms);
+                                                            fulfill(true);
+                                                        }).catch(function (error: string) {
+                                                            reject(error);
+                                                        });
                                                     }).catch(function error() {
                                                         reject("couldn't process individual room");
                                                     });
@@ -190,8 +194,6 @@ export default class DatasetController {
                                             }
                                         });
                                         Promise.all(files).then(function() {
-                                            console.log("in promise.all");
-                                            console.log(processedDataset);
                                             that.save(id, processedDataset);
                                             fulfill(true);
                                         }).catch(function(err) {
@@ -216,8 +218,7 @@ export default class DatasetController {
                                     processedDataset.sections = processedDataset.sections.concat(parser.parseCourse(content));
                                     fulfill(true);
                                 }).catch(function error() {
-                                    Log.trace("couldn't get string from file with filename");
-                                    reject(false);
+                                    reject(error);
                                 });
                             }));
                         });

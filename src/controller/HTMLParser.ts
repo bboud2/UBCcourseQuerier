@@ -11,45 +11,49 @@ import {ASTNode} from "parse5";
 import {ASTAttribute} from "parse5";
 import Log from "../Util";
 import HTML = Mocha.reporters.HTML;
+import latLonGetter from "./LatLonGetter"
 
 
 export default class HTMLParser {
-
     private next_id: number;
 
     constructor() {
         this.next_id = 0;
     }
 
-    public parseRooms(html: string, short_name: string): Room[] {
-        let document: ASTNode = parse5.parse(html);
-        let returnRooms: Room[] = [];
-
-
-
-
-
-        let addressNode: ASTNode = HTMLParser.getHTMLNode(document, "div", "class","field-content" );
-        //console.log(addressNode);
-        let address:string = addressNode.childNodes[0].value.trim();
-
-        let fullNameNode: ASTNode = HTMLParser.getHTMLNode(document, "span", "class", "field-content");
-        //console.log(addressBody);
-        let fullName: string = fullNameNode.childNodes[0].value.trim();
-
-
-        let roomTableInfoBody: ASTNode = HTMLParser.getHTMLNode(document, "tbody", null, null);
+    public parseRooms(html: string, short_name: string): Promise<Room[]> {
         let that = this;
+        return new Promise(function(fulfill, reject) {
+            let document: ASTNode = parse5.parse(html);
+            let returnRooms: Room[] = [];
 
-        roomTableInfoBody.childNodes.forEach(function(child: ASTNode) {
+            let addressNode: ASTNode = HTMLParser.getHTMLNode(document, "div", "class","field-content" );
+            //console.log(addressNode);
+            let address:string = addressNode.childNodes[0].value.trim();
 
-            if(child.nodeName == "tr") {
-                returnRooms.push(that.parseRoom(child, short_name, fullName,address);
+            let fullNameNode: ASTNode = HTMLParser.getHTMLNode(document, "span", "class", "field-content");
+            //console.log(addressBody);
+            let fullName: string = fullNameNode.childNodes[0].value.trim();
+
+            let roomTableInfoBody: ASTNode = HTMLParser.getHTMLNode(document, "tbody", null, null);
+            if (roomTableInfoBody == null) {
+                fulfill([]);
             }
-        });
+            roomTableInfoBody.childNodes.forEach(function(child: ASTNode) {
+                if(child.nodeName == "tr") {
+                    returnRooms.push(that.parseRoom(child, short_name, fullName, address));
+                }
+            });
 
-        return returnRooms;
+            let modAddress: string = encodeURI(address);
+            latLonGetter.getLatLon(modAddress, returnRooms).then(function () {
+                fulfill(returnRooms);
+            }).catch(function (error: string) {
+                reject(error);
+            });
+        });
     }
+
     private parseRoom(node: ASTNode, short_name: string, fullName:string, address:string): Room{
         let returnRoom : Room = {
             id_key: this.next_id.toString(),
@@ -122,7 +126,6 @@ export default class HTMLParser {
         returnRoom.name = returnRoom.name.concat(" ");
         returnRoom.name = returnRoom.name.concat(returnRoom.number);
         this.next_id++;
-        console.log(returnRoom);
         return returnRoom;
     }
 
