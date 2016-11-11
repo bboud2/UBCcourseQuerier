@@ -156,6 +156,17 @@ export default class QueryController {
         throw  {ID: 424, MESSAGE: "dataset not found"};
     }
 
+    private isIDUbiquitous(ids: string[]) {
+        for (let j = 0; j < ids.length; j++) {
+            if (ids[j].indexOf("_") != -1) {
+                let curr_id: string = ids[j].substr(0,ids[j].indexOf("_"));
+                if (curr_id != this.id) {
+                    throw {ID: 400, MESSAGE: "multiple dataset IDs present"}
+                }
+            }
+        }
+    }
+
     /**
      * Main query method
      * @param query
@@ -171,6 +182,7 @@ export default class QueryController {
         }
 
         var allObjects: any[] = this.getAllObjects(trueGet); //also sets ID
+        this.isIDUbiquitous(trueGet);
         var filteredObjects: any[];
 
         let whereObject: any = query.WHERE;

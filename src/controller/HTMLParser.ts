@@ -123,7 +123,7 @@ export default class HTMLParser {
         });
 
         returnRoom.name = returnRoom.name.concat(returnRoom.short_name);
-        returnRoom.name = returnRoom.name.concat(" ");
+        returnRoom.name = returnRoom.name.concat("_");
         returnRoom.name = returnRoom.name.concat(returnRoom.number);
         this.next_id++;
         return returnRoom;
