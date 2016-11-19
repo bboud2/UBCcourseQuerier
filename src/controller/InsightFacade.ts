@@ -8,6 +8,7 @@
 import DatasetController from '../controller/DatasetController';
 import {Datasets} from '../controller/DatasetController';
 import QueryController from '../controller/QueryController';
+import SchedulerController from '../controller/SchedulerController';
 
 import {QueryRequest} from "../controller/QueryController";
 import Log from '../Util';
@@ -123,19 +124,32 @@ export default class InsightFacade implements IInsightFacade {
         })
 
     }
+
+
     public static datasetAlreadyPresent(id: string): boolean {
         for (let i = 0; i < InsightFacade.datasetController.datasets.sets.length; i++) {
-        let curr_dataset: any = InsightFacade.datasetController.datasets.sets[i];
-        if (curr_dataset.id_key == id) {
+            let curr_dataset: any = InsightFacade.datasetController.datasets.sets[i];
+            if (curr_dataset.id_key == id) {
+                return true;
+            }
+        }
+        try {
+            fs.readFileSync("./data/"+id+".json");
             return true;
+        }    catch (err) {
+            return false;
         }
     }
-        try {
-        fs.readFileSync("./data/"+id+".json");
-        return true;
-    }    catch (err) {
-        return false;
-    }
+
+    performSchedule(messageObject: any): Promise<InsightResponse> {
+        return new Promise<InsightResponse>(function (fulfill, reject) {
+            let controller = new SchedulerController(messageObject);
+            let res:InsightResponse = {
+                code: 200,
+                body: controller.do_scheduling()
+            };
+            fulfill(res);
+        });
     }
 
 }

@@ -21,13 +21,68 @@ $(function () {
         });
     });
 
+    // $("#queryForm").submit(function (e) {
+    //     e.preventDefault();
+    //     var query = $("#query").val();
+    //     try {
+    //         $.ajax("/query", {type:"POST", data: query, contentType: "application/json", dataType: "json", success: function(data) {
+    //             if (data["render"] === "TABLE") {
+    //                 generateTable(data["result"]);
+    //             }
+    //         }}).fail(function (e) {
+    //             spawnHttpErrorModal(e)
+    //         });
+    //     } catch (err) {
+    //         spawnErrorModal("Query Error", err);
+    //     }
+    // });
+
     $("#queryForm").submit(function (e) {
         e.preventDefault();
-        var query = $("#query").val();
+        var messageObject = {};
+
+        var query = {
+            "GET": ["courses_dept", "courses_id", "maxSize", "numSections"],
+            "WHERE": {"EQ": {"courses_year": 2014}},
+            "GROUP": [ "courses_dept", "courses_id" ],
+            "APPLY": [ {"numSections": {"COUNT": "courses_uuid"}},
+                {"maxSize": {"MAX": "courses_size"}}],
+            "ORDER": { "dir": "DOWN", "keys": ["maxSize", "courses_dept", "courses_id"]},
+            "AS":"TABLE"
+        };
         try {
-            $.ajax("/query", {type:"POST", data: query, contentType: "application/json", dataType: "json", success: function(data) {
+            $.ajax("/query", {type:"POST", data: JSON.stringify(query), contentType: "application/json", dataType: "json", success: function(data) {
                 if (data["render"] === "TABLE") {
-                    generateTable(data["result"]);
+                    messageObject["courses"] = data["result"];
+                }
+
+                query =
+                {
+                    "GET": ["rooms_name", "rooms_seats", "rooms_shortname"],
+                    "WHERE": {},
+                    "ORDER": { "dir": "DOWN", "keys": ["rooms_seats", "rooms_name"]},
+                    "AS": "TABLE"
+                };
+                try {
+                    $.ajax("/query", {type:"POST", data: JSON.stringify(query), contentType: "application/json", dataType: "json", success: function(data) {
+                        if (data["render"] === "TABLE") {
+                            messageObject["rooms"] = data["result"];
+                        }
+                        try {
+                            $.ajax("/schedule", {type:"POST", data: JSON.stringify(messageObject), contentType: "application/json", dataType: "json", success: function(data) {
+                                generateTable(data["courses"]);
+                                spawnErrorModal("SCHEDULER STRENGTH", data["strength"]);
+                            }}).fail(function (e) {
+                                spawnHttpErrorModal(e)
+                            });
+                        } catch (err) {
+                            spawnErrorModal("Query Error", err);
+                        }
+                    }}).fail(function (e) {
+                        spawnHttpErrorModal(e)
+                    });
+                } catch (err) {
+                    spawnErrorModal("Query Error", err);
                 }
             }}).fail(function (e) {
                 spawnHttpErrorModal(e)
@@ -35,6 +90,7 @@ $(function () {
         } catch (err) {
             spawnErrorModal("Query Error", err);
         }
+
     });
 
     function generateTable(data) {

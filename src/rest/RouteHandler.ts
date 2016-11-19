@@ -63,6 +63,15 @@ export default class RouteHandler {
         });
     }
 
+    public static postSchedule(req: restify.Request, res: restify.Response, next: restify.Next) {
+
+        RouteHandler.insightFacade.performSchedule(req.params).then(function (result){
+            res.json(result.code, result.body);
+        }).catch(function (result) {
+            res.json(result.code, {error: result['error']});
+        });
+    }
+
 
     public static deleteDataset(req: restify.Request, res: restify.Response, next: restify.Next){
         Log.trace('RouteHandler::deleteDataset(..) - params: '+ JSON.stringify(req.params));

@@ -80,7 +80,7 @@ export default class OperatorHelpers {
 
     private static isFieldNumeric(field: string) {
         return (field === "avg" || field === "fail" || field === "pass" || field === "audit"
-        || field === "lat" || field === "lon" || field === "seats");
+        || field === "lat" || field === "lon" || field === "seats" || field === "size" || field === "year");
     }
 
     public static handle_max(objects: any[], field: string) {

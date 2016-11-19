@@ -42,6 +42,7 @@ export interface Section {
     fail?: number;
     audit?: number;
     year?: number;
+    size?: number;
 }
 
 /**
@@ -174,7 +175,6 @@ export default class DatasetController {
                                 // read index.html to generate a list of acceptable rooms, and then parse those rooms
                                 file.async("string").then(function (content: string) {
                                     HTMLParser.parseIndex(content).then(function (roomsToIndex: string[]) {
-                                        console.log(roomsToIndex);
                                         zip.folder("campus").folder("discover").folder("buildings-and-classrooms").forEach(function (relativePath, file) {
                                             let shortenedFileName: string = file.name.substring(41); //deletes all the parent directories from the filename
                                             if (roomsToIndex.indexOf(shortenedFileName) != -1) {

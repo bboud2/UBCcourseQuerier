@@ -419,6 +419,12 @@ export default class QueryController {
                 case this.id+"_fail":
                     key = "fail";
                     break;
+                case this.id+"_size":
+                    key = "size";
+                    break;
+                case this.id+"_year":
+                    key = "year";
+                    break;
                 case this.id+"_audit":
                     key = "audit";
                     break;
