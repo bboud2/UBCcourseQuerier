@@ -8,6 +8,7 @@
     <title>CPSC 310 Project</title>
     <link rel="stylesheet" href="./public/bootstrap.min.css">
     <link rel="stylesheet" href="./public/main.css">
+    <link rel="stylesheet" href="./public/query-builder.default.min.css">
 
 
     <!-- Custom styles for this template -->
@@ -34,15 +35,19 @@ MAIN CONTENT
             <div class="main-header">UBC Querier</div>
         </div>
         <div class = "row mt">
-            <div class="col-sm-4">
-                <button type="button" class="btn btn-primary btn-block btn-lg"  data-toggle="modal" data-target="#addRemoveModal">Add/Remove Dataset</button>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-primary btn-block btn-lg"  data-toggle="modal" data-target="#addRemoveModal">Add/Remove DataSets</button>
             </div>
-            <div class="col-sm-4">
-                <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#queryModal">Query</button>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#queryCourseModal">Query Course</button>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#queryRoomModal">Query Room</button>
+            </div>
+            <div class="col-sm-3">
                 <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#scheduleModal">Schedule</button>
             </div>
+
     </div>
         <div class="row mt">
             <div class="col-sm-12">
@@ -83,34 +88,73 @@ MAIN CONTENT
     </div>
 </div>
 
-    <div id="queryModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+    <div id="queryCourseModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
 
-            <!-- Modal content-->
+        <!-- Modal content-->
 
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Perform a Query on a Course/Room at UBC</h4>
-                </div>
-                <div class="modal-body">
-                    <form id="queryForm">
-                        <div class="form-group">
-                            <label for="query">Query:</label>
-                            <textarea class="form-control" rows="10" id="query"></textarea>
-                        </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Perform a Query on a Course/Room at UBC</h4>
+            </div>
+            <div class="modal-body">
+                <form class="queryForm">
+                    <div class="form-group">
+                        <label for="query">Query:</label>
 
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </form>
-                </div>
+                        <div id ="builder-course"></div>
 
+                        <textarea class="form-control" rows="10" id="query"></textarea>
+                    </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id ="btn-get-course" class="btn btn-primary">Get Rules</button>
+                <button type="button" id ="btn-set-course" class="btn btn-primary">Set Rules</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </form>
             </div>
 
         </div>
+
     </div>
+</div>
+
+<div id="queryRoomModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Perform a Query on a Course/Room at UBC</h4>
+            </div>
+            <div class="modal-body">
+                <form class="queryForm">
+                    <div class="form-group">
+                        <label for="query">Query:</label>
+
+                        <div id ="builder-room"></div>
+
+                        <textarea class="form-control" rows="10" id="query"></textarea>
+                    </div>
+
+            </div>
+            <div class="modal-footer">
+                <!--<button type="button" id ="btn-get-room" class="btn btn-primary">Get Rules</button>-->
+                <!--<button type="button" id ="btn-set-room" class="btn btn-primary">Set Rules</button>-->
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>
 
     <div id="scheduleModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -183,6 +227,7 @@ MAIN CONTENT
 <script src="./public/bootstrap.min.js"></script>
 <script src="./public/d3.min.js"></script>
 <script src="./public/main.js"></script>
+<script src="./public/query-builder.standalone.min.js"></script>
 <script type="text/javascript" src="./public/jquery.backstretch.min.js"></script>
 
 <script>
