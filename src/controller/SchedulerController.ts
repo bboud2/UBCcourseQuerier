@@ -78,24 +78,6 @@ export default class SchedulerController {
         return outputObject;
     }
 
-
-    // var that = this;
-    // return new Promise(function (fulfill, reject) {
-    //     request({
-    //         url: 'http://127.0.0.1:8000/roomScheduler/',
-    //         method: 'POST',
-    //         json: that.messageObject,
-    //         timeout: 600000
-    //     }, function(error: any, response: any, body: any) {
-    //         if (error) {
-    //             reject(error);
-    //         } else {
-    //             fulfill(body);
-    //         }
-    //     });
-    //
-    // });
-
     private static getTimeFromIndex(index: number): string {
         let output: string = "";
         if (index < 9) {

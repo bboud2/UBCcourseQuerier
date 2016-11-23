@@ -61,6 +61,7 @@ export interface Room {
     type?: string;
     furniture?: string;
     href?: string;
+    distance?: number;
 }
 
 export default class DatasetController {
