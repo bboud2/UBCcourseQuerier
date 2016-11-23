@@ -8,6 +8,7 @@ export default class UIHelpers {
     public static convertToWHERE(data: any): any{
 
         let returnWHEREObject:any = {};
+
         if(data.condition == "AND" && data.rules.length == 1 ){
             //TODO
         }
@@ -16,21 +17,41 @@ export default class UIHelpers {
         let operatorArray:any = [];
 
         for(let i = 0; i < data.rules.length; i++){
-
-            if(data.rules[i].hasOwnProperty("condition")){  //recursive case
-                //returnWHEREObject
-                //TODO
-            }
-            let operatorTitle:string = UIHelpers.convertOperator(data.rules[i]);
-            let newObject:any = {};
-            let newSubObject:any = {};
-            newSubObject[data.rules[i].id] = data.rules[i].value;
-            newObject[operatorTitle] = newSubObject;
-            operatorArray.push(newObject);
+            operatorArray.push(UIHelpers.generateSubWHEREObject(data.rules[i]));
         }
-
         returnWHEREObject[logicComparator] = operatorArray;
-        return returnWHEREObject;
+        if(data.not == true){
+            let returnNOTWHEREObject:any = {};
+            returnNOTWHEREObject.NOT = returnWHEREObject;
+            return returnNOTWHEREObject;
+        }
+        else {
+            return returnWHEREObject;
+        }
+    }
+
+
+    private static generateSubWHEREObject(object:any):any{
+        if(object.hasOwnProperty("condition")){  //recursive case
+            return UIHelpers.convertToWHERE(object);
+        }
+        let operatorTitle:string = UIHelpers.convertOperator(object);
+        let newObject:any = {};
+        let newSubObject:any = {};
+        let subObjectValue:any = null;
+        switch (object.type) {
+            case "double":
+                subObjectValue = parseFloat(object.value);
+                break;
+            case "integer":
+                subObjectValue = parseInt(object.value);
+                break;
+            case "string":
+                subObjectValue = object.value;
+        }
+        newSubObject[object.id] = object.value;
+        newObject[operatorTitle] = newSubObject;
+        return newObject;
     }
 
 

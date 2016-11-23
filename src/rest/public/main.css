@@ -7,6 +7,25 @@
     */
     color: black;
 }
+
+
+input[type="radio"]{
+    margin: 0 10px 0 10px;
+}
+
+input[name="get_coures"]{
+    margin: 20px 20px;
+    font-size: 50px;
+    transform: scale(2.0);
+}
+
+
+
+.checkbox-align{
+    text-align: center; /* center checkbox horizontally */
+    vertical-align: middle; /* center checkbox vertically */
+}
+
 th {
     text-align: left;
     background-color: blue;

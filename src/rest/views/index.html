@@ -48,7 +48,9 @@ MAIN CONTENT
                 <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#scheduleModal">Schedule</button>
             </div>
 
+        </div>
     </div>
+</div>
         <div class="row mt">
             <div class="col-sm-12">
                 <div id="render">
@@ -87,26 +89,86 @@ MAIN CONTENT
 
     </div>
 </div>
-
     <div id="queryCourseModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+        <div class="modal-dialog">
 
-        <!-- Modal content-->
+            <!-- Modal content-->
 
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Perform a Query on a Course/Room at UBC</h4>
-            </div>
-            <div class="modal-body">
-                <form class="queryForm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Perform a Query on a Course At UBC:</h4>
+                </div>
+                <div class="modal-body">
+
+                    <!--<form class="queryForm">-->
                     <div class="form-group">
-                        <label for="query">Query:</label>
-
-                        <div id ="builder-course"></div>
-
-                        <textarea class="form-control" rows="10" id="query"></textarea>
+                        <form>
+                            <input type="radio" name="include" value="Include Group/Apply" class="group_apply_radio" checked> Include Group/Apply
+                            <input type="radio" name="include" value="Do Not Include Group/Apply" class="group_apply_radio" checked> Do Not Include Group/Apply
+                        </form>
+                        <h5>GET:</h5>
+                        <div class="checkbox-align">
+                            <form>
+                                <input type="checkbox" name="get_coures" value="courses_dept">Department
+                                <input type="checkbox" name="get_coures" value="courses_id">ID
+                                <input type="checkbox" name="get_coures" value="courses_avg">Average
+                                <input type="checkbox" name="get_coures" value="courses_instructor">Instructor
+                                <br>
+                                <input type="checkbox" name="get_coures" value="courses_title">Title
+                                <input type="checkbox" name="get_coures" value="courses_pass">Pass
+                                <input type="checkbox" name="get_coures" value="courses_fail">Fail
+                                <input type="checkbox" name="get_coures" value="courses_audit">Audit
+                                <br>
+                                <div id="new-GET-checks">
+                                </div>
+                            </form>
+                        </div>
+                        <h5>Group by:</h5>
+                        <div id="group/apply_courses">
+                            <div class="checkbox-align">
+                                <form>
+                                    <input type="checkbox" name="get_coures" value="courses_dept">Department
+                                    <input type="checkbox" name="get_coures" value="courses_id">ID
+                                    <input type="checkbox" name="get_coures" value="courses_avg">Average
+                                    <input type="checkbox" name="get_coures" value="courses_instructor">Instructor
+                                    <br>
+                                    <input type="checkbox" name="get_coures" value="courses_title">Title
+                                    <input type="checkbox" name="get_coures" value="courses_pass">Pass
+                                    <input type="checkbox" name="get_coures" value="courses_fail">Fail
+                                    <input type="checkbox" name="get_coures" value="courses_audit">Audit
+                                </form>
+                            </div>
+                        </div>
                     </div>
+                    <div id="apply-courses">
+                        <h5>Apply</h5>
+
+                            <input type="text" placeholder="type new Apply here" id="new-Apply-course">
+                            <button class="btn btn-primary btn-xs" id="save-Apply-courses">Save New Get</button><br>
+                        <form>
+                            <div id="new-course-applies">
+
+                            </div>
+                        </form>
+                    </div>
+
+
+
+
+                    <br>
+                    <label for="query">WHERE:</label>
+                    <div id ="builder-course"></div>
+                    <br>
+                    <div>
+                        <h5>ORDER:</h5>
+                        <form>
+                            <input type="radio" name="include" value="Include Group/Apply" class="order-radio-courses" checked> Up
+                            <input type="radio" name="include" value="Do Not Include Group/Apply" class="order-radio-courses" checked> Down
+                        </form>
+                    </div>
+                    <textarea class="form-control" rows="10" id="query"></textarea>
+                </div>
 
             </div>
             <div class="modal-footer">
@@ -114,7 +176,7 @@ MAIN CONTENT
                 <button type="button" id ="btn-set-course" class="btn btn-primary">Set Rules</button>
                 <button type="submit" class="btn btn-primary">Submit</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </form>
+                <!--</form>-->
             </div>
 
         </div>
@@ -133,13 +195,11 @@ MAIN CONTENT
                 <h4 class="modal-title">Perform a Query on a Course/Room at UBC</h4>
             </div>
             <div class="modal-body">
-                <form class="queryForm">
+                <!--<form class="queryForm">-->
                     <div class="form-group">
                         <label for="query">Query:</label>
 
                         <div id ="builder-room"></div>
-
-                        <textarea class="form-control" rows="10" id="query"></textarea>
                     </div>
 
             </div>
@@ -148,7 +208,7 @@ MAIN CONTENT
                 <!--<button type="button" id ="btn-set-room" class="btn btn-primary">Set Rules</button>-->
                 <button type="submit" class="btn btn-primary">Submit</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </form>
+                <!--</form>-->
             </div>
 
         </div>
@@ -195,7 +255,7 @@ MAIN CONTENT
             </div>
         </div>
     </div>
-</body>
+
 
 <!--
 <div class="container">
