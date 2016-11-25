@@ -42,11 +42,7 @@ a, a:hover, a:focus {
     height: 100%;
 }
 
-.main-header {
-    font-size: 175px;
-    text-align: center;
-    color: blue;
-}
+
 
 /* Bootstrap Modifications */
 .modal-header {
