@@ -110,19 +110,7 @@ $(function () {
 
 
 
-    $('#new-Order').click(function() {
-        generateNewOrder();
-    });
 
-
-    function generateNewOrder(){
-        var container = $('#course-orders');
-        var inputs = container.find('div');
-        var id = inputs.length+1;
-        var newDiv = $('<div   />', {id: 'courseOrder'+id}).appendTo(container);
-        $('<select />').appendTo(newDiv);
-        updateCourseOrderSelect();
-    }
 
     var rules_course = {
         condition: 'AND',
