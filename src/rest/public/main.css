@@ -9,22 +9,32 @@
 }
 
 
+.subheader{
+    //TODO
+}
+
 input[type="radio"]{
     margin: 0 10px 0 10px;
 }
 
-input[name="get_coures"]{
+input[type="checkbox"]{
     margin: 20px 20px;
+    vertical-align: middle; /* center checkbox vertically */
+    text-align: center; /* center checkbox horizontally */
     font-size: 50px;
     transform: scale(2.0);
 }
 
 
 
-.checkbox-align{
-    text-align: center; /* center checkbox horizontally */
-    vertical-align: middle; /* center checkbox vertically */
-}
+/*#course-checks-group {*/
+    /*text-align: center; !* center checkbox horizontally *!*/
+    /*!*vertical-align: middle; !* center checkbox vertically *!*!*/
+    /*margin: 20px 100px;*/
+    /*font-size: 18px;*/
+    /*padding-right: 70px;*/
+    /*padding-bottom: 50px;*/
+/*}*/
 
 th {
     text-align: left;

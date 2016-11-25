@@ -108,69 +108,21 @@ $(function () {
         }
     }
 
-    $('#save-Apply-courses').click(function() {
-        addApplyCourse($('#new-Apply-course').val());
+
+
+    $('#new-Order').click(function() {
+        generateNewOrder();
     });
 
-    function addGROUPCourseBox(name){
-        var container = $('#new-groups-courses');
-        var inputs = container.find('input');
-        var id = inputs.length+1;
 
-        $('<input />', { type: 'checkbox', id: 'getCheck'+id, value: name}).appendTo(container);
-        $('<label />', { 'for': 'cb'+id, text: name }).appendTo(container);
-    }
-
-    function addApplyCourse(name){
-        var container = $('#new-course-applies');
+    function generateNewOrder(){
+        var container = $('#course-orders');
         var inputs = container.find('div');
         var id = inputs.length+1;
-        console.log('declared container ect..');
-        console.log(id);
-        console.log(name);
-
-        var courseFields = {
-            'Department': 'courses_avg',
-            'ID': 'courses_id',
-            'Average': 'courses_avg',
-            'Instructor': 'courses_instructor',
-            'Title': 'courses_title',
-            'Pass': 'courses_pass',
-            'Fail': 'courses_fail',
-            'Audit': 'courses_audit'
-        };
-        var applyOperators = {
-            'COUNT': 'COUNT',
-            'MAX' : 'MAX',
-            'MIN' : 'MIN',
-            'AVG' : 'AVG'
-        };
-
-        var operatorSelect = $('<select />');
-        var courseSelect = $('<select />');
-        console.log('declared two empty selects');
-        for(var val in courseFields) {
-            console.log('in first loop');
-            $('<option />', {value: val, text: courseFields[val]}).appendTo(courseSelect);
-        }
-        for(var value in applyOperators){
-            console.log('in second loop');
-            $('<option />', {value: value, text: applyOperators[value]}).appendTo(operatorSelect);
-        }
-        console.log('our of last loop');
-        var newDiv = $('<div   />', {id: 'applyCourse'+id}).appendTo(container);
-        $('<p />',{text: name}).appendTo(newDiv);
-        console.log('added p');
-        courseSelect.appendTo(newDiv);
-        console.log('added courseSelect');
-        operatorSelect.appendTo(newDiv);
-        console.log('added opperatorSelect');
-        $('<br />').appendTo(newDiv);
-        console.log('added br');
-
+        var newDiv = $('<div   />', {id: 'courseOrder'+id}).appendTo(container);
+        $('<select />').appendTo(newDiv);
+        updateCourseOrderSelect();
     }
-
-
 
     var rules_course = {
         condition: 'AND',

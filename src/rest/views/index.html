@@ -28,7 +28,6 @@
 MAIN CONTENT
 *********************************************************************************************************************************************************** -->
 
-
 <div class="container">
     <div class="row mt">
         <div class="col-sm-12">
@@ -39,7 +38,7 @@ MAIN CONTENT
                 <button type="button" class="btn btn-primary btn-block btn-lg"  data-toggle="modal" data-target="#addRemoveModal">Add/Remove DataSets</button>
             </div>
             <div class="col-sm-3">
-                <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#queryCourseModal">Query Course</button>
+                <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#queryCourseModal" onclick="hideGroupAndApply()">Query Course</button>
             </div>
             <div class="col-sm-3">
                 <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#queryRoomModal">Query Room</button>
@@ -51,12 +50,12 @@ MAIN CONTENT
         </div>
     </div>
 </div>
-        <div class="row mt">
-            <div class="col-sm-12">
-                <div id="render">
-                </div>
-            </div>
+<div class="row mt">
+    <div class="col-sm-12">
+        <div id="render">
         </div>
+    </div>
+</div>
 
 </div>
 
@@ -89,100 +88,105 @@ MAIN CONTENT
 
     </div>
 </div>
-    <div id="queryCourseModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
 
-            <!-- Modal content-->
+<div id="queryCourseModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
 
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Perform a Query on a Course At UBC:</h4>
-                </div>
-                <div class="modal-body">
+        <!-- Modal content-->
 
-                    <!--<form class="queryForm">-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Perform a Query on a Course At UBC:</h4>
+            </div>
+            <div class="modal-body">
+                <!--<form class="queryForm">-->
                     <div class="form-group">
                         <form>
-                            <input type="radio" name="include" value="Include Group/Apply" class="group_apply_radio" checked> Include Group/Apply
-                            <input type="radio" name="include" value="Do Not Include Group/Apply" class="group_apply_radio" checked> Do Not Include Group/Apply
+                            <input type="radio" name="include" value="Include Group/Apply" id="course-group-show" checked> Include Group/Apply
+                            <input type="radio" name="include" value="Do Not Include Group/Apply" id="course-group-hide" checked> Do Not Include Group/Apply
                         </form>
-                        <h5>GET:</h5>
+                    </div>
+                    <div id="course-get" class="checkboxes">
+                        <h5 class="subheader">GET:</h5>
                         <div class="checkbox-align">
                             <form>
-                                <input type="checkbox" name="get_coures" value="courses_dept">Department
-                                <input type="checkbox" name="get_coures" value="courses_id">ID
-                                <input type="checkbox" name="get_coures" value="courses_avg">Average
-                                <input type="checkbox" name="get_coures" value="courses_instructor">Instructor
+                                <input type="checkbox" name="Department" value="courses_dept">Department
+                                <input type="checkbox" name="ID" value="courses_id">ID
+                                <input type="checkbox" name="Average" value="courses_avg">Average
+                                <input type="checkbox" name="Instructor" value="courses_instructor">Instructor
                                 <br>
-                                <input type="checkbox" name="get_coures" value="courses_title">Title
-                                <input type="checkbox" name="get_coures" value="courses_pass">Pass
-                                <input type="checkbox" name="get_coures" value="courses_fail">Fail
-                                <input type="checkbox" name="get_coures" value="courses_audit">Audit
+                                <input type="checkbox" name="Title" value="courses_title">Title
+                                <input type="checkbox" name="Pass" value="courses_pass">Pass
+                                <input type="checkbox" name="Fail" value="courses_fail">Fail
+                                <input type="checkbox" name="Audit" value="courses_audit">Audit
                                 <br>
-                                <div id="new-GET-checks">
+                            </form>
+                        </div>
+                    </div>
+                    <div id="course-group-apply">
+                        <h5 class="subheader">GROUP:</h5>
+                        <div id="group/apply_courses" class="checkboxes">
+                            <div id = "course-checks-group">
+                                <div class="checkbox-align">
+                                    <form>
+                                        <input type="checkbox" name="Department" value="courses_dept">Department
+                                        <input type="checkbox" name="ID" value="courses_id">ID
+                                        <input type="checkbox" name="Average" value="courses_avg">Average
+                                        <input type="checkbox" name="Instructor" value="courses_instructor">Instructor
+                                        <br>
+                                        <input type="checkbox" name="Title" value="courses_title">Title
+                                        <input type="checkbox" name="Pass" value="courses_pass">Pass
+                                        <input type="checkbox" name="Fail" value="courses_fail">Fail
+                                        <input type="checkbox" name="Audit" value="courses_audit">Audit
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="apply-courses">
+                            <h5 class="subheader">Apply</h5>
+
+                            <input type="text" placeholder="type new Apply here" id="new-Apply-course">
+                            <button class="btn btn-primary btn-xs" id="save-Apply-courses">Save New Apply</button><br>
+                            <form>
+                                <div id="new-course-applies">
+
                                 </div>
                             </form>
                         </div>
-                        <h5>Group by:</h5>
-                        <div id="group/apply_courses">
-                            <div class="checkbox-align">
-                                <form>
-                                    <input type="checkbox" name="get_coures" value="courses_dept">Department
-                                    <input type="checkbox" name="get_coures" value="courses_id">ID
-                                    <input type="checkbox" name="get_coures" value="courses_avg">Average
-                                    <input type="checkbox" name="get_coures" value="courses_instructor">Instructor
-                                    <br>
-                                    <input type="checkbox" name="get_coures" value="courses_title">Title
-                                    <input type="checkbox" name="get_coures" value="courses_pass">Pass
-                                    <input type="checkbox" name="get_coures" value="courses_fail">Fail
-                                    <input type="checkbox" name="get_coures" value="courses_audit">Audit
-                                </form>
-                            </div>
-                        </div>
+                        <br>
                     </div>
-                    <div id="apply-courses">
-                        <h5>Apply</h5>
-
-                            <input type="text" placeholder="type new Apply here" id="new-Apply-course">
-                            <button class="btn btn-primary btn-xs" id="save-Apply-courses">Save New Get</button><br>
-                        <form>
-                            <div id="new-course-applies">
-
-                            </div>
-                        </form>
-                    </div>
-
-
-
-
-                    <br>
-                    <label for="query">WHERE:</label>
+                    <h5 class="subheader">WHERE:</h5>
                     <div id ="builder-course"></div>
                     <br>
                     <div>
-                        <h5>ORDER:</h5>
-                        <form>
-                            <input type="radio" name="include" value="Include Group/Apply" class="order-radio-courses" checked> Up
-                            <input type="radio" name="include" value="Do Not Include Group/Apply" class="order-radio-courses" checked> Down
-                        </form>
                     </div>
-                    <textarea class="form-control" rows="10" id="query"></textarea>
-                </div>
+                    <h5 class="subheader">ORDER:</h5>
+                    <form>
+                        <input type="radio" name="include" value="Include Group/Apply" class="order-radio-courses" checked> Up
+                        <input type="radio" name="include" value="Do Not Include Group/Apply" class="order-radio-courses" checked> Down
+                    </form>
+                    <button class="btn btn-primary btn-xs" id="new-Order">New Order</button>
+                    <div id="course-orders">
 
+                    </div>
+                </div>
+                <textarea class="form-control" rows="10" id="query"></textarea>
             </div>
-            <div class="modal-footer">
-                <button type="button" id ="btn-get-course" class="btn btn-primary">Get Rules</button>
-                <button type="button" id ="btn-set-course" class="btn btn-primary">Set Rules</button>
-                <button type="submit" class="btn btn-primary">Submit</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <!--</form>-->
-            </div>
+        <div class="modal-footer">
+            <button type="button" id ="btn-get-course" class="btn btn-primary">Get Rules</button>
+            <button type="button" id ="btn-set-course" class="btn btn-primary">Set Rules</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 
         </div>
 
     </div>
+
 </div>
+
+
 
 <div id="queryRoomModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -196,16 +200,14 @@ MAIN CONTENT
             </div>
             <div class="modal-body">
                 <!--<form class="queryForm">-->
-                    <div class="form-group">
-                        <label for="query">Query:</label>
+                <div class="form-group">
+                    <label for="query">Query:</label>
 
-                        <div id ="builder-room"></div>
-                    </div>
+                    <div id ="builder-room"></div>
+                </div>
 
             </div>
             <div class="modal-footer">
-                <!--<button type="button" id ="btn-get-room" class="btn btn-primary">Get Rules</button>-->
-                <!--<button type="button" id ="btn-set-room" class="btn btn-primary">Set Rules</button>-->
                 <button type="submit" class="btn btn-primary">Submit</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <!--</form>-->
@@ -216,45 +218,45 @@ MAIN CONTENT
     </div>
 </div>
 
-    <div id="scheduleModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+<div id="scheduleModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
 
-            <!-- Modal content-->
+        <!-- Modal content-->
 
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Course Scheduler</h4>
-                </div>
-                <div class="modal-body">
-                    <p>Schedule Goes here</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Course Scheduler</h4>
             </div>
-
-        </div>
-    </div>
-
-
-
-    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"></h4>
-                </div>
-                <div class="modal-body">
-                    <p></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
+            <div class="modal-body">
+                <p>Schedule Goes here</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
+
     </div>
+</div>
+
+
+
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <p></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <!--
@@ -289,6 +291,7 @@ MAIN CONTENT
 <script src="./public/main.js"></script>
 <script src="./public/query-builder.standalone.min.js"></script>
 <script type="text/javascript" src="./public/jquery.backstretch.min.js"></script>
+<script src="./public/courseQueryUI.js"></script>
 
 <script>
     $.backstretch("./public/login-bg.jpg", {speed: 750});
