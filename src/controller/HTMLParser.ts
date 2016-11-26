@@ -67,7 +67,8 @@ export default class HTMLParser {
             seats: null,
             type: null,
             furniture: null,
-            href: null
+            href: null,
+            distance: null
         };
 
         //console.log(node);

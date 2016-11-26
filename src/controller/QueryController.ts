@@ -387,6 +387,9 @@ export default class QueryController {
                 case this.id+"_href":
                     key = "href";
                     break;
+                case this.id+"_distance":
+                    key = "distance";
+                    break;
                 default:
                     if (key.indexOf("_") == -1 || key.substr(0, key.indexOf("_")) == this.id) {
                         throw  {ID: 400, MESSAGE: "key not corresponding to valid field: " + key};
@@ -418,6 +421,12 @@ export default class QueryController {
                     break;
                 case this.id+"_fail":
                     key = "fail";
+                    break;
+                case this.id+"_size":
+                    key = "size";
+                    break;
+                case this.id+"_year":
+                    key = "year";
                     break;
                 case this.id+"_audit":
                     key = "audit";

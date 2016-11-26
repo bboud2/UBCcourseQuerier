@@ -44,5 +44,15 @@ export interface IInsightFacade {
      * fulfill should be for 2XX codes and reject for everything else.
      */
     performQuery(query: QueryRequest): Promise<InsightResponse>;
+
+    /**
+     * Perform a scheduling task on UBCInsight.
+     *
+     * @param query  The query to be performed. This is the same as the body of the POST message.
+     * @return Promise <InsightResponse>
+     * The promise should return an InsightResponse for both fulfill and reject.
+     * fulfill should be for 2XX codes and reject for everything else.
+     */
+    performSchedule(messageObject: any): Promise<InsightResponse>;
 }
 

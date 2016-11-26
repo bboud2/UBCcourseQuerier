@@ -37,7 +37,8 @@ export default class JsonParser{
             pass: null,
             fail: null,
             audit: null,
-            year: null
+            year: null,
+            size: null
         };
 
         // If field does not exist, do nothing usng catch block.
@@ -73,12 +74,18 @@ export default class JsonParser{
 
         try{
             returnSection.pass = section.Pass;
+            returnSection.size = parseInt(section.Pass);
 
         }
         catch(err){}
 
         try{
             returnSection.fail = section.Fail;
+            if (returnSection.size == null) {
+                returnSection.size = section.Fail;
+            } else {
+                returnSection.size += parseInt(section.Fail);
+            }
         }
         catch(err){}
 

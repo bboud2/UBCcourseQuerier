@@ -71,6 +71,9 @@ export default class Server {
                 // curl -is -X POST -d '{ "key": "value" }' http://localhost:4321/query
                 that.rest.post('/query', restify.bodyParser(), RouteHandler.postQuery);
 
+                // Receives scheduling request
+                that.rest.post('/schedule', restify.bodyParser(), RouteHandler.postSchedule);
+
                 // Receives remove request and deletes dataset from memory and server
                 that.rest.del('/dataset/:id', RouteHandler.deleteDataset);
 
