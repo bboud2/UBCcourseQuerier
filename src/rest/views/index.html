@@ -159,8 +159,6 @@ MAIN CONTENT
                     <h5 class="subheader">WHERE:</h5>
                     <div id ="builder-course"></div>
                     <br>
-                    <div>
-                    </div>
                     <h5 class="subheader">ORDER:</h5>
                     <form>
                         <input type="radio" name="include" value="Include Group/Apply" class="order-radio-courses" checked> Up
@@ -171,7 +169,6 @@ MAIN CONTENT
 
                     </div>
                 </div>
-                <textarea class="form-control" rows="10" id="query"></textarea>
             </div>
         <div class="modal-footer">
             <button type="button" id ="btn-get-course" class="btn btn-primary">Get Rules</button>
@@ -299,10 +296,14 @@ MAIN CONTENT
                 <h4 class="modal-title">Course Scheduler</h4>
             </div>
             <div class="modal-body">
-                <p>Schedule Goes here</p>
+                <h5 class="subheader">Rooms</h5>
+                <div id="builder-room-schedule"></div>
+                <h5 class="subheader">Courses</h5>
+                <div id="builder-course-schedule"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="submit-schedule">Submit</button>
             </div>
         </div>
 
@@ -328,38 +329,12 @@ MAIN CONTENT
     </div>
 </div>
 
-
-<!--
-<div class="container">
-    <section class="wrapper">
-        <div class="row mt">
-            <div class="col-sm-12">
-                <div class="content-panel">
-                    <div id="dataset">
-                        <div class="form-group">
-                            <h3>Dataset</h3>
-                            <label for="datasetId">ID:</label>
-                            <input type="text" class="form-control" id="datasetId">
-                            <label for="datasetZip">Archive:</label>
-                            <input type="file" class="form-control" id="datasetZip">
-                        </div>
-                        <button type="button" class="btn btn-primary" id="datasetAdd">Add Dataset</button>
-                        <button type="button" class="btn btn-primary" id="datasetRm">Remove Dataset</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-</div><!-- /container -->
-
-
-
-
 <script src="./public/jquery.min.js"></script>
 <script src="./public/bootstrap.min.js"></script>
 <script src="./public/d3.min.js"></script>
 <script src="./public/main.js"></script>
 <script src="./public/query-builder.standalone.min.js"></script>
+<script src="./public/ScheduleUI.js"></script>
 <script type="text/javascript" src="./public/jquery.backstretch.min.js"></script>
 <script src="./public/courseQueryUI.js"></script>
 <script src="./public/roomQueryUI.js"></script>
