@@ -1,4 +1,3 @@
-import {QueryRequest} from "../../controller/QueryController";
 /**
  * Created by Ben on 11/20/2016.
  */
@@ -6,7 +5,6 @@ import {QueryRequest} from "../../controller/QueryController";
 export default class UIHelpers {
 
     public static convertToWHERE(data: any): any{
-
         let returnWHEREObject:any = {};
 
         if(data.condition == "AND" && data.rules.length == 1 ){
@@ -18,6 +16,9 @@ export default class UIHelpers {
 
         for(let i = 0; i < data.rules.length; i++){
             operatorArray.push(UIHelpers.generateSubWHEREObject(data.rules[i]));
+        }
+        if (data.rules.length == 1) {
+            operatorArray.push(UIHelpers.generateSubWHEREObject(data.rules[0]));
         }
         returnWHEREObject[logicComparator] = operatorArray;
         if(data.not == true){

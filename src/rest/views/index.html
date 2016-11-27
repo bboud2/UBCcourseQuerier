@@ -98,18 +98,17 @@ MAIN CONTENT
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Perform a Query on a Course At UBC:</h4>
             </div>
-            <div class="modal-body">
-                <!--<form class="queryForm">-->
+                <div class="modal-body">
                     <div class="form-group">
-                        <form>
-                            <input type="radio" name="include" value="Include Group/Apply" id="course-group-show" checked> Include Group/Apply
+                        <form id="courses_group_apply">
+                            <input type="radio" name="include" value="Include Group/Apply" id="course-group-show"> Include Group/Apply
                             <input type="radio" name="include" value="Do Not Include Group/Apply" id="course-group-hide" checked> Do Not Include Group/Apply
                         </form>
                     </div>
                     <div id="course-get">
                         <h5 class="subheader">GET:</h5>
                         <div class="checkbox-align checkbox-course checkboxes">
-                            <form>
+                            <form id="courses_get">
                                 <input type="checkbox" name="Department" value="courses_dept">Department
                                 <input type="checkbox" name="ID" value="courses_id">ID
                                 <input type="checkbox" name="Average" value="courses_avg">Average
@@ -128,7 +127,7 @@ MAIN CONTENT
                         <div id="group/apply_courses">
                             <div id = "course-checks-group">
                                 <div class="checkbox-align checkbox-course checkboxes">
-                                    <form>
+                                    <form id="courses_group">
                                         <input type="checkbox" name="Department" value="courses_dept">Department
                                         <input type="checkbox" name="ID" value="courses_id">ID
                                         <input type="checkbox" name="Average" value="courses_avg">Average
@@ -160,23 +159,23 @@ MAIN CONTENT
                     <div id ="builder-course"></div>
                     <br>
                     <h5 class="subheader">ORDER:</h5>
-                    <form>
-                        <input type="radio" name="include" value="Include Group/Apply" class="order-radio-courses" checked> Up
-                        <input type="radio" name="include" value="Do Not Include Group/Apply" class="order-radio-courses" checked> Down
+                    <form id="courses_order">
+                        <input type="radio" name="courses_order" class="order-radio-courses" value="UP" checked> Up
+                        <input type="radio" name="courses_order" class="order-radio-courses" value="DOWN"> Down
                     </form>
                     <button class="btn btn-primary btn-xs" id="new-Course-Order">New Order</button>
                     <div id="course-orders">
 
                     </div>
                 </div>
-            </div>
-        <div class="modal-footer">
-            <button type="button" id ="btn-get-course" class="btn btn-primary">Get Rules</button>
-            <button type="button" id ="btn-set-course" class="btn btn-primary">Set Rules</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-
+                <div class="modal-footer">
+                    <button type="button" id ="btn-get-course" class="btn btn-primary">Get Rules</button>
+                    <button type="button" id ="btn-set-course" class="btn btn-primary">Set Rules</button>
+                    <button type="submit" class="btn btn-primary" id="submitCourseQuery">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
         </div>
+
 
     </div>
 
@@ -204,21 +203,21 @@ MAIN CONTENT
                 <div id="room-get">
                     <h5 class="subheader">GET:</h5>
                     <div class="checkbox-align checkbox-room checkboxes">
-                            <form>
-                                <input type="checkbox" name="Full Name" value="rooms_fullname">Full Name
-                                <input type="checkbox" name="Short Name" value="rooms_shortname">Short Name
-                                <input type="checkbox" name="Room Number" value="rooms_number">Room Number
-                                <input type="checkbox" name="Room Name" value="rooms_name">Room Name
-                                <br>
-                                <input type="checkbox" name="Address" value="rooms_address">Address
-                                <input type="checkbox" name="Lat" value="rooms_lat">Lat
-                                <input type="checkbox" name="Lon" value="rooms_lon">Lon
-                                <input type="checkbox" name="Seats" value="rooms_seats">Seats
-                                <input type="checkbox" name="Type" value="rooms_type">Type
-                                <input type="checkbox" name="Furniture" value="rooms_furniture">Furniture
-                                <input type="checkbox" name="HREF" value="rooms_href">HREF
-                                <br>
-                            </form>
+                        <form>
+                            <input type="checkbox" name="Full Name" value="rooms_fullname">Full Name
+                            <input type="checkbox" name="Short Name" value="rooms_shortname">Short Name
+                            <input type="checkbox" name="Room Number" value="rooms_number">Room Number
+                            <input type="checkbox" name="Room Name" value="rooms_name">Room Name
+                            <br>
+                            <input type="checkbox" name="Address" value="rooms_address">Address
+                            <input type="checkbox" name="Lat" value="rooms_lat">Lat
+                            <input type="checkbox" name="Lon" value="rooms_lon">Lon
+                            <input type="checkbox" name="Seats" value="rooms_seats">Seats
+                            <input type="checkbox" name="Type" value="rooms_type">Type
+                            <input type="checkbox" name="Furniture" value="rooms_furniture">Furniture
+                            <input type="checkbox" name="HREF" value="rooms_href">HREF
+                            <br>
+                        </form>
                     </div>
                 </div>
                 <div id="room-group-apply">
@@ -310,9 +309,29 @@ MAIN CONTENT
     </div>
 </div>
 
+<div id="displayModal" class="modal fade" role="dialog" style="max-height: 100%; overflow-y: auto;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Query Results</h4>
+            </div>
+            <div class="modal-body" id="display_table">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 
-<div class="modal fade" id="errorModal" tabindex="-1" role="dialog">
+
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" >
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -329,15 +348,16 @@ MAIN CONTENT
     </div>
 </div>
 
-<script src="./public/jquery.min.js"></script>
-<script src="./public/bootstrap.min.js"></script>
-<script src="./public/d3.min.js"></script>
-<script src="./public/main.js"></script>
-<script src="./public/query-builder.standalone.min.js"></script>
-<script src="./public/ScheduleUI.js"></script>
-<script type="text/javascript" src="./public/jquery.backstretch.min.js"></script>
-<script src="./public/courseQueryUI.js"></script>
-<script src="./public/roomQueryUI.js"></script>
+<script src="../public/jquery.min.js"></script>
+<script src="../public/bootstrap.min.js"></script>
+<script src="../public/d3.min.js"></script>
+<script src="../public/main.js"></script>
+<script src="../public/UIHelpers.js"></script>
+<script src="../public/query-builder.standalone.min.js"></script>
+<script src="../public/ScheduleUI.js"></script>
+<script type="text/javascript" src="../public/jquery.backstretch.min.js"></script>
+<script src="../public/courseQueryUI.js"></script>
+<script src="../public/roomQueryUI.js"></script>
 
 <script>
     $.backstretch("./public/login-bg.jpg", {speed: 750});

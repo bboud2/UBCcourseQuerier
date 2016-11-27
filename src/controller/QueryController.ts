@@ -457,11 +457,13 @@ export default class QueryController {
         key = this.convertFieldNames(key);
         let value: any = rest[Object.keys(rest)[0]];
         if (opCode == "IS" || opCode == "NIS") {
-            if (typeof value !== "string") {
+            if (typeof value != "string") {
                 throw {ID: 400, MESSAGE: "Base opCode of IS or NIS does not contain string value"};
             }
         } else {
-            if (typeof value !== "number") {
+            try {
+                value = Number(value);
+            } catch (e) {
                 throw {ID: 400, MESSAGE: "Base opCode of GT, LT, EQ or NEQ does not contain numeric value"};
             }
         }
