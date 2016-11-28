@@ -41,6 +41,14 @@ var RouteHandler = (function () {
             return next();
         }
     };
+    RouteHandler.putDistance = function (req, res, next) {
+        var name = req.params.name;
+        RouteHandler.insightFacade.performDistance(name).then(function (result) {
+            res.json(result.code, result.body);
+        }).catch(function (result) {
+            res.json(result.code, { error: result['error'] });
+        });
+    };
     RouteHandler.postQuery = function (req, res, next) {
         RouteHandler.insightFacade.performQuery(req.params).then(function (result) {
             res.json(result.code, result.body);

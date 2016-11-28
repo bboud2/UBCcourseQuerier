@@ -4,6 +4,7 @@ var QueryController_1 = require('../controller/QueryController');
 var SchedulerController_1 = require('../controller/SchedulerController');
 var Util_1 = require('../Util');
 var fs = require('fs');
+var DistanceAdder_1 = require("./DistanceAdder");
 var InsightFacade = (function () {
     function InsightFacade() {
     }
@@ -126,6 +127,42 @@ var InsightFacade = (function () {
             var res = {
                 code: 200,
                 body: controller.do_scheduling()
+            };
+            fulfill(res);
+        });
+    };
+    InsightFacade.prototype.performDistance = function (roomName) {
+        return new Promise(function (fulfill, reject) {
+            var dataset = InsightFacade.datasetController.getDataset("rooms");
+            if (dataset == null) {
+                var res_1 = {
+                    code: 404,
+                    error: "rooms dataset not found"
+                };
+                reject(res_1);
+            }
+            var adder = new DistanceAdder_1.default(dataset.rooms);
+            var lat = null;
+            var lon = null;
+            for (var i = 0; i < dataset.rooms.length; i++) {
+                var curr_room = dataset.rooms[i];
+                if (curr_room.full_name == roomName) {
+                    lat = curr_room.lat;
+                    lon = curr_room.lon;
+                    break;
+                }
+            }
+            if (lat == null || lon == null) {
+                var res_2 = {
+                    code: 404,
+                    error: "given room is missing either lat or lon data"
+                };
+                reject(res_2);
+            }
+            adder.addDistanceToCoordinate(lat, lon);
+            var res = {
+                code: 200,
+                body: "Success!"
             };
             fulfill(res);
         });

@@ -54,6 +54,15 @@ export default class RouteHandler {
         }
     }
 
+    public static  putDistance(req: restify.Request, res: restify.Response, next: restify.Next) {
+        var name: string = req.params.name;
+        RouteHandler.insightFacade.performDistance(name).then(function (result){
+            res.json(result.code, result.body);
+        }).catch(function (result) {
+            res.json(result.code, {error: result['error']});
+        });
+    }
+
     public static postQuery(req: restify.Request, res: restify.Response, next: restify.Next) {
 
         RouteHandler.insightFacade.performQuery(req.params).then(function (result){

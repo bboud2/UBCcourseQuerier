@@ -66,6 +66,9 @@ export default class Server {
                 // curl localhost:4321/dataset/test --upload-file FNAME.zip
                 that.rest.put('/dataset/:id', RouteHandler.putDataset);
 
+                // Sends a building name in order to set all room distances appropriately
+                that.rest.put('/dataset/:roomName', RouteHandler.putDistance);
+
                 // Receives queries. Although these queries never change the server (and thus could be GETs)
                 // they are formed by sending JSON bodies, which is not standard for normal GET requests.
                 // curl -is -X POST -d '{ "key": "value" }' http://localhost:4321/query

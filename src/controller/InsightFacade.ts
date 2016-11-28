@@ -14,6 +14,8 @@ import {QueryRequest} from "../controller/QueryController";
 import Log from '../Util';
 import {IInsightFacade, InsightResponse} from "./IInsightFacade";
 import fs = require('fs');
+import {Dataset} from "./DatasetController";
+import DistanceAdder from "./DistanceAdder";
 
 export default class InsightFacade implements IInsightFacade {
 
@@ -147,6 +149,43 @@ export default class InsightFacade implements IInsightFacade {
             let res:InsightResponse = {
                 code: 200,
                 body: controller.do_scheduling()
+            };
+            fulfill(res);
+        });
+    }
+
+    performDistance(roomName: string): Promise<InsightResponse> {
+        return new Promise<InsightResponse>(function (fulfill, reject) {
+            let dataset: Dataset = InsightFacade.datasetController.getDataset("rooms");
+            if (dataset == null) {
+                let res:InsightResponse = {
+                    code: 404,
+                    error: "rooms dataset not found"
+                };
+                reject(res);
+            }
+            let adder: DistanceAdder = new DistanceAdder(dataset.rooms);
+            let lat: number = null;
+            let lon: number = null;
+            for (let i = 0; i < dataset.rooms.length; i++) {
+                let curr_room: any = dataset.rooms[i];
+                if (curr_room.full_name == roomName) {
+                    lat = curr_room.lat;
+                    lon = curr_room.lon;
+                    break;
+                }
+            }
+            if (lat == null || lon == null) {
+                let res:InsightResponse = {
+                    code: 404,
+                    error: "given room is missing either lat or lon data"
+                };
+                reject(res);
+            }
+            adder.addDistanceToCoordinate(lat, lon);
+            let res:InsightResponse = {
+                code: 200,
+                body: "Success!"
             };
             fulfill(res);
         });
