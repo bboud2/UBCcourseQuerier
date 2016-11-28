@@ -29,7 +29,7 @@ var Server = (function () {
                 }));
                 that.rest.get('/', RouteHandler_1.default.getHomepage);
                 that.rest.put('/dataset/:id', RouteHandler_1.default.putDataset);
-                that.rest.put('/dataset/:roomName', RouteHandler_1.default.putDistance);
+                that.rest.put('/distance/:roomName', RouteHandler_1.default.putDistance);
                 that.rest.post('/query', restify.bodyParser(), RouteHandler_1.default.postQuery);
                 that.rest.post('/schedule', restify.bodyParser(), RouteHandler_1.default.postSchedule);
                 that.rest.del('/dataset/:id', RouteHandler_1.default.deleteDataset);

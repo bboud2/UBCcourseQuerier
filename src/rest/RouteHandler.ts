@@ -55,7 +55,7 @@ export default class RouteHandler {
     }
 
     public static  putDistance(req: restify.Request, res: restify.Response, next: restify.Next) {
-        var name: string = req.params.name;
+        var name: string = req.params.roomName;
         RouteHandler.insightFacade.performDistance(name).then(function (result){
             res.json(result.code, result.body);
         }).catch(function (result) {

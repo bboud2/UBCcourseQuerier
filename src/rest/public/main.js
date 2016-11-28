@@ -83,6 +83,12 @@ $(function () {
     });
 
     $("#submitRoomQuery").click(function (e) {
+        var roomName = $("#roomDistanceDropDown")[0]["value"];
+        $.ajax("/distance/"+roomName, {type:"PUT", contentType: "application/json", dataType: "json", success: function(data) {
+            console.log("successfully updated distances");
+        }}).fail(function (e) {
+            spawnHttpErrorModal(e)
+        });
         var query = {};
         query.AS = "TABLE";
         query.WHERE = UIHelpers.convertToWHERE($("#builder-room").queryBuilder('getRules'));
@@ -142,6 +148,12 @@ $(function () {
     });
 
     $("#submit-schedule").click(function (e) {
+        var roomName = $("#scheduleDistanceDropDown")[0]["value"];
+        $.ajax("/distance/"+roomName, {type:"PUT", contentType: "application/json", dataType: "json", success: function(data) {
+            console.log("successfully updated distances");
+        }}).fail(function (e) {
+            spawnHttpErrorModal(e)
+        });
         var messageObject = {};
         var query = {};
         query.GET = ["courses_dept", "courses_id", "maxSize", "numSections"];

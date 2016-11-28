@@ -67,7 +67,7 @@ export default class Server {
                 that.rest.put('/dataset/:id', RouteHandler.putDataset);
 
                 // Sends a building name in order to set all room distances appropriately
-                that.rest.put('/dataset/:roomName', RouteHandler.putDistance);
+                that.rest.put('/distance/:roomName', RouteHandler.putDistance);
 
                 // Receives queries. Although these queries never change the server (and thus could be GETs)
                 // they are formed by sending JSON bodies, which is not standard for normal GET requests.

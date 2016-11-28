@@ -42,7 +42,7 @@ var RouteHandler = (function () {
         }
     };
     RouteHandler.putDistance = function (req, res, next) {
-        var name = req.params.name;
+        var name = req.params.roomName;
         RouteHandler.insightFacade.performDistance(name).then(function (result) {
             res.json(result.code, result.body);
         }).catch(function (result) {
