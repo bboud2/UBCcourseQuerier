@@ -41,10 +41,10 @@ MAIN CONTENT
                 <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#queryCourseModal" onclick="hideCourseGroupAndApply()">Query Course</button>
             </div>
             <div class="col-sm-3">
-                <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#queryRoomModal" onclick="hideRoomGroupAndApply()">Query Room</button>
+                <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#queryRoomModal" onclick="hideRoomGroupAndApply(); getRoomDropdown()">Query Room</button>
             </div>
             <div class="col-sm-3">
-                <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#scheduleModal">Schedule</button>
+                <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#scheduleModal" onclick="getScheduleDropdown()">Schedule</button>
             </div>
         </div>
     </div>
@@ -198,6 +198,9 @@ MAIN CONTENT
                     <form id="rooms-group-apply">
                         <input type="radio" name="include" value="Include Group/Apply" id="room-group-show" checked> Include Group/Apply
                         <input type="radio" name="include" value="Do Not Include Group/Apply" id="room-group-hide" checked> Do Not Include Group/Apply
+                        <div id="roomDistance">
+                            <select id="roomDistanceDropDown"></select>
+                        </div>
                     </form>
                 </div>
                 <div id="room-get">
@@ -216,8 +219,10 @@ MAIN CONTENT
                             <input type="checkbox" name="Type" value="rooms_type">Type
                             <input type="checkbox" name="Furniture" value="rooms_furniture">Furniture
                             <input type="checkbox" name="HREF" value="rooms_href">HREF
+                            <input type="checkbox" name="Distance" value="rooms_distance" id="getDistanceCheck">Distance
                             <br>
                         </form>
+
                     </div>
                 </div>
                 <div id="room-group-apply">
@@ -238,9 +243,12 @@ MAIN CONTENT
                                     <input type="checkbox" name="Type" value="rooms_type">Type
                                     <input type="checkbox" name="Furniture" value="rooms_furniture">Furniture
                                     <input type="checkbox" name="HREF" value="rooms_href">HREF
+                                    <input type="checkbox" name="Distance" value="rooms_distance" id="groupDistanceCheck">Distance
+                                    <div id="roomGroupDistance"></div>
                                     <br>
                                 </form>
-                            </div>
+
+                        </div>
                         </div>
                     </div>
 
@@ -295,6 +303,9 @@ MAIN CONTENT
                 <h4 class="modal-title">Course Scheduler</h4>
             </div>
             <div class="modal-body">
+                <div id="scheduleDistance">
+                    <select id="scheduleDistanceDropDown"></select>
+                </div>
                 <h5 class="subheader">Rooms</h5>
                 <div id="builder-room-schedule"></div>
                 <h5 class="subheader">Courses</h5>
@@ -310,7 +321,7 @@ MAIN CONTENT
 </div>
 
 <div id="displayModal" class="modal fade" role="dialog" style="max-height: 100%; overflow-y: auto;">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
 
         <!-- Modal content-->
 

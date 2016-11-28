@@ -10,6 +10,10 @@ export default class UIHelpers {
         let logicComparator:any = data.condition;
         let operatorArray:any = [];
 
+        if(data.rules == undefined){
+            return {};
+        }
+
         for(let i = 0; i < data.rules.length; i++){
             operatorArray.push(UIHelpers.generateSubWHEREObject(data.rules[i]));
         }

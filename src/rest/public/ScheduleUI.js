@@ -21,6 +21,29 @@ var rules_room_schedule = {
     }]
 };
 
+function getScheduleDropdown(){
+    var query = {
+        "AS":"TABLE",
+        "WHERE":{},
+        "GROUP":["rooms_fullname"],
+        "APPLY":[],
+        "GET":["rooms_fullname"]
+    };
+
+    $.ajax("/query", {type:"POST", data: JSON.stringify(query), contentType: "application/json", dataType: "json", success: function(data) {
+        populateScheduleDistanceDropDown(data);
+    }}).fail(function (e) {
+        console.log("query failed");
+    });
+}
+function populateScheduleDistanceDropDown(data){
+    var result = data.result;
+    var length = result.length;
+    for(var i = 0; i < length; i++){
+        var val = result[i]["rooms_fullname"];
+        $('<option />', {value: val, text: val}).appendTo($('#scheduleDistanceDropDown'));
+    }
+}
 
 
 $('#builder-room-schedule').queryBuilder({

@@ -125,10 +125,11 @@ $(function () {
             });
         }
         query.GET = gets;
-        console.log(query);
+
         try {
             $("#queryRoomModal").modal("toggle");
             $.ajax("/query", {type:"POST", data: JSON.stringify(query), contentType: "application/json", dataType: "json", success: function(data) {
+                console.log(JSON.stringify(data));
                 if (data["render"] === "TABLE") {
                     generateTable(data["result"]);
                 }

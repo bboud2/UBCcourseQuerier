@@ -4,6 +4,38 @@
 
 var roomOrderProps = {};
 
+
+// function showRoomGetDistance(){
+//     console.log("showRoomGETDistance");
+//     $('#roomGetDistance').append($('<select />'));
+//
+// }
+
+
+function getRoomDropdown(){
+    var query = {
+        "AS":"TABLE",
+        "WHERE":{},
+        "GROUP":["rooms_fullname"],
+        "APPLY":[],
+        "GET":["rooms_fullname"]
+    };
+
+    $.ajax("/query", {type:"POST", data: JSON.stringify(query), contentType: "application/json", dataType: "json", success: function(data) {
+        populateRoomDistanceDropDown(data);
+    }}).fail(function (e) {
+        console.log("query failed");
+    });
+}
+function populateRoomDistanceDropDown(data){
+    var result = data.result;
+    var length = result.length;
+    for(var i = 0; i < length; i++){
+        var val = result[i]["rooms_fullname"];
+        $('<option />', {value: val, text: val}).appendTo($('#roomDistanceDropDown'));
+    }
+}
+
 function hideRoomGroupAndApply(){
     $('#room-group-apply').hide();
 }

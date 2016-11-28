@@ -6,6 +6,9 @@ var UIHelpers = (function () {
         var returnWHEREObject = {};
         var logicComparator = data.condition;
         var operatorArray = [];
+        if (data.rules == undefined) {
+            return {};
+        }
         for (var i = 0; i < data.rules.length; i++) {
             operatorArray.push(UIHelpers.generateSubWHEREObject(data.rules[i]));
         }
