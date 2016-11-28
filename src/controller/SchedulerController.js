@@ -79,11 +79,11 @@ var SchedulerController = (function () {
         var output = "";
         if (index < 9) {
             var start_time = index + 8;
-            output += "MWF from " + SchedulerController.convert_num_to_time(start_time) + " to " + SchedulerController.convert_num_to_time(start_time + 1);
+            output += "MWF from " + SchedulerController.convert_num_to_time(start_time) + " to " + SchedulerController.convert_num_to_time(start_time + 1) + "\n\n";
         }
         else {
             var start_time = (index - 9) * 1.5 + 8;
-            output += "TR from " + SchedulerController.convert_num_to_time(start_time) + " to " + SchedulerController.convert_num_to_time(start_time + 1.5);
+            output += "TR from " + SchedulerController.convert_num_to_time(start_time) + " to " + SchedulerController.convert_num_to_time(start_time + 1.5) + "\n\n";
         }
         return output;
     };

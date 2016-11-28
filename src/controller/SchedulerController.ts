@@ -82,10 +82,10 @@ export default class SchedulerController {
         let output: string = "";
         if (index < 9) {
             let start_time: number = index + 8;
-            output += "MWF from " + SchedulerController.convert_num_to_time(start_time) + " to " + SchedulerController.convert_num_to_time(start_time + 1)
+            output += "MWF from " + SchedulerController.convert_num_to_time(start_time) + " to " + SchedulerController.convert_num_to_time(start_time + 1) + "\n\n"
         } else {
             let start_time: number = (index - 9) * 1.5 + 8;
-            output += "TR from " + SchedulerController.convert_num_to_time(start_time) + " to " + SchedulerController.convert_num_to_time(start_time + 1.5)
+            output += "TR from " + SchedulerController.convert_num_to_time(start_time) + " to " + SchedulerController.convert_num_to_time(start_time + 1.5) + "\n\n"
         }
         return output;
     }

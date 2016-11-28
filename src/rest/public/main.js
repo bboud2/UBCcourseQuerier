@@ -140,6 +140,55 @@ $(function () {
         }
     });
 
+    $("#submit-schedule").click(function (e) {
+        var messageObject = {};
+        var query = {};
+        query.GET = ["courses_dept", "courses_id", "maxSize", "numSections"];
+        query.WHERE = UIHelpers.convertToWHERE($("#builder-course-schedule").queryBuilder('getRules'));
+        query.GROUP = [ "courses_dept", "courses_id" ];
+        query.APPLY = [ {"numSections": {"COUNT": "courses_uuid"}}, {"maxSize": {"MAX": "courses_size"}}];
+        query.ORDER = { "dir": "DOWN", "keys": ["maxSize", "courses_dept", "courses_id"]};
+        query.AS = "TABLE";
+        try {
+            $.ajax("/query", {type:"POST", data: JSON.stringify(query), contentType: "application/json", dataType: "json", success: function(data) {
+                if (data["render"] === "TABLE") {
+                    messageObject["courses"] = data["result"];
+                }
+                query = {};
+                query.GET = ["rooms_name", "rooms_seats", "rooms_shortname"];
+                query.WHERE = UIHelpers.convertToWHERE($("#builder-room-schedule").queryBuilder('getRules'));
+                query.ORDER = {"dir": "DOWN", "keys": ["rooms_seats", "rooms_name"]};
+                query.AS = "TABLE";
+                try {
+                    $.ajax("/query", {type:"POST", data: JSON.stringify(query), contentType: "application/json", dataType: "json", success: function(data) {
+                        if (data["render"] === "TABLE") {
+                            messageObject["rooms"] = data["result"];
+                        }
+                        try {
+                            $("#scheduleModal").modal("toggle");
+                            $.ajax("/schedule", {type:"POST", data: JSON.stringify(messageObject), contentType: "application/json", dataType: "json", success: function(data) {
+                                generateTable(data["courses"]);
+                                spawnErrorModal("SCHEDULER STRENGTH", data["strength"]);
+                            }}).fail(function (e) {
+                                spawnHttpErrorModal(e)
+                            });
+                        } catch (err) {
+                            spawnErrorModal("Query Error", err);
+                        }
+                    }}).fail(function (e) {
+                        spawnHttpErrorModal(e)
+                    });
+                } catch (err) {
+                    spawnErrorModal("Query Error", err);
+                }
+            }}).fail(function (e) {
+                spawnHttpErrorModal(e)
+            });
+        } catch (err) {
+            spawnErrorModal("Query Error", err);
+        }
+    });
+
     function generateTable(data) {
         if (data.length > 0) {
             var columns = [];

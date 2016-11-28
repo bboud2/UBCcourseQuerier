@@ -15,9 +15,9 @@ $('#submit-schedule').click(function(){
 var rules_room_schedule = {
     condition: 'AND',
     rules: [{
-        id: 'rooms_fullname',
+        id: 'rooms_shortname',
         operator: 'equal',
-        value: "ASDF"
+        value: "ESB"
     }]
 };
 
@@ -32,27 +32,27 @@ $('#builder-room-schedule').queryBuilder({
         id: 'rooms_fullname',
         label: 'FullName',
         type: 'string',
-        operators:['equal', 'not_equal']
+        operators:['equal']
     }, {
         id: 'rooms_shortname',
         label: 'ShortName',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     }, {
         id: 'rooms_number',
         label: 'Room Number',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'rooms_name',
         label: 'Room Name',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'rooms_address',
         label: 'Address',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'rooms_lat',
         label: 'Latitude',
@@ -61,7 +61,7 @@ $('#builder-room-schedule').queryBuilder({
             min: 0,
             step: 0.01
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     },{
         id: 'rooms_lon',
         label: 'Longitude',
@@ -70,7 +70,7 @@ $('#builder-room-schedule').queryBuilder({
             min: 0,
             step: 0.01
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     },{
         id: 'rooms_seats',
         label: 'Number of Seats',
@@ -79,22 +79,22 @@ $('#builder-room-schedule').queryBuilder({
             min: 0,
             step: 1
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     },{
         id: 'rooms_type',
         label: 'Room Type',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'rooms_furniture',
         label: 'Furniture',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'rooms_href',
         label: 'Website',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     }],
 
     rules: rules_room_schedule
@@ -107,7 +107,7 @@ var rules_course_schedule = {
     rules: [{
         id: 'courses_dept',
         operator: 'equal',
-        value: "CPSC"
+        value: "cpsc"
     }]
 };
 
@@ -120,12 +120,12 @@ var rules_course_schedule = {
         id: 'courses_dept',
         label: 'Department',
         type: 'string',
-        operators:['equal', 'not_equal']
+        operators:['equal']
     }, {
         id: 'courses_id',
         label: 'ID',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'courses_avg',
         label: 'Average',
@@ -134,17 +134,17 @@ var rules_course_schedule = {
             min: 0,
             step: 0.01
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     },{
         id: 'courses_instructor',
         label: 'Instructor',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'courses_title',
         label: 'Title',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'courses_pass',
         label: 'Pass',
@@ -153,7 +153,7 @@ var rules_course_schedule = {
             min: 0,
             step: 1
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     },{
         id: 'courses_fail',
         label: 'Fail',
@@ -162,7 +162,7 @@ var rules_course_schedule = {
             min: 0,
             step: 1
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     },{
         id: 'courses_audit',
         label: 'Audit',
@@ -171,7 +171,7 @@ var rules_course_schedule = {
             min: 0,
             step: 1
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     }],
 
     rules: rules_course_schedule
