@@ -195,7 +195,7 @@ MAIN CONTENT
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <form>
+                    <form id="rooms-group-apply">
                         <input type="radio" name="include" value="Include Group/Apply" id="room-group-show" checked> Include Group/Apply
                         <input type="radio" name="include" value="Do Not Include Group/Apply" id="room-group-hide" checked> Do Not Include Group/Apply
                     </form>
@@ -203,7 +203,7 @@ MAIN CONTENT
                 <div id="room-get">
                     <h5 class="subheader">GET:</h5>
                     <div class="checkbox-align checkbox-room checkboxes">
-                        <form>
+                        <form id="rooms_get">
                             <input type="checkbox" name="Full Name" value="rooms_fullname">Full Name
                             <input type="checkbox" name="Short Name" value="rooms_shortname">Short Name
                             <input type="checkbox" name="Room Number" value="rooms_number">Room Number
@@ -225,7 +225,7 @@ MAIN CONTENT
                     <div id="group/apply_rooms" class="checkboxes">
                         <div id = "room-checks-group">
                             <div class="checkbox-align checkbox-room checkboxes">
-                                <form>
+                                <form id="rooms_group">
                                     <input type="checkbox" name="Full Name" value="rooms_fullname">Full Name
                                     <input type="checkbox" name="Short Name" value="rooms_shortname">Short Name
                                     <input type="checkbox" name="Room Number" value="rooms_number">Room Number
@@ -263,9 +263,9 @@ MAIN CONTENT
                     <div id ="builder-room"></div>
                 </div>
                 <div class="subheader">Order:</div>
-                <form>
-                    <input type="radio" name="include" value="Include Group/Apply" class="order-radio-courses" checked> Up
-                    <input type="radio" name="include" value="Do Not Include Group/Apply" class="order-radio-courses" checked> Down
+                <form id="rooms_order">
+                    <input type="radio" name="room_order" class="order-radio-rooms" value="UP" checked> Up
+                    <input type="radio" name="room_order" class="order-radio-rooms" value="DOWN"> Down
                 </form>
                 <button class="btn btn-primary btn-xs" id="new-Room-Order">New Order</button>
                 <div id="room-orders">
@@ -274,7 +274,7 @@ MAIN CONTENT
 
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary" id="submitRoomQuery">Submit</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <!--</form>-->
             </div>

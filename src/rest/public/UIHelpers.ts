@@ -7,10 +7,6 @@ export default class UIHelpers {
     public static convertToWHERE(data: any): any{
         let returnWHEREObject:any = {};
 
-        if(data.condition == "AND" && data.rules.length == 1 ){
-            //TODO
-        }
-
         let logicComparator:any = data.condition;
         let operatorArray:any = [];
 
@@ -61,16 +57,11 @@ export default class UIHelpers {
             if(object.operator == "equal"){
                 return "IS";
             }
-            else{
-                //TODO NOTIS case;
-            }
         }
         else{
             switch(object.operator) {
                 case "equal":
                     return "EQ";
-                case "not_equal":
-                    return ""; //TODO NEQ case
                 case "less":
                     return "LT";
                 case "greater":

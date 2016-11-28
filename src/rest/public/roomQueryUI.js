@@ -25,13 +25,11 @@ $('.checkbox-room').change(function (){
 });
 
 function handleRoomQueryChecks(){
-    console.log("called Handle Query Checks");
     toggleRoomOrderProps();
     updateRoomOrderSelect();
 }
 
 function toggleRoomOrderProps(){
-    console.log("called toggleRoomOrderProps");
 
     roomOrderProps = {};
     if($('#room-group-show').is(':checked')){
@@ -47,8 +45,6 @@ function toggleRoomOrderProps(){
             roomOrderProps[i.name] = i.value;
         });
     }
-
-    console.log(JSON.stringify(roomOrderProps));
 }
 
 
@@ -60,7 +56,6 @@ function updateRoomOrderSelect(){
         var targetSel = obj.children[0];
         clearSel(targetSel);
         for (var value in roomOrderProps) {
-            console.log('in second loop');
             $('<option />', {value: roomOrderProps[value], text: value}).appendTo(targetSel);
         }
     })
@@ -78,7 +73,7 @@ function generateNewRoomOrder(){
     var container = $('#room-orders');
     var inputs = container.find('div');
     var id = inputs.length+1;
-    var newDiv = $('<div   />', {id: 'courseOrder'+id}).appendTo(container);
+    var newDiv = $('<div   />', {id: 'roomOrder'+id}).appendTo(container);
     $('<select />').appendTo(newDiv);
     $('<button />', {class: "btn-danger", text:"Remove"}).click(function () {
         $(newDiv).remove();
@@ -120,15 +115,15 @@ function addApplyRoom(name){
         'MIN' : 'MIN',
         'AVG' : 'AVG'
     };
-    var operatorSelect = $('<select />');
-    var roomSelect = $('<select />');
+    var operatorSelect = $('<select />', {id: "roomApply"+id+"_operator"});
+    var roomSelect = $('<select />', {id: "roomApply"+id+"_field"});
     for(var val in courseFields) {
         $('<option />', {value: courseFields[val], text: val}).appendTo(roomSelect);
     }
     for(var value in applyOperators){
         $('<option />', {value: value, text: applyOperators[value]}).appendTo(operatorSelect);
     }
-    var newDiv = $('<div   />', {id: id, title:name}).appendTo(container);
+    var newDiv = $('<div   />', {id: "courseApply"+id, title:name}).appendTo(container);
     $('<p />',{text: name}).appendTo(newDiv);
     roomSelect.appendTo(newDiv);
     operatorSelect.appendTo(newDiv);
@@ -143,9 +138,9 @@ function addApplyRoom(name){
 var rules_room = {
     condition: 'AND',
     rules: [{
-        id: 'rooms_fullname',
+        id: 'rooms_shortname',
         operator: 'equal',
-        value: "ASDF"
+        value: "ESB"
     }]
 };
 
@@ -158,27 +153,27 @@ $('#builder-room').queryBuilder({
         id: 'rooms_fullname',
         label: 'FullName',
         type: 'string',
-        operators:['equal', 'not_equal']
+        operators:['equal']
     }, {
         id: 'rooms_shortname',
         label: 'ShortName',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     }, {
         id: 'rooms_number',
         label: 'Room Number',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'rooms_name',
         label: 'Room Name',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'rooms_address',
         label: 'Address',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'rooms_lat',
         label: 'Latitude',
@@ -187,7 +182,7 @@ $('#builder-room').queryBuilder({
             min: 0,
             step: 0.01
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     },{
         id: 'rooms_lon',
         label: 'Longitude',
@@ -196,7 +191,7 @@ $('#builder-room').queryBuilder({
             min: 0,
             step: 0.01
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     },{
         id: 'rooms_seats',
         label: 'Number of Seats',
@@ -205,22 +200,22 @@ $('#builder-room').queryBuilder({
             min: 0,
             step: 1
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     },{
         id: 'rooms_type',
         label: 'Room Type',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'rooms_furniture',
         label: 'Furniture',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'rooms_href',
         label: 'Website',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     }],
 
     rules: rules_room

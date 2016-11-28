@@ -67,8 +67,67 @@ $(function () {
             });
         }
         query.GET = gets;
+        console.log(query);
         try {
             $("#queryCourseModal").modal("toggle");
+            $.ajax("/query", {type:"POST", data: JSON.stringify(query), contentType: "application/json", dataType: "json", success: function(data) {
+                if (data["render"] === "TABLE") {
+                    generateTable(data["result"]);
+                }
+            }}).fail(function (e) {
+                spawnHttpErrorModal(e)
+            });
+        } catch (err) {
+            spawnErrorModal("Query Error", err);
+        }
+    });
+
+    $("#submitRoomQuery").click(function (e) {
+        var query = {};
+        query.AS = "TABLE";
+        query.WHERE = UIHelpers.convertToWHERE($("#builder-room").queryBuilder('getRules'));
+        if ($("#roomOrder1").length) {
+            var order = {};
+            order.dir = $('input[name=room_order]:checked', '#rooms_order').val();
+            var keys = [];
+            var i = 1;
+            while ($("#roomOrder" + i).length) {
+                keys.push($("#roomOrder" + i)[0]["firstChild"].selectedOptions[0]["value"]);
+                i++;
+            }
+            order.keys = keys;
+            query.ORDER = order;
+        }
+        if ($('input[name=include]:checked', '#rooms-group-apply').val() == "Include Group/Apply") {
+            var groups = [];
+            var gets = [];
+            $("#rooms_group input:checkbox:checked").each(function() {
+                groups.push($(this)[0].value);
+                gets.push($(this)[0].value);
+            });
+            query.GROUP = groups;
+            var applys = [];
+            var i = 1;
+            while ($("#roomApply" + i).length) {
+                var curr = {};
+                var title = $("#roomApply" + i)[0].title;
+                gets.push(title);
+                curr[title] = {};
+                curr[title][$("#roomApply" + i + "_operator")[0]["value"]] = $("#roomApply" + i + "_field")[0]["value"];
+                applys.push(curr);
+                i++;
+            }
+            query.APPLY = applys;
+        } else {
+            var gets = [];
+            $("#rooms_get input:checkbox:checked").each(function() {
+                gets.push($(this)[0].value);
+            });
+        }
+        query.GET = gets;
+        console.log(query);
+        try {
+            $("#queryRoomModal").modal("toggle");
             $.ajax("/query", {type:"POST", data: JSON.stringify(query), contentType: "application/json", dataType: "json", success: function(data) {
                 if (data["render"] === "TABLE") {
                     generateTable(data["result"]);

@@ -4,8 +4,6 @@ var UIHelpers = (function () {
     }
     UIHelpers.convertToWHERE = function (data) {
         var returnWHEREObject = {};
-        if (data.condition == "AND" && data.rules.length == 1) {
-        }
         var logicComparator = data.condition;
         var operatorArray = [];
         for (var i = 0; i < data.rules.length; i++) {
@@ -51,15 +49,11 @@ var UIHelpers = (function () {
             if (object.operator == "equal") {
                 return "IS";
             }
-            else {
-            }
         }
         else {
             switch (object.operator) {
                 case "equal":
                     return "EQ";
-                case "not_equal":
-                    return "";
                 case "less":
                     return "LT";
                 case "greater":

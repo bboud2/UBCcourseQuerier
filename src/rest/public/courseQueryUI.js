@@ -154,12 +154,12 @@ $('#builder-course').queryBuilder({
         id: 'courses_dept',
         label: 'Department',
         type: 'string',
-        operators:['equal', 'not_equal']
+        operators:['equal']
     }, {
         id: 'courses_id',
         label: 'ID',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'courses_avg',
         label: 'Average',
@@ -168,17 +168,17 @@ $('#builder-course').queryBuilder({
             min: 0,
             step: 0.01
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     },{
         id: 'courses_instructor',
         label: 'Instructor',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'courses_title',
         label: 'Title',
         type: 'string',
-        operators: ['equal', 'not_equal']
+        operators: ['equal']
     },{
         id: 'courses_pass',
         label: 'Pass',
@@ -187,7 +187,7 @@ $('#builder-course').queryBuilder({
             min: 0,
             step: 1
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     },{
         id: 'courses_fail',
         label: 'Fail',
@@ -196,7 +196,7 @@ $('#builder-course').queryBuilder({
             min: 0,
             step: 1
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     },{
         id: 'courses_audit',
         label: 'Audit',
@@ -205,7 +205,7 @@ $('#builder-course').queryBuilder({
             min: 0,
             step: 1
         },
-        operators: ['equal', 'not_equal', 'less', 'greater']
+        operators: ['equal', 'less', 'greater']
     }],
 
     rules: rules_course
