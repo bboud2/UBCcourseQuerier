@@ -118,6 +118,15 @@ $('#builder-room-schedule').queryBuilder({
         label: 'Website',
         type: 'string',
         operators: ['equal']
+    },{
+        id: 'rooms_distance',
+        label: 'Distance (m)',
+        type: 'double',
+        validation:{
+            min:0,
+            step: 1
+        },
+        operators: ['equal', 'less', 'greater']
     }],
 
     rules: rules_room_schedule

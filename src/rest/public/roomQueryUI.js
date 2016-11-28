@@ -132,14 +132,17 @@ function addApplyRoom(name){
     var id = inputs.length+1;
 
     var courseFields = {
-        'Department': 'courses_dept',
-        'ID': 'courses_id',
-        'Average': 'courses_avg',
-        'Instructor': 'courses_instructor',
-        'Title': 'courses_title',
-        'Pass': 'courses_pass',
-        'Fail': 'courses_fail',
-        'Audit': 'courses_audit'
+        'FullName': 'rooms_fullname',
+        'ShortName': 'rooms_shortname',
+        'RoomNumber': 'rooms_number',
+        'RoomName': 'rooms_name',
+        'BuildingAddress': 'rooms_address',
+        'Latitude': 'rooms_lat',
+        'Longitude': 'rooms_lon',
+        'NumberOfSeats': 'rooms_seats',
+        'RoomType': 'rooms_type',
+        'TypeOfFurniture': 'rooms_furniture',
+        'WebAddress': 'rooms_href'
     };
     var applyOperators = {
         'COUNT': 'COUNT',
@@ -248,6 +251,15 @@ $('#builder-room').queryBuilder({
         label: 'Website',
         type: 'string',
         operators: ['equal']
+    },{
+        id: 'rooms_distance',
+        label: 'Distance (m)',
+        type: 'double',
+        validation:{
+            min:0,
+            step: 1
+        },
+        operators: ['equal', 'less', 'greater']
     }],
 
     rules: rules_room
