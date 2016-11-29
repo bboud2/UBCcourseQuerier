@@ -44,7 +44,9 @@ input[type="checkbox"]{
 
 th {
     text-align: left;
-    background-color: blue;
+    background-color: black;
+    color: white;
+    border-color: grey;
 
 }
 

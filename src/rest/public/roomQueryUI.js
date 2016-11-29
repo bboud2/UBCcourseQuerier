@@ -142,7 +142,8 @@ function addApplyRoom(name){
         'NumberOfSeats': 'rooms_seats',
         'RoomType': 'rooms_type',
         'TypeOfFurniture': 'rooms_furniture',
-        'WebAddress': 'rooms_href'
+        'WebAddress': 'rooms_href',
+        'Distance': 'rooms_distance'
     };
     var applyOperators = {
         'COUNT': 'COUNT',
