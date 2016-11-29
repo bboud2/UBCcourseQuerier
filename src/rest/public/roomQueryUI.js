@@ -159,7 +159,7 @@ function addApplyRoom(name){
     for(var value in applyOperators){
         $('<option />', {value: value, text: applyOperators[value]}).appendTo(operatorSelect);
     }
-    var newDiv = $('<div   />', {id: "courseApply"+id, title:name}).appendTo(container);
+    var newDiv = $('<div   />', {id: "roomApply"+id, title:name}).appendTo(container);
     $('<p />',{text: name}).appendTo(newDiv);
     roomSelect.appendTo(newDiv);
     operatorSelect.appendTo(newDiv);
