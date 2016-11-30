@@ -34,16 +34,21 @@ MAIN CONTENT
             <!--<div id="main-header">UBC Querier</div>-->
         </div>
         <div class = "row mt" id="mainButtons">
-            <div class="col-sm-3">
+            <div class="col-sm-1">
+            </div>
+            <div class="col-sm-2">
                 <button type="button" class="btn btn-primary btn-block btn-lg"  data-toggle="modal" data-target="#addRemoveModal">Add/Remove DataSets</button>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#queryCourseModal" onclick="hideCourseGroupAndApply()">Query Course</button>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-2">
+                <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#queryInstructorModal" onclick="hideInstructorGroupAndApply()">Query Instructor</button>
+            </div>
+            <div class="col-sm-2">
                 <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#queryRoomModal" onclick="hideRoomGroupAndApply(); getRoomDropdown()">Query Room</button>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#scheduleModal" onclick="getScheduleDropdown()">Schedule</button>
             </div>
         </div>
@@ -98,82 +103,82 @@ MAIN CONTENT
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Perform a Query on a Course At UBC:</h4>
             </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <form id="courses_group_apply">
-                            <input type="radio" name="include" value="Include Group/Apply" id="course-group-show"> Include Group/Apply
-                            <input type="radio" name="include" value="Do Not Include Group/Apply" id="course-group-hide" checked> Do Not Include Group/Apply
+            <div class="modal-body">
+                <div class="form-group">
+                    <form id="courses_group_apply">
+                        <input type="radio" name="include" value="Include Group/Apply" id="course-group-show"> Include Group/Apply
+                        <input type="radio" name="include" value="Do Not Include Group/Apply" id="course-group-hide" checked> Do Not Include Group/Apply
+                    </form>
+                </div>
+                <div id="course-get">
+                    <h5 class="subheader">GET:</h5>
+                    <div class="checkbox-align checkbox-course checkboxes">
+                        <form id="courses_get">
+                            <input type="checkbox" name="Department" value="courses_dept">Department
+                            <input type="checkbox" name="ID" value="courses_id">ID
+                            <input type="checkbox" name="Average" value="courses_avg">Average
+                            <input type="checkbox" name="Instructor" value="courses_instructor">Instructor
+                            <br>
+                            <input type="checkbox" name="Title" value="courses_title">Title
+                            <input type="checkbox" name="Pass" value="courses_pass">Pass
+                            <input type="checkbox" name="Fail" value="courses_fail">Fail
+                            <input type="checkbox" name="Audit" value="courses_audit">Audit
+                            <br>
                         </form>
                     </div>
-                    <div id="course-get">
-                        <h5 class="subheader">GET:</h5>
-                        <div class="checkbox-align checkbox-course checkboxes">
-                            <form id="courses_get">
-                                <input type="checkbox" name="Department" value="courses_dept">Department
-                                <input type="checkbox" name="ID" value="courses_id">ID
-                                <input type="checkbox" name="Average" value="courses_avg">Average
-                                <input type="checkbox" name="Instructor" value="courses_instructor">Instructor
-                                <br>
-                                <input type="checkbox" name="Title" value="courses_title">Title
-                                <input type="checkbox" name="Pass" value="courses_pass">Pass
-                                <input type="checkbox" name="Fail" value="courses_fail">Fail
-                                <input type="checkbox" name="Audit" value="courses_audit">Audit
-                                <br>
-                            </form>
-                        </div>
-                    </div>
-                    <div id="course-group-apply">
-                        <h5 class="subheader">GROUP:</h5>
-                        <div id="group/apply_courses">
-                            <div id = "course-checks-group">
-                                <div class="checkbox-align checkbox-course checkboxes">
-                                    <form id="courses_group">
-                                        <input type="checkbox" name="Department" value="courses_dept">Department
-                                        <input type="checkbox" name="ID" value="courses_id">ID
-                                        <input type="checkbox" name="Average" value="courses_avg">Average
-                                        <input type="checkbox" name="Instructor" value="courses_instructor">Instructor
-                                        <br>
-                                        <input type="checkbox" name="Title" value="courses_title">Title
-                                        <input type="checkbox" name="Pass" value="courses_pass">Pass
-                                        <input type="checkbox" name="Fail" value="courses_fail">Fail
-                                        <input type="checkbox" name="Audit" value="courses_audit">Audit
-                                    </form>
-                                </div>
+                </div>
+                <div id="course-group-apply">
+                    <h5 class="subheader">GROUP:</h5>
+                    <div id="group/apply_courses">
+                        <div id = "course-checks-group">
+                            <div class="checkbox-align checkbox-course checkboxes">
+                                <form id="courses_group">
+                                    <input type="checkbox" name="Department" value="courses_dept">Department
+                                    <input type="checkbox" name="ID" value="courses_id">ID
+                                    <input type="checkbox" name="Average" value="courses_avg">Average
+                                    <input type="checkbox" name="Instructor" value="courses_instructor">Instructor
+                                    <br>
+                                    <input type="checkbox" name="Title" value="courses_title">Title
+                                    <input type="checkbox" name="Pass" value="courses_pass">Pass
+                                    <input type="checkbox" name="Fail" value="courses_fail">Fail
+                                    <input type="checkbox" name="Audit" value="courses_audit">Audit
+                                </form>
                             </div>
                         </div>
-
-                        <div id="apply-courses">
-                            <h5 class="subheader">Apply</h5>
-
-                            <input type="text" placeholder="type new Apply here" id="new-Apply-course">
-                            <button class="btn btn-primary btn-xs" id="save-Apply-courses">Save New Apply</button><br>
-                            <form>
-                                <div id="new-course-applies">
-
-                                </div>
-                            </form>
-                        </div>
-                        <br>
                     </div>
-                    <h5 class="subheader">WHERE:</h5>
-                    <div id ="builder-course"></div>
+
+                    <div id="apply-courses">
+                        <h5 class="subheader">Apply</h5>
+
+                        <input type="text" placeholder="type new Apply here" id="new-Apply-course">
+                        <button class="btn btn-primary btn-xs" id="save-Apply-courses">Save New Apply</button><br>
+                        <form>
+                            <div id="new-course-applies">
+
+                            </div>
+                        </form>
+                    </div>
                     <br>
-                    <h5 class="subheader">ORDER:</h5>
-                    <form id="courses_order">
-                        <input type="radio" name="courses_order" class="order-radio-courses" value="UP" checked> Up
-                        <input type="radio" name="courses_order" class="order-radio-courses" value="DOWN"> Down
-                    </form>
-                    <button class="btn btn-primary btn-xs" id="new-Course-Order">New Order</button>
-                    <div id="course-orders">
+                </div>
+                <h5 class="subheader">WHERE:</h5>
+                <div id ="builder-course"></div>
+                <br>
+                <h5 class="subheader">ORDER:</h5>
+                <form id="courses_order">
+                    <input type="radio" name="courses_order" class="order-radio-courses" value="UP" checked> Up
+                    <input type="radio" name="courses_order" class="order-radio-courses" value="DOWN"> Down
+                </form>
+                <button class="btn btn-primary btn-xs" id="new-Course-Order">New Order</button>
+                <div id="course-orders">
 
-                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" id ="btn-get-course" class="btn btn-primary">Get Rules</button>
-                    <button type="button" id ="btn-set-course" class="btn btn-primary">Set Rules</button>
-                    <button type="submit" class="btn btn-primary" id="submitCourseQuery">Submit</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id ="btn-get-course" class="btn btn-primary">Get Rules</button>
+                <button type="button" id ="btn-set-course" class="btn btn-primary">Set Rules</button>
+                <button type="submit" class="btn btn-primary" id="submitCourseQuery">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
         </div>
 
 
@@ -181,7 +186,117 @@ MAIN CONTENT
 
 </div>
 
+<div id="queryInstructorModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
 
+        <!-- Modal content-->
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Perform a Query on an Instructor At UBC:</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <form id="instructors_group_apply">
+                        <input type="radio" name="include" value="Include Group/Apply" id="instructor-group-show"> Include Group/Apply
+                        <input type="radio" name="include" value="Do Not Include Group/Apply" id="instructor-group-hide" checked> Do Not Include Group/Apply
+                    </form>
+                </div>
+                <div id="instructor-get">
+                    <h5 class="subheader">GET:</h5>
+                    <div class="checkbox-align checkbox-instructor checkboxes">
+                        <form id="instructors_get">
+                            <input type="checkbox" name="Name" value="instructors_name">Name
+                            <input type="checkbox" name="Department" value="instructors_department">Department
+                            <input type="checkbox" name="Sections Taught" value="instructors_numSections">Sections Taught
+                            <input type="checkbox" name="Courses Taught" value="instructors_numCourses">Courses Taught
+                            <br>
+                            <input type="checkbox" name="Total Students" value="instructors_totalStudents">Total Students
+                            <input type="checkbox" name="Total Passers" value="instructors_totalPassers">Total Passers
+                            <input type="checkbox" name="Total Failures" value="instructors_totalFailures">Total Failures
+                            <input type="checkbox" name="Total Auditors" value="instructors_totalAuditors">Total Auditors
+                            <br>
+                            <input type="checkbox" name="Average Grade" value="instructors_studentAvg">Average Grade
+                            <input type="checkbox" name="Percentage Passed" value="instructors_passPercentage">Percentage Passed
+                            <input type="checkbox" name="Student Success Metric" value="instructors_studentSuccessMetric">Student Success Metric
+                            <br>
+                            <input type="checkbox" name="RMP: Quality" value="instructors_rmpQuality">RMP: Quality
+                            <input type="checkbox" name="RMP: Helpfulness" value="instructors_rmpHelpfulness">RMP: Helpfulness
+                            <input type="checkbox" name="RMP: Easiness" value="instructors_rmpEasiness">RMP: Easiness
+                            <input type="checkbox" name="RMP: Chili" value="instructors_rmpChili">RMP: Chili
+                            <br>
+                        </form>
+                    </div>
+                </div>
+                <div id="instructor-group-apply">
+                    <h5 class="subheader">GROUP:</h5>
+                    <div id="group/apply_instructors">
+                        <div id = "instructor-checks-group">
+                            <div class="checkbox-align checkbox-instructor checkboxes">
+                                <form id="instructors_group">
+                                    <input type="checkbox" name="Name" value="instructors_name">Name
+                                    <input type="checkbox" name="Department" value="instructors_department">Department
+                                    <input type="checkbox" name="Sections Taught" value="instructors_numSections">Sections Taught
+                                    <input type="checkbox" name="Courses Taught" value="instructors_numCourses">Courses Taught
+                                    <br>
+                                    <input type="checkbox" name="Total Students" value="instructors_totalStudents">Total Students
+                                    <input type="checkbox" name="Total Passers" value="instructors_totalPassers">Total Passers
+                                    <input type="checkbox" name="Total Failures" value="instructors_totalFailures">Total Failures
+                                    <input type="checkbox" name="Total Auditors" value="instructors_totalAuditors">Total Auditors
+                                    <br>
+                                    <input type="checkbox" name="Average Grade" value="instructors_studentAvg">Average Grade
+                                    <input type="checkbox" name="Percentage Passed" value="instructors_passPercentage">Percentage Passed
+                                    <input type="checkbox" name="Student Success Metric" value="instructors_studentSuccessMetric">Student Success Metric
+                                    <br>
+                                    <input type="checkbox" name="RMP: Quality" value="instructors_rmpQuality">RMP: Quality
+                                    <input type="checkbox" name="RMP: Helpfulness" value="instructors_rmpHelpfulness">RMP: Helpfulness
+                                    <input type="checkbox" name="RMP: Easiness" value="instructors_rmpEasiness">RMP: Easiness
+                                    <input type="checkbox" name="RMP: Chili" value="instructors_rmpChili">RMP: Chili
+                                    <br>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="apply-instructors">
+                        <h5 class="subheader">Apply</h5>
+
+                        <input type="text" placeholder="type new Apply here" id="new-Apply-instructor">
+                        <button class="btn btn-primary btn-xs" id="save-Apply-instructors">Save New Apply</button><br>
+                        <form>
+                            <div id="new-instructor-applies">
+
+                            </div>
+                        </form>
+                    </div>
+                    <br>
+                </div>
+                <h5 class="subheader">WHERE:</h5>
+                <div id ="builder-instructor"></div>
+                <br>
+                <h5 class="subheader">ORDER:</h5>
+                <form id="instructors_order">
+                    <input type="radio" name="instructors_order" class="order-radio-instructors" value="UP" checked> Up
+                    <input type="radio" name="instructors_order" class="order-radio-instructors" value="DOWN"> Down
+                </form>
+                <button class="btn btn-primary btn-xs" id="new-Instructor-Order">New Order</button>
+                <div id="instructor-orders">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id ="btn-get-instructor" class="btn btn-primary">Get Rules</button>
+                <button type="button" id ="btn-set-instructor" class="btn btn-primary">Set Rules</button>
+                <button type="submit" class="btn btn-primary" id="submitInstructorQuery">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
 
 <div id="queryRoomModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -248,10 +363,9 @@ MAIN CONTENT
                                     <br>
                                 </form>
 
-                        </div>
+                            </div>
                         </div>
                     </div>
-
                     <div id="apply-rooms">
                         <h5 class="subheader">Apply</h5>
 
@@ -368,6 +482,7 @@ MAIN CONTENT
 <script src="../public/ScheduleUI.js"></script>
 <script type="text/javascript" src="../public/jquery.backstretch.min.js"></script>
 <script src="../public/courseQueryUI.js"></script>
+<script src="../public/instructorQueryUI.js"></script>
 <script src="../public/roomQueryUI.js"></script>
 
 <script>

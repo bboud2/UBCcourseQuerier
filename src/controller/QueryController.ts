@@ -144,10 +144,21 @@ export default class QueryController {
                 for (let i = 0; i < this.datasets.sets.length; i++) {
                     if (this.datasets.sets[i].id_key == id) {
                         this.id = id;
-                        if (this.datasets.sets[i].hasOwnProperty("sections")) {
-                            return this.datasets.sets[i].sections;
-                        } else {
-                            return this.datasets.sets[i].rooms;
+                        switch (id) {
+                            case "courses":
+                                return this.datasets.sets[i].sections;
+                            case "instructors":
+                                return this.datasets.sets[i].instructors;
+                            case "rooms":
+                                return this.datasets.sets[i].rooms;
+                            default:
+                                if (this.datasets.sets[i].hasOwnProperty("sections")) {
+                                    return this.datasets.sets[i].sections;
+                                } else if (this.datasets.sets[i].hasOwnProperty("instructors")) {
+                                    return this.datasets.sets[i].instructors;
+                                } else {
+                                    return this.datasets.sets[i].rooms;
+                                }
                         }
                     }
                 }
@@ -184,7 +195,6 @@ export default class QueryController {
         var allObjects: any[] = this.getAllObjects(trueGet); //also sets ID
         this.isIDUbiquitous(trueGet);
         var filteredObjects: any[];
-
         let whereObject: any = query.WHERE;
         let operation: any = Object.keys(whereObject)[0];
         switch (Object.keys(whereObject).length) {
@@ -354,41 +364,94 @@ export default class QueryController {
         key = key.replace("]","");
         if (this.id == "rooms") {
             switch (key) {
-                case this.id+"_fullname":
+                case this.id + "_fullname":
                     key = "full_name";
                     break;
-                case this.id+"_shortname":
+                case this.id + "_shortname":
                     key = "short_name";
                     break;
-                case this.id+"_number":
+                case this.id + "_number":
                     key = "number";
                     break;
-                case this.id+"_name":
+                case this.id + "_name":
                     key = "name";
                     break;
-                case this.id+"_address":
+                case this.id + "_address":
                     key = "address";
                     break;
-                case this.id+"_lat":
+                case this.id + "_lat":
                     key = "lat";
                     break;
-                case this.id+"_lon":
+                case this.id + "_lon":
                     key = "lon";
                     break;
-                case this.id+"_seats":
+                case this.id + "_seats":
                     key = "seats";
                     break;
-                case this.id+"_type":
+                case this.id + "_type":
                     key = "type";
                     break;
-                case this.id+"_furniture":
+                case this.id + "_furniture":
                     key = "furniture";
                     break;
-                case this.id+"_href":
+                case this.id + "_href":
                     key = "href";
                     break;
-                case this.id+"_distance":
+                case this.id + "_distance":
                     key = "distance";
+                    break;
+                default:
+                    if (key.indexOf("_") == -1 || key.substr(0, key.indexOf("_")) == this.id) {
+                        throw  {ID: 400, MESSAGE: "key not corresponding to valid field: " + key};
+                    }
+                    throw  {ID: 424, MESSAGE: "Attempting to use invalid dataset in deep where"};
+            }
+        } else if (this.id == "instructors") {
+            switch (key) {
+                case this.id + "_name":
+                    key = "name";
+                    break;
+                case this.id + "_department":
+                    key = "department";
+                    break;
+                case this.id + "_numSections":
+                    key = "numSections";
+                    break;
+                case this.id + "_numCourses":
+                    key = "numCourses";
+                    break;
+                case this.id + "_totalStudents":
+                    key = "totalStudents";
+                    break;
+                case this.id + "_totalPassers":
+                    key = "totalPassers";
+                    break;
+                case this.id + "_totalFailures":
+                    key = "totalFailures";
+                    break;
+                case this.id + "_totalAuditors":
+                    key = "totalAuditors";
+                    break;
+                case this.id + "_studentAvg":
+                    key = "studentAvg";
+                    break;
+                case this.id + "_passPercentage":
+                    key = "passPercentage";
+                    break;
+                case this.id + "_studentSuccessMetric":
+                    key = "studentSuccessMetric";
+                    break;
+                case this.id + "_rmpQuality":
+                    key = "rmpQuality";
+                    break;
+                case this.id + "_rmpHelpfulness":
+                    key = "rmpHelpfulness";
+                    break;
+                case this.id + "_rmpEasiness":
+                    key = "rmpEasiness";
+                    break;
+                case this.id + "_rmpChili":
+                    key = "rmpChili";
                     break;
                 default:
                     if (key.indexOf("_") == -1 || key.substr(0, key.indexOf("_")) == this.id) {

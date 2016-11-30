@@ -82,6 +82,65 @@ $(function () {
         }
     });
 
+    $("#submitInstructorQuery").click(function (e) {
+        var query = {};
+        query.AS = "TABLE";
+        query.WHERE = UIHelpers.convertToWHERE($("#builder-instructor").queryBuilder('getRules'));
+        if ($("#instructorOrder1").length) {
+            var order = {};
+            order.dir = $('input[name=instructors_order]:checked', '#instructors_order').val();
+            var keys = [];
+            var i = 1;
+            while ($("#instructorOrder" + i).length) {
+                keys.push($("#instructorOrder" + i)[0]["firstChild"].selectedOptions[0]["value"]);
+                i++;
+            }
+            order.keys = keys;
+            query.ORDER = order;
+        }
+        if ($('input[name=include]:checked', '#instructors_group_apply').val() == "Include Group/Apply") {
+            var groups = [];
+            var gets = [];
+            $("#instructors_group input:checkbox:checked").each(function() {
+                groups.push($(this)[0].value);
+                gets.push($(this)[0].value);
+            });
+            query.GROUP = groups;
+            var applys = [];
+            var i = 1;
+            while ($("#instructorApply" + i).length) {
+                var curr = {};
+                var title = $("#instructorApply" + i)[0].title;
+                gets.push(title);
+                curr[title] = {};
+                curr[title][$("#instructorApply" + i + "_operator")[0]["value"]] = $("#instructorApply" + i + "_field")[0]["value"];
+                applys.push(curr);
+                console.log(curr);
+                i++;
+            }
+            query.APPLY = applys;
+        } else {
+            var gets = [];
+            $("#instructors_get input:checkbox:checked").each(function() {
+                gets.push($(this)[0].value);
+            });
+        }
+        query.GET = gets;
+        console.log(query);
+        try {
+            $("#queryInstructorModal").modal("toggle");
+            $.ajax("/query", {type:"POST", data: JSON.stringify(query), contentType: "application/json", dataType: "json", success: function(data) {
+                if (data["render"] === "TABLE") {
+                    generateTable(data["result"]);
+                }
+            }}).fail(function (e) {
+                spawnHttpErrorModal(e)
+            });
+        } catch (err) {
+            spawnErrorModal("Query Error", err);
+        }
+    });
+
     $("#submitRoomQuery").click(function (e) {
         var roomName = $("#roomDistanceDropDown")[0]["value"];
         $.ajax("/distance/"+roomName, {type:"PUT", contentType: "application/json", dataType: "json", success: function(data) {

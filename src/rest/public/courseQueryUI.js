@@ -5,7 +5,6 @@
 
 
 $('.checkbox-course').change(function (){
-    console.log("change on checkbox-align");
     handleCourseQueryChecks();
 });
 

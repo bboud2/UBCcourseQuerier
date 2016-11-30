@@ -81,7 +81,10 @@ export default class OperatorHelpers {
     private static isFieldNumeric(field: string) {
         return (field === "avg" || field === "fail" || field === "pass" || field === "audit"
         || field === "lat" || field === "lon" || field === "seats" || field === "size" || field === "year"
-        || field === "distamce");
+        || field === "distance" || field === "numSections" || field === "numCourses" || field === "totalStudents"
+        || field === "totalPassers" || field === "totalFailures" || field === "totalAuditors"
+        || field === "studentAvg" || field === "passPercentage" || field === "studentSuccessMetric"
+        || field === "rmpQuality" || field === "rmpHelpfulness" || field === "rmpEasiness");
     }
 
     public static handle_max(objects: any[], field: string) {

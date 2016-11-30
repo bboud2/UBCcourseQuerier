@@ -2,14 +2,12 @@
  * Created by rtholmes on 2016-09-03.
  */
 
-import Log from "../Util";
 import JSZip = require('jszip');
 import fs = require('fs');
 import JsonParser from "./JSONParser";
 import parse5 = require('parse5');
-import {ASTNode} from "parse5";
-import {ASTAttribute} from "parse5";
 import HTMLParser from "./HTMLParser";
+import OperatorHelpers from "./OperatorHelpers";
 
 /**
  * In memory representation of all datasets.
@@ -24,6 +22,7 @@ export interface Datasets {
 export interface Dataset {
     id_key: string;
     sections?: Section[];
+    instructors?: Instructor[];
     rooms?: Room[];
 }
 
@@ -43,6 +42,28 @@ export interface Section {
     audit?: number;
     year?: number;
     size?: number;
+}
+
+/**
+ * Representation of an instructor
+ */
+export interface Instructor {
+    id_key: string;
+    name: string;
+    department: string;
+    numSections: number;
+    numCourses: number;
+    totalStudents: number;
+    totalPassers: number;
+    totalFailures: number;
+    totalAuditors: number;
+    studentAvg: number;
+    passPercentage: number;
+    studentSuccessMetric: number;
+    rmpQuality: number;
+    rmpHelpfulness: number,
+    rmpEasiness: number,
+    rmpChili: string,
 }
 
 /**
@@ -224,10 +245,14 @@ export default class DatasetController {
                             }));
                         });
                         Promise.all(files).then(function() {
-                            that.save(id, processedDataset);
-                            fulfill(true);
+                            that.populateProfessors(processedDataset.sections).then(function(instructors) {
+                                let processedDataset2: Dataset = {id_key: "instructors", instructors: instructors};
+                                that.save(id, processedDataset);
+                                that.save("instructors", processedDataset2);
+                                fulfill(true);
+                            });
                         }).catch(function(err) {
-                            reject("couldn't save the dataset");
+                            reject("can't save " + err);
                         });
                     }
                 }).catch(function (err) {
@@ -236,6 +261,94 @@ export default class DatasetController {
             } catch (err) {
                 reject("this error should never be reached");
             }
+        });
+    }
+
+    private populateProfessors(sections: Section[]): Promise<Instructor[]> {
+        let that = this;
+        return new Promise(function(fulfill, reject) {
+            let instructors: Instructor[] = [];
+            let filtered_sections: Section[] = sections.filter(function(section): boolean {
+                return section.hasOwnProperty("professor") && section.professor != "" && section.professor != "tba" && section.professor.indexOf(";") == -1 && section.professor.indexOf("*") == -1 && section.professor.indexOf("-") == -1 && section.professor.indexOf(".") == -1;
+            });
+            filtered_sections.sort(OperatorHelpers.dynamicSort(["professor"], true));
+            let last_professor_name: string = "";
+            let last_professor: Instructor = null;
+            let rmps: Promise<boolean>[] = [];
+            for (let i = 0; i < filtered_sections.length; i++) {
+                let curr_section: Section = filtered_sections[i];
+                let rmp_name = curr_section.professor.substr(curr_section.professor.indexOf(",") + 2) + " " + curr_section.professor.substr(0, curr_section.professor.indexOf(","));
+                let tmp = rmp_name.split(" ").filter(function(string): boolean {
+                    return string.length > 1;
+                });
+                let curr_professor_name: string = tmp[0] + " " + tmp[tmp.length - 1];
+                if (curr_professor_name == last_professor_name) {
+                    last_professor.numSections += 1;
+                    last_professor.totalStudents += curr_section.size;
+                    last_professor.totalPassers += curr_section.pass;
+                    last_professor.totalFailures += curr_section.fail;
+                    last_professor.totalAuditors += curr_section.audit;
+                    last_professor.studentAvg = (last_professor.studentAvg * (last_professor.totalStudents - curr_section.size) / last_professor.totalStudents) +
+                        (curr_section.avg * (curr_section.size / last_professor.totalStudents));
+                    last_professor.passPercentage = (last_professor.passPercentage * (last_professor.totalStudents - curr_section.size) / last_professor.totalStudents) +
+                        (curr_section.pass / (curr_section.pass + curr_section.fail) * (curr_section.size / last_professor.totalStudents));
+                    last_professor.studentSuccessMetric = last_professor.studentAvg - 25 * (1 - last_professor.passPercentage);
+                } else {
+                    if (last_professor_name != "") {
+                        instructors.push(last_professor);
+                    }
+                    last_professor = {
+                        id_key: instructors.length.toString(),
+                        name: curr_professor_name,
+                        department: curr_section.dept,
+                        numSections: 1,
+                        numCourses: 1,
+                        totalStudents: curr_section.size,
+                        totalPassers: curr_section.pass,
+                        totalFailures: curr_section.fail,
+                        totalAuditors: curr_section.audit,
+                        studentAvg: curr_section.avg,
+                        passPercentage: curr_section.pass / (curr_section.pass + curr_section.fail),
+                        studentSuccessMetric: curr_section.avg - (25 * (1 - (curr_section.pass / (curr_section.pass + curr_section.fail)))),
+                        rmpQuality: -1,
+                        rmpEasiness: -1,
+                        rmpHelpfulness: -1,
+                        rmpChili: ""
+                    };
+                    last_professor_name = curr_professor_name;
+                }
+            }
+            instructors.sort(OperatorHelpers.dynamicSort(["totalStudents"], false));
+            for (let i = 0; i < instructors.length / 10; i++) {
+                rmps.push(that.addRMP(instructors[i]));
+            }
+            Promise.all(rmps).then(function () {
+                fulfill(instructors);
+            });
+        });
+    }
+
+    private addRMP(instructor: Instructor): Promise<boolean> {
+        let that: any = this;
+        // return new Promise(function (fulfill, reject) {
+        //     fulfill(true);
+        // });
+        return new Promise(function (fulfill, reject) {
+            console.log("attempting to add RMP for: " + instructor.name);
+            var rmp = require("rmp-api");
+            var ubc = rmp("University of British Columbia");
+            ubc.get(instructor.name, function(professor: any) {
+                if (professor !== null) {
+                    console.log("it worked for: " + instructor.name);
+                    instructor.rmpQuality = professor.quality;
+                    instructor.rmpEasiness = professor.easiness;
+                    instructor.rmpHelpfulness = professor.help;
+                    instructor.rmpChili = professor.chili;
+                } else {
+                    console.log("it didn't work for: " + instructor.name);
+                }
+                fulfill(true);
+            });
         });
     }
 
@@ -250,7 +363,13 @@ export default class DatasetController {
         if (DatasetController.containsID(this.datasets.sets, id)) {
             let oldDataset: Dataset = DatasetController.getElementFromId(this.datasets.sets, id);
             oldDataset.id_key = processedDataset.id_key;
-            oldDataset.sections = processedDataset.sections;
+            if (oldDataset.hasOwnProperty("sections")) {
+                oldDataset.sections = processedDataset.sections;
+            } else if (oldDataset.hasOwnProperty(("instructors"))) {
+                oldDataset.instructors = processedDataset.instructors;
+            } else {
+                oldDataset.rooms = processedDataset.rooms;
+            }
         } else {
             this.datasets.sets.push(processedDataset);
         }
@@ -271,6 +390,9 @@ export default class DatasetController {
                 this.datasets.sets.splice(i, 1);
                 break;
             }
+        }
+        if(id == "courses") {
+            this.remove("instructors");
         }
     }
 
