@@ -151,6 +151,7 @@ $(function () {
         var query = {};
         query.AS = "TABLE";
         query.WHERE = UIHelpers.convertToWHERE($("#builder-room").queryBuilder('getRules'));
+        
         if ($("#roomOrder1").length) {
             var order = {};
             order.dir = $('input[name=room_order]:checked', '#rooms_order').val();

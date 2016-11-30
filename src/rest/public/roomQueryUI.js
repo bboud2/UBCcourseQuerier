@@ -233,7 +233,7 @@ $('#builder-room').queryBuilder({
         label: 'Number of Seats',
         type: 'integer',
         validation: {
-            min: 0,
+            min: -1000,
             step: 1
         },
         operators: ['equal', 'less', 'greater']
@@ -257,7 +257,7 @@ $('#builder-room').queryBuilder({
         label: 'Distance (m)',
         type: 'double',
         validation:{
-            min:0,
+            min:-1000,
             step: 1
         },
         operators: ['equal', 'less', 'greater']
