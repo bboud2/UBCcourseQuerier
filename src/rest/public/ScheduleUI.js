@@ -137,9 +137,9 @@ $('#builder-room-schedule').queryBuilder({
 var rules_course_schedule = {
     condition: 'AND',
     rules: [{
-        id: 'courses_dept',
+        id: 'courses_year',
         operator: 'equal',
-        value: "cpsc"
+        value: 2014
     }]
 };
 
@@ -198,6 +198,15 @@ var rules_course_schedule = {
     },{
         id: 'courses_audit',
         label: 'Audit',
+        type: 'integer',
+        validation: {
+            min: 0,
+            step: 1
+        },
+        operators: ['equal', 'less', 'greater']
+    },{
+        id: 'courses_year',
+        label: 'Year',
         type: 'integer',
         validation: {
             min: 0,
