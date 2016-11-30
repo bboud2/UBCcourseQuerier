@@ -18,7 +18,6 @@
 - https://github.com/CS310-2016Fall/cpsc310project_team28/commit/aaffc5aba7b9c7eca91117cb8ac98232208f4e85
 - https://github.com/CS310-2016Fall/cpsc310project_team28/commit/3be520feaa174d59eb6184b6cdf56ba4ee0dcaa6
 - https://github.com/CS310-2016Fall/cpsc310project_team28/commit/8449081af3f498083c84ee90f4dc478fb9c59573
-- 
 
 *Novel Feature*
 - https://github.com/CS310-2016Fall/cpsc310project_team28/commit/e913ceffe36a9290a8396e47e9188836719d147a
